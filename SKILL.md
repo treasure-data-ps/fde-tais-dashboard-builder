@@ -1,5 +1,5 @@
 ---
-name: fde-custom-dashboard-agent-lite
+name: td-general-dashboarding-skill
 description: Build or resume custom dashboards from Treasure Data databases using a self-serve 5-phase pipeline (requirements + data discovery, workflow deployment, interactive build, automation, handoff). Lite version — no Confluence, no git branching, HTML Client rendering only. Use for one-off or scheduled custom dashboards. Also use when continuing a previously started dashboard engagement -- e.g. after reviewing a plan or approving a build. Trigger on: custom dashboard, build dashboard, analytics dashboard, data dashboard, KPI dashboard, metrics dashboard, dashboard agent, visualization, custom reporting, create dashboard, interactive dashboard, resume dashboard, continue dashboard, resume dashboard engagement, approved dashboard plan, proceed to phase 2/3/4/5, resume phase 1/2/3/4.
 ---
 
