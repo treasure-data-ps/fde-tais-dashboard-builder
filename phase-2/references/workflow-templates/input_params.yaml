@@ -1,0 +1,78 @@
+##########################################################################
+# Dashboard Workflow — Input Parameters
+# Single source of truth for all workflow configuration.
+# All .dig files load this via:  _export: !include : 'input_params.yaml'
+#
+# ⚠️  CRITICAL: ALL variables MUST be at TOP LEVEL — never nested.
+# Digdag resolves only top-level keys. Variables under globals: or any
+# nested object are NOT resolved and cause runtime errors like:
+#   "Failed to evaluate variable ${sink_database}"
+##########################################################################
+
+##########################################################################
+# GLOBAL PARAMETERS — all at top level (required for digdag resolution)
+##########################################################################
+project_prefix: dashboard            # prefix added to all output table names
+sink_database: dashboard_db          # database where all output tables are written
+
+# Source data — set to your confirmed source database + table
+source_database: source_db           # e.g., acme_prod, sales_db
+source_table: events                 # e.g., orders, sessions, events
+
+main_id_key: td_canonical_id         # canonical user identifier column
+api_endpoint: 'https://api.treasuredata.com'  # US: api.treasuredata.com | EU: api.eu01.treasuredata.com
+
+# Execution flags — control which sub-workflows run
+cleanup_temp_tables: 'no'           # 'yes' ONLY if temp tables are actually created by your SQL
+
+# Refresh mode — controls whether SQL loads the full historical window or appends incrementally
+# 'full'        → uses start_date → end_date; run this on first deploy and after schema changes
+# 'incremental' → appends the last incremental_look_back_days only; use for daily scheduled runs
+refresh_mode: 'full'
+incremental_look_back_days: 2       # days to look back on incremental runs (covers late-arriving data)
+
+# Time window — used by td_time_range() in all SQL queries
+apply_time_filter: 'yes'            # 'yes' to restrict data to start_date–end_date window
+start_date: '2024-01-01'            # historical start; first run loads this full window
+end_date: '2024-12-31'              # rolling end — update to current date or leave for workflow to resolve
+filter_regex:                       # optional regex filter applied to source rows
+
+td:
+  database: dashboard_db            # must match sink_database above
+
+# Temporary tables cleaned up by dashboard-workflow-cleaner.dig
+# Leave empty if your SQL does not create temp tables
+temporary_tables: []
+
+##########################################################################
+# AGGREGATE METRICS TABLES
+# Define one entry per output table you want to produce.
+# Each entry maps a source table → a set of KPI metrics → one output table.
+# Add entries from your confirmed metrics (Stage A/B).
+#
+# ⚠️  SQL FILE RULE: Use plain SELECT (or SELECT + UNION ALL).
+# Never use INSERT INTO — the td> operator with create_table: handles writing.
+# Multiple breakdown types in one table → use UNION ALL in the SQL file.
+##########################################################################
+aggregate_metrics_tables:
+  - src_table: source_db.events_table  # confirmed source: <database>.<table>
+    output_table: events_kpis          # output table name written to sink_database
+    unixtime_col: timestamp            # UNIX timestamp column used for td_time_range() filtering
+    join_key: td_canonical_id          # customer identifier for joining to dimension tables
+    apply_time_filter: 'yes'           # 'yes' to apply start_date/end_date to this table
+    table_filter: ""                   # WHERE clause for exclusion rules
+                                       # e.g., "status != 'cancelled' AND account_type = 'paid'"
+    query_type:                        # leave blank for standard aggregation; 'cross_join' for JOIN queries
+
+    metrics:
+      # Add one entry per confirmed metric
+      # agg options: count | sum | avg | approx_distinct | max | min
+      - metric_name: total_events      # display name used in output table column
+        agg: count
+        agg_col_name: '1'             # column to aggregate (use '1' for COUNT(*))
+        filter:                        # optional row-level filter for this metric only
+
+      - metric_name: unique_users
+        agg: approx_distinct
+        agg_col_name: user_id
+        filter:

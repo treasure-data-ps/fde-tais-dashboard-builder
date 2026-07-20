@@ -1,0 +1,931 @@
+# Phase 4: Track A — Extract Reusable Skill (4a-0 to 4a-vi)
+
+**Goal:** Extract the approved dashboard as a reusable, parameterized skill so future builds against a different database take ~10-30 minutes instead of 2-3 hours.
+
+**When to run Track A:**
+- The dashboard will be rebuilt for other databases/customers with the same shape
+- The user wants to standardize this dashboard pattern for reuse
+- Faster turnaround on dashboard variations is valuable
+
+---
+
+## Step 4a-0: Assemble Knowledge Package (10 min)
+
+**What to do:**
+Before building the render skill, assemble the knowledge files that let the skill — and anyone who receives it — answer deeper questions: metric definitions, data lineage, and SQL patterns. These travel alongside the skill and are never embedded inside the render `SKILL.md` itself.
+
+**Why this matters:**
+The render skill answers "show me the dashboard." The knowledge package answers everything beyond that.
+
+**Knowledge package location:** `./<project-slug>/skills/knowledge/`
+
+```
+./<project-slug>/skills/knowledge/
+├── business_context.md        ← company overview, goals, personas, confirmed metrics
+├── data_dictionary.md         ← table schemas + column definitions + business meaning
+├── sql_templates.md           ← parameterized queries with inline explanations
+└── metrics_catalog.md         ← every dashboard metric: formula, source, exclusions
+```
+
+**How to assemble each file:**
+
+| File | Source | Action |
+|------|--------|--------|
+| `business_context.md` | `state.md` (Phase 1) | Copy the business goal + confirmed metrics sections verbatim |
+| `data_dictionary.md` | Phase 1 Stage B schema discovery + `tdx describe` output | Run `tdx describe <db>.<table>` for each table used, add business meaning per column |
+| `sql_templates.md` | Phase 3 queries + Phase 2 workflow SQL (if run) | Extract each Phase 3 query; if Phase 2 ran, also extract the workflow SQL from the `.dig` files (see below) |
+| `metrics_catalog.md` | `state.md` metrics list + Phase 3 validation | One row per dashboard metric: formula, SQL column, source table, exclusion rules, confirmed sample value |
+
+**Extracting workflow SQL into `sql_templates.md` (only if Phase 2 ran):**
+
+```bash
+# Find the SQL in the workflow folder
+find ./<project-slug>/workflows -name "*.dig" | sort
+# The SQL tasks are inline in .dig files, or referenced as separate .sql files in queries/
+```
+
+For each SQL task in the workflow, add a section to `sql_templates.md`:
+
+```markdown
+## [Q-N]: [Descriptive name]
+
+**Source:** `./<project-slug>/workflows/queries/<filename>.sql` (or inline in the `.dig` file)
+**Builds:** `{SINK_DB}.<sink_table_name>`
+**Runs against:** `{SOURCE_DB}.<source_table_name>`
+**What this answers:** [Plain English]
+
+​```sql
+SELECT ...
+FROM {SOURCE_DB}.orders
+WHERE td_time_range(time, '{START_DATE}', '{END_DATE}', 'UTC')
+GROUP BY ...
+​```
+```
+
+Do this for every SQL task in the workflow, so no one needs to open the workflow files to understand the pipeline.
+
+**Minimum viable package:** `business_context.md` + `data_dictionary.md` + `sql_templates.md`. Add `metrics_catalog.md` if the dashboard has more than a couple of KPIs worth documenting separately.
+
+**Copy templates first — do not write knowledge files from scratch:**
+
+```bash
+mkdir -p ./<project-slug>/skills/knowledge
+
+cp phase-4/references/templates/knowledge-base-business-context-template.md \
+   ./<project-slug>/skills/knowledge/business_context.md
+
+cp phase-4/references/templates/knowledge-base-data-dictionary-template.md \
+   ./<project-slug>/skills/knowledge/data_dictionary.md
+
+cp phase-4/references/templates/knowledge-base-sql-templates-template.md \
+   ./<project-slug>/skills/knowledge/sql_templates.md
+
+cp phase-4/references/templates/knowledge-base-metrics-dictionary-template.md \
+   ./<project-slug>/skills/knowledge/metrics_catalog.md
+```
+
+Then fill every `[PLACEHOLDER]` field. Writing from scratch risks inconsistency with the template format and takes longer.
+
+---
+
+## Step 4a-i: Extract Dashboard Skill Definition (10 min)
+
+**What to do:**
+- Create a `skills/` folder inside `./<project-slug>/`
+- `skills/SKILL.md` is the entry point — describes the execution flow and points to `knowledge/` for deeper questions
+- The skill is HTML Client only — no engine choice, no per-engine sub-folders
+
+**PRE-CONDITION — template must already exist from Phase 3 (CRITICAL):**
+
+If either file below is missing, go back to Phase 3 and confirm the dashboard was approved before proceeding. The skill cannot execute without both.
+
+| File | Created in | Copy from | Copy to |
+|---|---|---|---|
+| `dashboard.html` | Phase 3 | `./<project-slug>/dashboards/dashboard.html` | `./<project-slug>/skills/dashboard.html` |
+| `generate-data.js` | Phase 3 | `./<project-slug>/dashboards/generate-data.js` | `./<project-slug>/skills/generate-data.js` |
+
+```bash
+mkdir -p ./<project-slug>/skills
+cp ./<project-slug>/dashboards/dashboard.html      ./<project-slug>/skills/dashboard.html
+cp ./<project-slug>/dashboards/generate-data.js    ./<project-slug>/skills/generate-data.js
+```
+
+**`dashboard.html` and `generate-data.js` are the static artifacts** — they never change between runs. Only the env vars passed to `generate-data.js` (`SOURCE_DB`/`SINK_DB`) change per database. Never recreate them in Phase 4; always copy from the approved Phase 3 output.
+
+The skill's execution flow must:
+1. Check if SINK tables exist → fall back to source tables if Phase 2 was skipped
+2. Run `node generate-data.js` (with `SOURCE_DB`/`SINK_DB` env vars pointing at the target database) — this regenerates `data.json`
+3. Open `dashboard.html` in a browser (`npx serve .` or `preview_document`)
+
+**Create skill definition:**
+
+```yaml
+---
+name: fde-dashboard-[type]-[optional-customer]
+description: |
+  Parameterized [type] dashboard skill. Reusable across databases with the same schema shape.
+  Inputs: database env vars (SOURCE_DB / SINK_DB), optional date range
+  Outputs: interactive HTML dashboard (single portable file)
+
+  Use this when: [revenue tracking, churn analysis, user retention, etc.]
+  Estimated build time: 10-30 minutes (vs 2-3 hours from scratch)
+---
+
+# [Type] Dashboard Skill
+
+## Inputs
+- **SOURCE_DB / SINK_DB** (required) — env vars pointing `generate-data.js` at the target database
+- **date_range** (optional, default: as built) — adjust inside `generate-data.js` if needed
+
+## Execution Flow
+
+1. Check if SINK tables exist → fall back to source tables if not
+2. Run `SOURCE_DB=<db> SINK_DB=<db> node generate-data.js` — writes `data.json`
+3. Open `dashboard.html` in a browser (`npx serve .` or `preview_document`)
+
+**Never rewrite `dashboard.html` from scratch. Always use the template as-is.**
+
+## Deeper Questions
+
+If the user asks anything beyond "show me the dashboard" — metric definitions, data lineage, why a number looks wrong, how to add a metric — read the knowledge package:
+
+| Question type | Read |
+|---|---|
+| "What does [metric] mean / include / exclude?" | `knowledge/metrics_catalog.md` |
+| "Where does this data come from?" | `knowledge/data_dictionary.md` |
+| "Why is [number] different from what I expected?" | `knowledge/metrics_catalog.md` (exclusion rules) + `knowledge/sql_templates.md` |
+| "How do I add a new metric?" | `knowledge/sql_templates.md` (add query) + `knowledge/data_dictionary.md` (confirm column exists) |
+| "What was the business goal for this dashboard?" | `knowledge/business_context.md` |
+| "Can you query the source directly? SINK is missing" | `knowledge/sql_templates.md` § "Workflow SQL" |
+
+**Never answer metric/data questions from memory — always read from `knowledge/` first.**
+```
+
+**Store as:** `./<project-slug>/skills/SKILL.md`
+
+---
+
+## Step 4a-ii: Extract & Parameterize Query Scripts (15 min)
+
+**What to do:**
+- Extract the Phase 3 queries as a reusable script (`generate-data.js`, already copied in Step 4a-i)
+- Validate column names against the actual schema
+- Ensure all queries run in parallel
+- Select only the columns the template actually reads
+- Assess table grain vs. filter dimensions
+
+**FIRST STEP — Column Name Audit (2 minutes, prevents 2+ hours debugging):**
+
+```bash
+tdx show tables --in <database>
+tdx describe <db>.<table>
+tdx query -d <db> "SELECT <column_name> FROM <table> LIMIT 1"
+```
+
+**Common mistakes this catches:**
+- Template expects `customer_count` → table has `total_customers` or `num_customers`
+- Template expects `total_revenue` → table has `service_revenue` or `revenue_amount`
+- Query references a column that doesn't exist (returns an error)
+
+**Checklist:**
+- [ ] Run `tdx describe <table>` and copy exact column names
+- [ ] Cross-check against `state.md` metrics list
+- [ ] Sample each column: `SELECT <col> FROM <table> LIMIT 1`
+
+---
+
+**Snapshot Table Date Column Check (1 minute, prevents silent wrong results):**
+
+Some tables are **snapshots** — they hold the latest state of each entity and have **no date column**. A `WHERE date BETWEEN ...` filter on such a table either errors or silently returns zero rows.
+
+```bash
+tdx describe <db>.<table>
+# Look for: date, created_at, time, event_date, transaction_date, etc.
+```
+
+| Table type | Has date column? | Action |
+|---|---|---|
+| Fact / transactional table | Yes | Safe to add a date filter |
+| Snapshot / reference table | No | **Omit the date filter entirely** |
+| Snapshot with `td_client_time` | Only a system column | Omit date filter — `td_client_time` is ingestion time, not business date |
+
+```sql
+-- ❌ WRONG: a geography snapshot table has no date column
+SELECT region, state FROM sink_geography
+WHERE date >= '2024-01-01' AND date <= '2024-12-31';   -- error or 0 rows
+
+-- ✅ CORRECT: no filter needed
+SELECT region, state FROM sink_geography;
+```
+
+**Checklist:**
+- [ ] For every table, run `tdx describe` and confirm a date column exists before writing a date `WHERE` clause
+- [ ] Snapshot tables: omit the date filter, note "snapshot — no date filter" as a comment
+
+---
+
+**`tdx query` Row Limit (non-negotiable — prevents silent data truncation):**
+
+By default, `tdx query` silently truncates display output to ~40 rows. Without an explicit limit, `generate-data.js` may build the dashboard on partial data with no error or warning.
+
+```bash
+# ❌ WRONG: silently returns ~40 rows even if the table has 5,000+
+tdx query -d <db> "SELECT * FROM sink_sales" --format json
+
+# ✅ CORRECT: explicit safe limit
+tdx query -d <db> "SELECT * FROM sink_sales" --format json --limit 10000
+```
+
+Guidance: small dimension/snapshot tables → `--limit 1000`; fact/transaction tables → `--limit 50000`; default when unsure → `--limit 10000`.
+
+**Checklist:**
+- [ ] Every `tdx query` call includes `--limit <N>`
+- [ ] Every `executeQuery()` call in `generate-data.js` includes an explicit limit
+- [ ] Row count spot-checked against `SELECT COUNT(*) FROM <table>`
+
+---
+
+**CLI Output JSON Parsing (prevents wrong parse):**
+
+`tdx` prepends status lines before the JSON array:
+```
+- Executing query...
+✔ Query completed: [Job ID: 3173...]
+[{"col": "val"}, ...]
+```
+
+`raw.find('[')` matches `[Job ID: 3173...]`, not the real array. Use a regex instead:
+
+```javascript
+// ❌ WRONG
+const jsonStr = raw.slice(raw.indexOf('['));
+
+// ✅ CORRECT
+const match = raw.match(/\[\s*\{/);
+const jsonStr = match ? raw.slice(match.index) : '[]';
+```
+
+**Checklist:**
+- [ ] All `tdx` output parsing in `generate-data.js` uses `\[\s*\{` — not `indexOf('[')` or `.find('[')`
+
+---
+
+**KPI Query Grain Design (prevents over-aggregated / mismatched totals):**
+
+| Pattern | Grain | When to use |
+|---|---|---|
+| **Pre-aggregated KPI** | Single row (e.g. `total_orders: 648`) | Static KPI cards — no client-side filtering |
+| **Full dimensional** | Row per `date × channel × category × segment` | Client-side JS filtering — the JS aggregates |
+
+If the dashboard has client-side filter dropdowns, the query must fetch the full dimensional grain, not a collapsed total.
+
+```sql
+-- ❌ WRONG for client-side filtering: returns 1 aggregated row
+SELECT COUNT(*) AS total_orders, SUM(revenue) AS total_revenue
+FROM sink_sales WHERE date BETWEEN ... AND ...;
+
+-- ✅ CORRECT: full grain, JS filters client-side by any combination
+SELECT order_date, channel, category, customer_segment,
+       COUNT(*) AS orders, SUM(revenue) AS revenue
+FROM sink_sales
+GROUP BY order_date, channel, category, customer_segment;
+```
+
+**Checklist:**
+- [ ] For each query: does the dashboard filter client-side (JS) or server-side (new query per filter)?
+- [ ] Client-side filtered charts: queries return the full dimensional grain
+- [ ] Pre-aggregated KPI cards with no filter: single-row aggregation is fine
+
+---
+
+**Table Grain Assessment (1 minute, impacts payload size):**
+
+```javascript
+// Table metadata (comment at top of generate-data.js)
+// Table built at: customer_id, vehicle_model, region, service_type, fuel_type (5 dims)
+// Dashboard filters on: customer_id, vehicle_model, region, service_type (4 dims)
+// Action: GROUP BY only the 4 filter dimensions to avoid row fan-out
+
+// ❌ WRONG: returns full table grain (6,619 rows, 1.4 MB payload)
+SELECT * FROM fact_customer_overview;
+
+// ✅ CORRECT: aggregate on filter dimensions only (2,240 rows, 600 KB)
+SELECT customer_id, vehicle_model, region, service_type,
+       SUM(revenue), AVG(rating), COUNT(*)
+FROM fact_customer_overview
+GROUP BY customer_id, vehicle_model, region, service_type;
+```
+
+**Checklist:**
+- [ ] Identify all table dimensions vs. dashboard filter dimensions
+- [ ] If the table has extra dimensions, GROUP BY only the ones the dashboard filters on
+
+---
+
+**Column Selection Audit (2 minutes, impacts payload size):**
+
+```javascript
+// Template usage map (document in generate-data.js)
+// Template reads: customer_id, vehicle_model, total_revenue, avg_rating
+// ✅ INCLUDE only these
+// ❌ EXCLUDE unused columns: fuel_type, vehicle_type, tickets_resolved, status
+```
+
+**Checklist:**
+- [ ] Scan `dashboard.html` for every data key it references
+- [ ] `generate-data.js` fetches only those columns
+- [ ] Remove "might be useful later" columns
+
+---
+
+**Parallel Queries (non-negotiable):**
+
+`generate-data.js` must use `Promise.all()` for all queries:
+
+```javascript
+// ❌ WRONG: sequential (~5 seconds)
+const metric1 = await executeQuery('SELECT SUM(revenue) FROM fact');
+const metric2 = await executeQuery('SELECT COUNT(*) FROM fact');
+
+// ✅ CORRECT: parallel (~1 second)
+const [metric1, metric2] = await Promise.all([
+  executeQuery('SELECT SUM(revenue) FROM fact'),
+  executeQuery('SELECT COUNT(*) FROM fact'),
+]);
+```
+
+---
+
+**Performance floor (1 minute, prevents wasted optimization):**
+
+- `tdx query` execution → ~0.5 second floor per query
+- Browser rendering (HTML Client) → ~0.5 second floor
+
+**Rule:** once total query time approaches ~0.5-1s, stop optimizing SQL — rendering cost dominates from there.
+
+**Checklist:**
+- [ ] Measure total query time with all queries in parallel
+- [ ] If total < 0.5s: optimization is complete
+- [ ] If total > 2s: re-check grain, column selection, and parallelization
+
+---
+
+## Step 4a-iii: Create Configuration Templates (10 min)
+
+**What to do:** document common configurations so the next build is faster.
+
+```yaml
+# Template: Weekly Executive Rollup
+schedule: Weekly (Monday 2 AM)
+inputs:
+  date_range: 7
+  key_metrics: revenue, churn_rate, new_customers
+filters: [region: all, segment: all]
+
+---
+
+# Template: Monthly by-Region Deep Dive
+schedule: Monthly (1st of month, 1 AM)
+inputs:
+  date_range: 30
+  key_metrics: all
+filters: [region: pivot column, segment: multi-select]
+
+---
+
+# Template: Annual Historical Trend
+inputs:
+  date_range: 365
+  key_metrics: all
+filters: [date_range: adjustable, region: toggle]
+performance: [Initial load: ~1s, Filter update: <0.5s]
+```
+
+**Create and store as:** `./<project-slug>/skills/config-templates.yaml`
+
+---
+
+## Step 4a-iv: Document Deployment & Replication Checklist (10 min)
+
+```markdown
+# [Type] Dashboard Replication Checklist
+
+## Pre-Flight (5 min)
+- [ ] Verify database exists: tdx db list | grep {database_name}
+- [ ] Confirm tables: tdx describe {database}.{table}
+- [ ] Check data freshness: SELECT MAX(updated_at) FROM {database}.{table}
+- [ ] Verify permissions: tdx query "SELECT 1 FROM {database}.{table} LIMIT 1"
+- [ ] Confirm row count: SELECT COUNT(*) FROM {database}.{fact_table}
+
+## Configuration (10 min)
+- [ ] Select a config from skills/config-templates.yaml
+- [ ] Update SOURCE_DB / SINK_DB env vars for the target database
+- [ ] Adjust date_range / key_metrics if needed
+
+## Deploy (5 min)
+- [ ] Run: SOURCE_DB=<db> SINK_DB=<db> node generate-data.js
+- [ ] Verify row counts match expectations
+- [ ] Open dashboard.html and confirm it renders
+
+## Validation (5 min)
+- [ ] Visual check: layout matches the approved Phase 3 dashboard
+- [ ] Filter check: all filters work (date, region, segment)
+- [ ] Data check: KPI totals match confirmed samples (±5%)
+- [ ] Performance check: queries complete in <5 seconds
+
+## Post-Deploy (2 min)
+- [ ] Document any issues found
+- [ ] Note the database, date, and result in state.md
+
+**Total replication time: ~10-30 minutes** (vs 2-3 hours from scratch)
+```
+
+**Create and store as:** `./<project-slug>/skills/deployment-checklist.md`
+
+---
+
+## Step 4a-v: Validate the Extracted Skill
+
+There's no transformer to unit-test for HTML Client — instead, trigger the skill end-to-end with real data and confirm the dashboard reproduces exactly as approved in Phase 3.
+
+### Sub-step 1: Run generate-data.js against the target database
+
+```bash
+cd ./<project-slug>/skills
+SOURCE_DB=<source_db> SINK_DB=<sink_db> node generate-data.js
+```
+
+Expected output:
+```
+Querying <sink_db>...
+✅ data.json written — N rows across M queries
+```
+
+**If it errors:** check env var names match what `generate-data.js` reads (`process.env.SOURCE_DB`, `process.env.SINK_DB`). Fix the script — never hardcode values.
+
+### Sub-step 2: Spot-check data.json against Phase 1/3 confirmed samples
+
+```bash
+node -e "
+const d = require('./data.json');
+Object.keys(d).forEach(k => {
+  const val = Array.isArray(d[k]) ? d[k].length + ' rows' : d[k];
+  console.log(' ', k, '→', val);
+});
+"
+```
+
+**Checklist:**
+- [ ] All expected top-level keys present (match what `dashboard.html` reads)
+- [ ] No key has `null`, `undefined`, `0`, or an empty array where real data is expected
+- [ ] At least one numeric KPI is within ±5% of the confirmed sample value in `state.md`
+- [ ] Row counts for list/table data match what Phase 3 rendered
+
+**If a value looks wrong:** re-run the underlying query manually with `tdx query` and compare. The mismatch is almost always a wrong env var, a stale SINK table, or a `GROUP BY` difference vs. the Phase 3 query.
+
+### Sub-step 3: Reproduce the dashboard
+
+```bash
+npx serve ./<project-slug>/skills/
+# → open http://localhost:3000/dashboard.html
+```
+
+Or use `preview_document` in Treasure Work: `preview_document: ./<project-slug>/skills/dashboard.html`
+
+### Sub-step 4: Reuse test — confirm the skill is self-contained
+
+```bash
+SOURCE_DB=<another_or_same_db> SINK_DB=<sink_db> node generate-data.js
+# Re-open dashboard.html — confirm it loads without any code changes
+```
+
+**Pass criteria (all must be green before Step 4a-vi):**
+- ✅ `generate-data.js` runs without errors against the target database
+- ✅ `data.json` keys and values match confirmed samples (±5%)
+- ✅ `dashboard.html` renders and visually matches the Phase 3 approval
+- ✅ No hardcoded database names in `generate-data.js` — only env vars
+- ✅ Dashboard reproduces correctly after a clean re-run
+- ✅ Reuse test passes — changing the database env var re-renders cleanly without editing any file
+- ✅ No browser console errors (F12 → Console)
+
+---
+
+## Track A Output
+
+✅ `skills/knowledge/` — knowledge package (business_context, data_dictionary, sql_templates, metrics_catalog)
+✅ `skills/SKILL.md` — execution flow + `## Deeper Questions` section pointing to `knowledge/`
+✅ `skills/dashboard.html` + `skills/generate-data.js` — copied from the Phase 3 approved output
+✅ `skills/config-templates.yaml` and `skills/deployment-checklist.md`
+
+**Result:** future builds against a new database take ~10-30 minutes instead of 2-3 hours.
+
+---
+
+## Track A — Lessons Learned
+
+- **Save the template at Phase 3 approval, not Phase 4** — the approved `dashboard.html` + `generate-data.js` are the source-of-truth. Copy them into `skills/` immediately after approval. Track A only wires the knowledge package and deployment docs around them — it never recreates them.
+- **The skill must be a pure render skill** — no phase steps, no requirements gathering, no workflow deployment logic. When triggered it should: check for SINK tables (fall back to source), run `generate-data.js`, open `dashboard.html`. Nothing else.
+- **The skill is NOT:** a summary of all phases, a deployment guide (that's `deployment-checklist.md`), or a requirements doc (that's `business_context.md`).
+- **Write the trigger description for natural phrases, not technical ones:**
+
+```yaml
+# Good — fires on natural user phrases
+description: |
+  Use when user says "travel dashboard", "show me travel analytics",
+  "I need a travel dashboard", or "travel KPIs".
+  Runs N queries → renders a single-page HTML dashboard. No phases.
+
+# Too technical — won't trigger naturally
+description: |
+  Executes the dashboard rendering pipeline for travel-domain tables
+  using generate-data.js with pre-fetched query results.
+```
+
+- **Separate template from data:** `dashboard.html` (static, never edit between runs) stays untouched; only the env vars passed to `generate-data.js` change per database.
+
+**Folder structure (local working directory):**
+
+```
+./<project-slug>/
+├── skills/                          ← Track A output
+│   ├── SKILL.md
+│   ├── dashboard.html
+│   ├── generate-data.js
+│   ├── config-templates.yaml
+│   ├── deployment-checklist.md
+│   └── knowledge/
+│       ├── business_context.md
+│       ├── data_dictionary.md
+│       ├── sql_templates.md
+│       └── metrics_catalog.md
+├── workflows/                        ← Phase 2 (if run)
+├── dashboards/                       ← Phase 3 output
+├── agents/                           ← Track B (if run)
+└── docs/                             ← Phase 5 (if run)
+```
+
+---
+
+## Step 4a-vi: Deploy the Skill
+
+**Step 1: Confirm the skill name** — Phase 1 does not capture a skill name, so ask fresh here:
+
+```
+AskUserQuestion:
+  header: "Confirm skill name"
+  question: "What should the skill be called? (kebab-case, e.g. fde-dashboard-retail-revenue)"
+  options:
+    - label: "Generate a name from the dashboard's business goal"
+      description: "Suggest a name based on the business_goal recorded in state.md"
+    - label: "I'll type a custom name"
+      description: "Provide a custom kebab-case name"
+```
+
+Lock in the confirmed `<skill-name>` before proceeding.
+
+---
+
+**Step 2: Choose skill scope** — Where should the skill live?
+
+| Scope | Location | Who can use it | Best for |
+|-------|----------|---|---|
+| **Project-local** (current default) | `./<project-slug>/skills/` | Only you, in this project session | One-off dashboards, temporary prototypes |
+| **Your workspace** | `~/.claude/skills/<skill-name>/` | Only you, across all your Treasure Work sessions | Personal reusable skills, internal tools |
+| **All users (shared)** | `fde-skills` marketplace | Everyone on the Treasure AI Studio instance | Team tools, org-wide dashboards |
+
+```
+AskUserQuestion:
+  header: "Skill scope"
+  question: "Where should this skill live? (Choose your deployment scope)"
+  options:
+    - label: "Keep it project-local"
+      description: "Leave in ./<project-slug>/skills/ — available only in this project, easy to iterate"
+    - label: "(Recommended) Add to my workspace"
+      description: "Copy to ~/.claude/skills/ — available in all your Treasure Work sessions, personal reuse"
+    - label: "Publish to shared marketplace"
+      description: "Publish to fde-skills marketplace — available to all Treasure AI users on your instance (requires permissions)"
+```
+
+Branch to the appropriate section below based on the user's choice.
+
+**⚠️ Always show the full packaging instructions below after `generate-data.js` validation (Step 4a-v) passes — even if a zip was already created earlier in the session. Never skip or summarize this section.**
+
+---
+
+### What goes in the zip
+
+```
+<skill-name>/
+├── SKILL.md
+├── dashboard.html
+├── dashboard.template.html        ← includes Chart.js inline (self-contained)
+├── generate-data.js               ← do NOT include data.json — regenerated at runtime
+├── render.js
+├── config-templates.yaml
+├── deployment-checklist.md
+└── knowledge/
+    ├── business_context.md
+    ├── data_dictionary.md
+    ├── sql_templates.md
+    └── metrics_catalog.md
+```
+
+---
+
+
+### ℹ️ Skill Portability: No Server Required
+
+The dashboard skill (SKILL.md + dashboard.html + knowledge/) is completely portable:
+
+✅ Recipients open `dashboard.html` in any browser (no installation needed)  
+✅ Works offline  
+✅ No dependencies beyond a browser  
+✅ Share via email, Git, ZIP file, or folder copy  
+
+**Recipient onboarding (one sentence):**
+> "Open `dashboard.html` in your browser — it's a standalone dashboard that works offline."
+
+---
+
+
+### Packaging commands
+
+After Step 4a-v passes, display the following to the user verbatim (fill in `<skill-name>`):
+
+---
+
+**Your skill is validated and ready to share.**
+
+**Skill name:** `<skill-name>`
+
+⛔ **Run these commands from inside `./<project-slug>/`** — the zip must land there, not at the repo root.
+
+```bash
+cd ./<project-slug>
+
+# 1. Copy the skill folder, rename to the skill name
+cp -r skills <skill-name>
+
+# 2. Remove data.json if present (regenerated at runtime — do not distribute)
+rm -f <skill-name>/data.json
+
+# 3. Zip it — exclude macOS artifacts
+zip -r <skill-name>.zip <skill-name>/ \
+  -x "*.DS_Store" \
+  -x "*/__MACOSX/*" \
+  -x "__MACOSX/*"
+
+# 4. Confirm contents
+unzip -l <skill-name>.zip | head -40
+
+# 5. Clean up the staging copy
+rm -rf <skill-name>/
+```
+
+⛔ **Run these commands now — do not just show them to the user. Confirm the zip was created before proceeding:**
+
+```bash
+ls -lh ./<project-slug>/<skill-name>.zip
+```
+
+**Expected zip structure** — verify the listing from step 4 matches this shape:
+```
+<skill-name>/
+<skill-name>/SKILL.md
+<skill-name>/dashboard.html
+<skill-name>/generate-data.js
+<skill-name>/config-templates.yaml
+<skill-name>/deployment-checklist.md
+<skill-name>/knowledge/business_context.md
+<skill-name>/knowledge/data_dictionary.md
+<skill-name>/knowledge/metrics_catalog.md
+<skill-name>/knowledge/sql_templates.md
+```
+
+No `__MACOSX/` entries. No `.DS_Store` entries. No loose files outside `<skill-name>/`.
+
+---
+
+**How would you like to share this skill?**
+
+```
+AskUserQuestion:
+  header: "Sharing method"
+  question: "How will you share this skill?"
+  options:
+    - label: "(Recommended for team workspaces) Copy directly to workspace"
+      description: "cp -r skills/ ~/.claude/skills/<skill-name>/ — simple, fast, no zip needed if team already shares workspace"
+    - label: "Create a zip file to share with others"
+      description: "fde-dashboard-travel-analytics.zip — portable across teams, easier to archive"
+```
+
+**If Workspace Copy:**
+```bash
+cp -r ./<project-slug>/skills/ ~/.claude/skills/<skill-name>/
+```
+No zip needed — the recipient immediately sees the skill in their Treasure Work sidebar.
+
+**If Zip Distribution:**
+
+```
+AskUserQuestion:
+  header: "Share skill"
+  question: "Your skill zip is ready. Where will the recipient install it?"
+  options:
+    - label: "A personal skills folder"
+      description: "Recipient unzips into their own skills directory (Claude Code ~/.claude/skills/ or equivalent) — available across their projects."
+    - label: "This project only"
+      description: "Recipient unzips into their current project directory — no registration needed."
+    - label: "Not sure — show both"
+      description: "Show setup instructions for both."
+```
+
+**Personal skills folder install:**
+
+Send the recipient `<skill-name>.zip` plus these instructions:
+
+```
+1. Unzip: unzip <skill-name>.zip
+2. Move into your personal skills folder: mv <skill-name>/ ~/.claude/skills/
+3. Restart your session (or run /refresh if supported)
+4. Test: type the trigger phrase from <skill-name>/SKILL.md
+```
+
+**Project-folder install:**
+
+Send the recipient `<skill-name>.zip` plus this ready-to-use prompt (fill in `<skill-name>` and `<sink-database>` from `state.md` before sending — use real values, not placeholder tokens):
+
+```
+I have uploaded a dashboard skill zip to this project. Please do the following:
+
+0. Scan the project directory first.
+   - Run: find . -name "*.zip" 2>/dev/null
+   - Also check: find . -name "<skill-name>" -type d 2>/dev/null
+   - If <skill-name>/ already exists (previously unzipped), skip to Step 2.
+
+1. Unzip the skill into the current project directory.
+   - Run: unzip <skill-name>.zip
+   - Confirm: ls <skill-name>/
+     Expected: SKILL.md, dashboard.html, generate-data.js
+   - If either dashboard.html or generate-data.js is missing: STOP and report which file is absent.
+     Do NOT manually re-implement the queries — the zip is the canonical source.
+
+2. Read <skill-name>/SKILL.md and follow its execution flow exactly.
+
+3. Run the dashboard.
+   - From inside <skill-name>/, run:
+       SINK_DB=<sink-database> node generate-data.js
+     This writes data.json next to it. No other flags or arguments.
+
+4. Open the dashboard.
+   - Use preview_document on <skill-name>/dashboard.html, or open it directly in a browser.
+
+5. Confirm it rendered correctly:
+   - All panels visible, KPI cards show real numbers (not dashes, zeros, or "undefined")
+   - No JavaScript console errors
+
+Sink database: <sink-database>
+```
+
+**Fill-in reference:**
+
+| Placeholder | Where to find it |
+|-------------|-----------------|
+| `<skill-name>` | `name:` field in `./<project-slug>/skills/SKILL.md` |
+| `<sink-database>` | `state.md` — SINK database name (omit if Phase 2 was skipped; use the source database instead) |
+
+**What the recipient gets:**
+
+| File | Purpose |
+|------|---------|
+| `SKILL.md` | Entry point — execution flow |
+| `knowledge/` | Answers deeper questions about data, metrics, and SQL |
+| `dashboard.html` | Static dashboard (never edit between runs) |
+| `generate-data.js` | Parameterized data pipeline (change env vars only) |
+
+**They do NOT need to run any Phase 1-3 steps.** The skill is self-contained: set env vars, run, get the dashboard.
+
+---
+
+---
+
+
+---
+
+## Skill Auto-Discovery in Claude Code / Treasure Work
+
+**After copying skill to `~/.claude/skills/<skill-name>/`:**
+
+The skill appears in the **Develop** tab automatically, but timing depends on your client:
+
+### Desktop App (Treasure Work / Claude Code)
+1. Copy skill to `~/.claude/skills/<skill-name>/`
+2. **Restart the application** (or wait ~30 seconds for file watchers to pick up changes)
+3. Open **Develop** tab → skill appears in the list
+4. Click the skill to load it
+
+### Web App (claude.ai/code)
+1. Copy skill to `~/.claude/skills/<skill-name>/` (must be on same machine serving web app)
+2. **Refresh the browser** or **Force reload (Cmd+Shift+R / Ctrl+Shift+R)**
+3. Open **Develop** tab → skill appears
+4. Click the skill to load it
+
+### Troubleshooting: Skill Not Appearing
+
+**Check 1: Folder structure is correct?**
+```bash
+ls -la ~/.claude/skills/<skill-name>/
+# Must have: SKILL.md at root
+# Example:
+# SKILL.md
+# dashboard.html
+# generate-data.js
+# config-templates.yaml
+# knowledge/
+```
+
+**Check 2: SKILL.md frontmatter is valid?**
+```yaml
+---
+name: fde-dashboard-travel-analytics
+description: Short description here
+---
+```
+
+**Check 3: Still not showing?**
+- Clear browser cache (if web app)
+- Restart app (if desktop)
+- Check file permissions: `chmod 755 ~/.claude/skills/<skill-name>/`
+
+**Auto-discovery takes up to 30 seconds** — the file watcher periodically scans `~/.claude/skills/`.
+
+---
+
+### After Sharing — Record to state.md
+
+Append to `state.md`:
+```markdown
+## Phase 4 Track A: Reusable Skill Packaged (YYYY-MM-DD)
+
+- skill_name: [confirmed-skill-name]
+- Packaging method: [zip | workspace-copy]
+- Shared with: [recipient / team]
+- Archive location: `./<project-slug>/<skill-name>.zip` (or workspace path)
+- Ready for: Recipients to install and re-run with different data sources
+```
+
+**Version:** 1.0.0 (Lite)
+**Last Updated:** 15 July 2026
+**Author:** FDE Team
+
+---
+
+## ⚠️ Data Privacy During Validation
+
+**CRITICAL: When running `generate-data.js` against real data (Step 4a-v):**
+
+### Rule: Query Results Must NOT Enter AI Context
+
+❌ **DON'T:** Read query results into AI agent or Claude for analysis
+```javascript
+// WRONG — exposes customer data to AI
+var result = execSync('tdx query "SELECT email, revenue FROM customers"');
+var analysis = ai.analyze(result);  // ← Breach!
+```
+
+✅ **DO:** Read results into generate-data.js variables only (stays local)
+```javascript
+// RIGHT — data stays in local JavaScript, never sent to AI
+var result = execSync('tdx query ...');
+var RAW = JSON.parse(result);  // ← Local only
+fs.writeFileSync('dashboard.html', html);  // ← Static file
+```
+
+### Validation Flow (Safe)
+
+1. Run `generate-data.js` locally → generates dashboard.html with real data embedded
+2. Open dashboard.html in browser → verify metrics visually
+3. **Never paste query results or embedded data into Claude/AI for interpretation**
+
+### If You Need AI Help Analyzing Results
+
+1. Use **anonymized/aggregated data only** (no PII):
+   ```sql
+   SELECT DATE(created_at) as date, COUNT(*) as user_count
+   FROM customers
+   GROUP BY 1
+   -- OK to analyze — no PII
+   ```
+
+2. Or use **synthetic/fake data** that mirrors real structure:
+   ```sql
+   SELECT 'john_anon_1'::text as user_id, 1000.0 as revenue
+   -- Safe to analyze — clearly fake
+   ```
+
+### See Also
+
+→ Read `../../references/guardrails-lite.md` for complete data handling rules
+
+---
+
