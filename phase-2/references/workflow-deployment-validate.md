@@ -129,7 +129,26 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 
    Lock in the confirmed name as `PROJECT_NAME` before proceeding.
 
-2. **Check for SINK table collisions with existing tables (before creating SINK database):**
+2. **⚠️ CONFIRMATION GATE — Confirm SINK database creation:**
+
+   Before creating the SINK database, show the user what will be created:
+
+   ```
+   AskUserQuestion:
+     header: "Create SINK database"
+     question: "Create SINK database: <sink_database> in Treasure Data?"
+     options:
+       - label: "Yes, create now"
+         description: "Create schema: tdx query CREATE SCHEMA <sink_database>"
+       - label: "No, it already exists"
+         description: "Database already exists; skip creation"
+       - label: "Cancel — review first"
+         description: "Let me review before creating"
+   ```
+
+   Only run `tdx query "CREATE SCHEMA..."` after user explicitly selects "Yes, create now".
+
+3. **Check for SINK table collisions with existing tables (before creating SINK database):**
 
    If the SINK database (`sink_database`) already contains tables from other projects in your TD account (per Stage A Step 1q), a collision on SINK table names could silently overwrite that data.
 

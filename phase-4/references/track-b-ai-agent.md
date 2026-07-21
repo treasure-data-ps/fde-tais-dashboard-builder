@@ -415,6 +415,23 @@ tdx llm project list | grep -i "<project-slug>"
 tdx llm project create <project-slug>
 ```
 
+**⚠️ Before creating a new Foundry project, get user confirmation:**
+
+```
+AskUserQuestion:
+  header: "Create Foundry project"
+  question: "Create new Foundry project: <project-name>?"
+  options:
+    - label: "Yes, create now"
+      description: "Create project: tdx llm project create <project-name>"
+    - label: "No, use existing"
+      description: "Use an existing Foundry project (enter name)"
+    - label: "Cancel — review first"
+      description: "Let me review before creating"
+```
+
+**Only run `tdx llm project create` after user explicitly selects "Yes, create now".**
+
 **Step 3 — Confirm knowledge bases are ready for the push round:**
 - Round 1: `system_prompt.md` + `dashboard_tables.yml` fully populated, other 3 files stubbed
 - Round 2: all 5 files fully populated
