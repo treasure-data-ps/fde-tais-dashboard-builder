@@ -48,16 +48,24 @@ AskUserQuestion:
 
 ```
 AskUserQuestion:
-  header: "Dashboard purpose"
-  question: "In one sentence, what decision or question should this dashboard help answer?"
-  multiSelect: false
+  header: "Business goals"
+  question: "What are the PRIMARY business goals for this dashboard? (Select all that apply)"
+  multiSelect: true
   options:
-    - label: "I'll describe it now"
-      description: "One sentence — e.g., 'Track weekly campaign spend vs. conversions'"
-    - label: "Not sure yet"
-      description: "We'll refine the purpose together while gathering metrics in Step 1a"
-    - label: "Other — I'll provide custom context"
-      description: "Something different or more complex than a single sentence"
+    - label: "Track KPIs / Monitor performance"
+      description: "Revenue, costs, usage, conversion rates, etc."
+    - label: "Identify trends / Spot anomalies"
+      description: "Year-over-year growth, seasonal patterns, outliers"
+    - label: "Enable decisions / Support strategy"
+      description: "Who to target, where to invest, what to optimize"
+    - label: "Reduce time-to-insight"
+      description: "Replace manual reports, answer questions faster"
+    - label: "Enable forecasting / Plan ahead"
+      description: "Predict future performance, budget allocation"
+    - label: "Compare segments / Benchmark"
+      description: "Sales region vs region, cohort A vs B, customer tier comparisons"
+    - label: "Other business goal"
+      description: "I'll describe something different"
 ```
 
 **Output:** `business_goal` — stored in `state.md`.
