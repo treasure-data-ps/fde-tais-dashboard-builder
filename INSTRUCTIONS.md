@@ -17,6 +17,17 @@ load_order: 0
 
 ---
 
+## Load Order Reference
+
+```
+Load Order 0:     ./INSTRUCTIONS.md (master — read FIRST)
+Load Order 0.5:   ./STATE-CHECKPOINT-SYSTEM.md (runtime validation)
+Load Order 1:     ./references/INSTRUCTIONS.md (cross-phase)
+Load Order 1.1-1.5: ./phase-N/INSTRUCTIONS.md (phase-specific)
+```
+
+---
+
 ## Phase Reference Index
 
 | Phase | Read First | Then Read | Checklist Location |
@@ -27,6 +38,7 @@ load_order: 0
 | **Phase 4** | `./phase-4/INSTRUCTIONS.md` | `./phase-4/SKILL.md` | Inline in SKILL.md (Section: "Pre-Flight Checklist") |
 | **Phase 5** | `./phase-5/INSTRUCTIONS.md` | `./phase-5/SKILL.md` | Inline in SKILL.md (Section: "Pre-Flight Checklist") |
 | **Cross-Phase** | `./references/INSTRUCTIONS.md` | (guardrails + universal rules) | Reference throughout all phases |
+| **Runtime Validation** | `./STATE-CHECKPOINT-SYSTEM.md` (load_order: 0.5) | (API checks + recovery) | Reference when resuming after break |
 
 ---
 
