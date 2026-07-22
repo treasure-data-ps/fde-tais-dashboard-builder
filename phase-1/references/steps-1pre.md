@@ -26,11 +26,14 @@ Batch all 4 into a single AskUserQuestion call (max 4 questions per call):
 AskUserQuestion:
   header: "Project slug"
   question: "What short, kebab-case slug should I use for this project? (e.g., 'acme-campaign-perf', 'sales-pipeline')"
+  multiSelect: false
   options:
-    - label: "Custom slug"
+    - label: "I'll provide a custom slug"
       description: "I'll type the exact slug — becomes the working directory ./<slug>/"
     - label: "Generate from dashboard purpose"
       description: "I'll suggest one once I know what the dashboard is for"
+    - label: "Other — I'll type it now"
+      description: "Provide a custom slug as free text"
 ```
 
 **Output:** `project_slug` — the working directory for everything Phase 1-5 produce.
@@ -47,11 +50,14 @@ AskUserQuestion:
 AskUserQuestion:
   header: "Dashboard purpose"
   question: "In one sentence, what decision or question should this dashboard help answer?"
+  multiSelect: false
   options:
     - label: "I'll describe it now"
       description: "One sentence — e.g., 'Track weekly campaign spend vs. conversions'"
-    - label: "Not sure yet — I'll figure it out as we go"
+    - label: "Not sure yet"
       description: "We'll refine the purpose together while gathering metrics in Step 1a"
+    - label: "Other — I'll provide custom context"
+      description: "Something different or more complex than a single sentence"
 ```
 
 **Output:** `business_goal` — stored in `state.md`.
@@ -66,15 +72,18 @@ AskUserQuestion:
 
 ```
 AskUserQuestion:
-  header: "Target platform"
-  question: "Where will this dashboard be used?"
+  header: "Target platform(s)"
+  question: "Where will this dashboard be used? (Select all that apply)"
+  multiSelect: true
   options:
     - label: "Treasure Work (internal)"
       description: "Open the HTML file locally or share it as a file"
-    - label: "Treasure AI Studio / shared externally"
+    - label: "Treasure AI Studio"
       description: "Portable single-file HTML — easy to email or host"
-    - label: "Not sure / both"
-      description: "HTML Client works either way — decide sharing details later"
+    - label: "Externally hosted"
+      description: "Deployed to a web server or static host"
+    - label: "Other platform"
+      description: "I'll describe where this will be used"
 ```
 
 **Output:** `target_platform` — stored in `state.md`. Informative only; does not change the rendering engine.
@@ -95,6 +104,7 @@ AskUserQuestion:
 AskUserQuestion:
   header: "Data source type"
   question: "What is the nature of the data source?"
+  multiSelect: false
   options:
     - label: "Raw/Transactional (high volume, complex joins)"
       description: "Event-level data with many joins and high volumes. Workflow recommended."
@@ -104,6 +114,8 @@ AskUserQuestion:
       description: "Both types. Phase 2 decision per metric during data discovery."
     - label: "Not sure — check during data discovery"
       description: "I'll recommend a path based on data structure"
+    - label: "Other data source type"
+      description: "Something different — I'll describe it"
 ```
 
 **Downstream rules:**
@@ -139,8 +151,12 @@ AskUserQuestion:
       description: "Provide the model name/OID — we'll fetch the schema via API."
     - label: "Existing Treasure Data workflow"
       description: "Provide the workflow project/name — we'll validate and reuse for Phase 2 if needed."
-    - label: "Other resource (screenshots, SQL, spec)"
-      description: "Share text/JSON/screenshots — I'll reference them during Stage A questions."
+    - label: "Screenshots or mockups"
+      description: "Upload images or wireframes — I'll reference them during Stage A questions."
+    - label: "SQL queries or specs"
+      description: "Paste SQL, JSON, or written specifications — I'll extract requirements."
+    - label: "Other resource type"
+      description: "Something different — I'll describe what you have"
     - label: "None — starting fresh"
       description: "No existing resources — proceed to Stage A requirements."
 ```
