@@ -91,6 +91,14 @@ Once you confirm this is **resuming an existing project**, **re-read `./referenc
 
 ---
 
+## Recommended Model
+
+**This skill works with all Claude models.** Best default: **Claude Sonnet 5** (balanced cost/performance across all 5 phases). Alternatives:
+- **Haiku 4.5:** Fast iteration on Phase 1 requirements gathering
+- **Opus 4.7/4.8:** Complex Phase 4 agent development if needed
+
+---
+
 ## Phase Reference Index
 
 | Phase | Read | Key Output | Condition |

@@ -13,6 +13,14 @@ description: |
 
 ---
 
+## Recommended Model
+
+**This skill works with all Claude models.** Best default: **Claude Sonnet 5** (balanced cost/performance across all phases). Alternatives:
+- **Haiku 4.5:** Fast iteration on requirements gathering (Phase 1)
+- **Opus 4.7/4.8:** Complex Phase 4 agent development if needed
+
+---
+
 ## 🔑 Append-Only Pattern (Critical for All Phases)
 
 → **state.md is append-only:** Each phase appends a new dated section at the bottom. See `./references/append-only-pattern.md` for details.
