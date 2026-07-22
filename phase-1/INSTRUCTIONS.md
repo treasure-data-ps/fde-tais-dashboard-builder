@@ -865,6 +865,34 @@ Conflicts Detected: None
 
 ---
 
+### Rule P1-10: Path Confirmation (ENFORCEMENT)
+
+**⚠️ CRITICAL: CANNOT proceed to Phase 2 or Phase 3 without explicit user confirmation of the path.**
+
+After calculating promotion score and recommending a path:
+
+**If Score 0-2 (Non-Workflow recommended):**
+- Present: "Recommended: Non-Workflow Path (Phase 3 only)"
+- Wait for: `YES, BUILD DASHBOARD NOW (Non-Workflow)` OR `NO, SET UP WORKFLOW INSTEAD`
+- If user confirms Non-Workflow: Proceed to Phase 3
+- If user chooses Workflow instead: Proceed to Phase 2
+
+**If Score 4-6 (Workflow recommended):**
+- Present: "Recommended: Workflow Path (Phase 2 → Phase 3)"
+- Wait for: `YES, PROCEED WITH WORKFLOW PATH` OR `NO, SKIP WORKFLOW AND BUILD NOW`
+- If user confirms Workflow: Proceed to Phase 2
+- If user declines Workflow: Proceed to Phase 3 instead
+
+**If Score 3 (User choice):**
+- Ask directly: "Which path? Phase 2 (Workflow) or Phase 3 (Non-Workflow)?"
+- Proceed per user's selection
+
+**See:** `./references/stage-b-path-routing.md` → "Approval Gates" section for full templates
+
+**Why:** Path decisions have real cost/time/complexity implications. User must explicitly confirm they understand the tradeoffs.
+
+---
+
 ## Next Action
 
 1. ✓ Phase 1 complete
