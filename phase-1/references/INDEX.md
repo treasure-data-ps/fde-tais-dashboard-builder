@@ -50,8 +50,10 @@ This directory contains detailed, reusable patterns for Phase 1: Requirements Ga
 
 ### I need detailed guidance for a specific step
 → Use the navigation below:
-- **Setup-A to Setup-E (session setup + reference resources):** See `steps-1pre.md`
+- **Setup-A to Setup-E (session setup + reference resources — multi-select):** See `steps-1pre.md`
 - **`.dash`/Sisense Special Case (fast-track migration):** See `steps-1pre.md`
+- **Treasure Insights API Special Case (datamodel schema fetch):** See `steps-1pre.md`
+- **Combined Resources Path (`.dash` + datamodel ± workflow):** See `steps-1pre.md`
 - **Steps 1a-1o (core requirements):** See `steps-1a-1o.md`
 - **Steps 1k-1n (optional requirements):** See `steps-1k-1n-optional.md`
 - **Steps 1p-1t (scoring & config):** See `steps-1p-1t.md`

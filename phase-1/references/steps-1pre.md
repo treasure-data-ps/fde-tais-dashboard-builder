@@ -121,44 +121,79 @@ AskUserQuestion:
 
 ## Step Setup-E: Reference Resources & Prior Art
 
-**Why it matters:** If the user already has an existing dashboard, export, or spec to replicate/replace, that resource can prefill most of Stage A (requirements) and Stage B (data discovery) instead of asking every question from scratch. This is a separate `AskUserQuestion` call — ask it immediately after the Setup-A–D batch resolves, before starting Stage A core requirements.
+**Why it matters:** Sisense/Treasure Insights customers typically have multiple resources available: the `.dash` export (UI structure), the datamodel (schema/metrics/joins), and optionally an existing workflow (data refresh). Collect **all of them** — we'll combine them to prefill Stage A/B intelligently.
+
+This is a separate `AskUserQuestion` call — ask it immediately after the Setup-A–D batch resolves, before starting Stage A core requirements. **This is a MULTI-SELECT question** — users may have all three.
 
 **AskUserQuestion:**
 
 ```
 AskUserQuestion:
   header: "Reference resources"
-  question: "Do you have an existing dashboard, export, or datamodel to replicate or replace?"
+  question: "What resources do you have? (Select all that apply)"
+  multiSelect: true
   options:
     - label: "Sisense/Treasure Insights export file (.dash)"
-      description: "Upload the .dash file — we'll extract tables, metrics, filters from it."
+      description: "Upload the .dash file — we'll extract UI structure, tables, metrics, filters."
     - label: "Treasure Insights datamodel name or OID"
       description: "Provide the model name/OID — we'll fetch the schema via API."
+    - label: "Existing Treasure Data workflow"
+      description: "Provide the workflow project/name — we'll validate and reuse for Phase 2 if needed."
     - label: "Other resource (screenshots, SQL, spec)"
       description: "Share text/JSON/screenshots — I'll reference them during Stage A questions."
-    - label: "No — starting fresh"
-      description: "No existing resource — proceed to Stage A requirements."
+    - label: "None — starting fresh"
+      description: "No existing resources — proceed to Stage A requirements."
 ```
 
-**If the user selects an option with "Yes":** proceed based on the type:
+**Processing multi-select results:**
 
-1. **Sisense/Treasure Insights export file (`.dash`)** → ask them to upload or paste the file path. Once received, **STOP normal Stage A flow and jump to the "`.dash` / Sisense Special Case" section below.**
+| User selects | Action |
+|---|---|
+| `.dash` only | Jump to "`.dash` / Sisense Special Case" (Step 1a–7 below) |
+| datamodel only | Jump to "Treasure Insights API Special Case" (Step 2a–7 below) |
+| workflow only | Capture workflow name; incorporate in Phase 2 planning; proceed to normal Stage A |
+| `.dash` + datamodel | **Combined path (new):** Use `.dash` for UI structure + datamodel for confirmed schema relationships; prefill both Stage A/B with cross-validation |
+| `.dash` + workflow | Use `.dash` for structure; incorporate existing workflow into Phase 2 strategy |
+| datamodel + workflow | Use datamodel for schema; incorporate existing workflow into Phase 2 strategy |
+| All three (`.dash` + datamodel + workflow) | **Combined path (new):** Use all three sources to maximize prefilled context; validate consistency across sources |
+| Other resource(s) ± above | Include as supporting context in Stage A/B questions; only "fast-track" if `.dash` or datamodel selected alone or together |
+| None | Proceed directly to normal Stage A (`./steps-1a-1o.md`) — no special handling |
 
-2. **Treasure Insights datamodel name or OID** → ask for the exact name or OID. Once provided, **STOP normal Stage A flow and jump to the "Treasure Insights API Special Case" section below.**
+**Output:** `reference_resources_provided` (list of selected types) + `has_dash` (bool) + `has_datamodel` (bool) + `has_workflow` (bool) + `resource_type` (enum: `dash_only` / `api_only` / `combined` / `other` / `none`) — stored in `state.md`.
 
-3. **Other resource** (screenshots, SQL, plain spec, etc.) → treat as supporting context for the normal Stage A questions (steps 1a–1o) — reference it when asking those questions, but no fast-track routing applies.
+---
 
-4. **No** → proceed directly to Stage A (`./steps-1a-1o.md`) — no special handling.
+### Combined Path (`.dash` + datamodel or all three)
 
-**Output:** `reference_resource_provided` (yes/no) + `resource_type` (`.dash` / `treasure-insights-api` / `other` / `none`) — stored in `state.md`.
+**Trigger:** User selects both `.dash` file and datamodel name/OID (with or without workflow).
+
+**Why this path:** Using both sources provides maximum context:
+- `.dash` file shows the **current UI structure** (tabs, widgets, layout, filters as they appear to users)
+- Datamodel provides the **canonical schema** (confirmed metrics/dimensions, official join relationships)
+- Workflow (if present) shows the **data refresh strategy** (schedule, transformation logic, incremental patterns)
+
+Combining them prevents stale export files from mismatching the live datamodel, and ensures we understand both what users *see* (`.dash` layout) and what data actually *supports* it (datamodel schema).
+
+**Implementation:**
+1. Fetch the datamodel schema via API (Step 2 of "Treasure Insights API Special Case" below)
+2. Run the `.dash` converter to extract UI structure (Step 1 of "`.dash` / Sisense Special Case" below)
+3. **Cross-validate:** Check that tables/joins in the `.dash` file exist in the datamodel; flag mismatches
+4. **Prefill Stage A/B from both:**
+   - Metrics ← `.dash` widgets labeled with their measure names, validated against datamodel `aggregations` field
+   - Dimensions ← datamodel columns without aggregations, filtered to only those referenced in `.dash` widgets
+   - Joins ← datamodel `relations[]` cross-checked against `.dash` converter's inferred joins
+5. Present a unified audit to the user (one row per widget, annotated with "source: .dash", "validated in: datamodel", etc.)
+6. Proceed with migration goal question and Phase routing as if the primary resource is `.dash` (since that's what the user sees and cares about most — the datamodel is just the validator)
 
 ---
 
 ## `.dash` / Sisense / Treasure Insights Special Case — STOP and Follow This Path
 
-**Trigger:** The resource provided in Setup-E is a `.dash` file, or JSON with a `"widgets"` array and a `"datasource"` key.
+**Trigger:** The user selected a `.dash` file in Setup-E (alone, with datamodel, with workflow, or with both).
 
 **Why this path exists:** A Sisense/Treasure Insights export already encodes the dashboard's titles, tabs, widgets, chart types, JAQL queries (→ SQL), and filters. Re-asking every Stage A/B question from scratch would ignore information already sitting in the file. This path converts the file immediately, uses it to **prefill** Stage A requirements and Stage B data discovery, and only asks the handful of questions the file can't answer itself (output database, existing workflow, datamodel relationships, migration goal).
+
+**Special note:** If the user also selected the datamodel in Setup-E, follow the "Combined Path" guidance in Step 2b below instead of running Steps 1–7 independently.
 
 **Lite-specific notes:** No Confluence, no git branching — everything below writes to `state.md` only. No live Sisense datamodel API fetch — the datamodel question in Step 3 is answered conversationally (paste JSON or describe relationships in text), not via a `curl` call to a TD reporting API. The converter script lives locally at `../../references/dash_to_html.py` (repo-root `references/`) — there is no external repo dependency.
 
@@ -461,6 +496,125 @@ IF migration_goal == "Replicate + improve" OR "Modernize":
 ### Step 7: Write state.md and Continue
 
 Write Session Setup (Setup-A–E) plus the API-derived Requirements and Data Discovery blocks (tagged `[Derived from Treasure Insights API]`) to `state.md`, then proceed per Step 6's routing.
+
+---
+
+## Combined Resources Path — `.dash` + Datamodel ± Workflow
+
+**Trigger:** User selected multiple resources in Setup-E (`.dash` + datamodel, or `.dash` + datamodel + workflow, or any combination).
+
+**Why this path:** Combining resources maximizes prefilling accuracy and prevents inconsistencies:
+- `.dash` file tells us **what users see** (UI structure, layout, current filters)
+- Datamodel tells us **what data should be used** (canonical schema, confirmed joins, official metrics)
+- Workflow (if present) tells us **how data flows** (refresh schedule, incremental logic, SINK table location)
+
+Running these together:
+1. Validates that `.dash` widgets reference tables that exist in the datamodel
+2. Cross-checks joins inferred by the `.dash` converter against official datamodel relationships
+3. Incorporates workflow metadata (if present) into Phase 2 planning
+
+### Combined Path Execution
+
+**Step A: Fetch All Resources Simultaneously**
+
+```bash
+# Fetch datamodel schema
+python3 ../../references/insights-api-helper.py "<datamodel_name_or_oid>" --region <us|jp|eu|kr>
+
+# Convert .dash file
+python3 ../../references/dash_to_html.py "<path-to-dash-file>" --out /tmp/dash-convert --db __DB__
+```
+
+**Step B: Cross-Validate**
+
+Compare the two extractions:
+
+| Check | .dash source | Datamodel source | Action if mismatch |
+|---|---|---|---|
+| Tables referenced | `widget_audit.json` unique table list | datamodel `datasets[].table` | Flag missing tables; ask user if `.dash` is stale |
+| Metrics (measures) | widget `measure_cols` | datamodel columns with `aggregations` | Validate each widget's metric exists in datamodel |
+| Dimensions | widget `dim_col` / `break_by` | datamodel columns without aggregations | Validate each widget's dimension exists in datamodel |
+| Joins | converter-inferred joins from JAQL | datamodel `relations[]` | Ensure `.dash` joins match official datamodel relationships |
+
+**Report to user:**
+
+```
+🔄 Cross-Validation Results
+
+Tables: ✓ All <n> tables in .dash are present in datamodel
+Metrics: ✓ <n> widget metrics matched; <m> mismatches flagged
+Dimensions: ✓ <n> widget dimensions matched; <m> mismatches flagged
+Joins: ✓ <n> joins inferred from .dash; <m> additional joins from datamodel not yet used
+
+Recommended action: [proceed as-is / resolve <m> mismatches before continuing]
+```
+
+**Step C: Prefill Stage A/B From Both Sources**
+
+Combine the prefilled values:
+
+- **Metrics** ← `.dash` widget metrics, labeled with widget name, validated against datamodel
+- **Dimensions** ← `.dash` widget dimensions + datamodel columns (user can add more in Stage A)
+- **Filters** ← `.dash` global filters + per-widget conditions
+- **Tables** ← `.dash` converter's table list (already confirmed Stage B)
+- **Joins** ← datamodel official joins, cross-checked against `.dash` converter's inferred joins
+
+**Step D: Ask Only the Unanswerable Questions**
+
+Skip everything already answered by the two sources. Ask only:
+- Timezone (`.dash` doesn't encode this)
+- Sharing/access (needs user intent, not in datamodel)
+- Alerts/thresholds (not in `.dash` or datamodel)
+- Business goal (if not captured in Setup-B)
+- **Migration goal** (Replicate / Replicate+improve / Modernize)
+- **Workflow reuse** (if user selected workflow in Setup-E): "Should I reuse the existing workflow `<name>` or create a new one?"
+
+**Step E: Unified Audit Before Proceeding**
+
+Present a single audit table combining `.dash` structure + datamodel validation:
+
+```
+📋 Combined Audit — <project_slug>
+
+Tab: <tab_name>
+  • <widget title>
+    - Source: <table> (✓ in datamodel)
+    - Metric: <measure> (✓ validated in datamodel)
+    - Dimensions: <dim1>, <dim2> (✓ validated)
+    - Joins: <join info from datamodel>
+    - Notes: <warnings or "none">
+```
+
+Ask user: "Does this combined view (UI structure from `.dash`, schema from datamodel) look correct?"
+
+**Step F: Phase Routing**
+
+```
+IF workflow selected + existing workflow confirmed:
+  → Phase 2: validate workflow's SINK output; do NOT create new workflow
+  → Then Phase 3
+
+IF workflow selected + no existing workflow:
+  → Phase 2: create new workflow per promotion score
+  → Then Phase 3
+
+IF no workflow selected:
+  → Use migration goal + promotion score to decide Phase 2 vs skip
+```
+
+**Step G: Write state.md**
+
+Tag all prefilled values with their sources:
+
+```markdown
+## Phase 1 — Data Discovery
+- Database.Table(s): <...> [Derived from .dash file]
+- Metrics: <...> [Extracted from .dash; validated in datamodel]
+- Dimensions: <...> [Extracted from .dash; validated in datamodel]
+- Joins: <...> [From official datamodel; cross-checked with .dash converter]
+- Workflow: <workflow_name> [Reuse existing] or [Create new] [If workflow selected in Setup-E]
+- Cross-validation result: [✓ Pass / ⚠ Warnings logged]
+```
 
 ---
 

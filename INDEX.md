@@ -22,7 +22,7 @@ Fully self-contained — no runtime dependency on `../shared/` or the private `f
 
 | Phase | File | Steps | Key Output | Condition |
 |-------|------|-------|-----------|-----------|
-| **1** | `phase-1/SKILL.md` + `references/phase-1-walkthrough.md` | Stage A: 1a-1u, Stage B: 2a-2f | Promotion Score (0-6) + `state.md` created | Always |
+| **1** | `phase-1/SKILL.md` + `references/phase-1-walkthrough.md` | Stage A: 1a-1u, Stage B: 2a-2f (with Setup-E multi-select special cases) | Promotion Score (0-6) + `state.md` created | Always |
 | **2** | `phase-2/SKILL.md` + `references/phase-2-walkthrough.md` | 2a-2h (8 steps) | SINK tables deployed + validated | Score 4-6 only, optional |
 | **3** | `phase-3/SKILL.md` + `references/phase-3-walkthrough.md` | 4a-4l (12 steps) | User-approved interactive `dashboard.html` | Always (after Phase 1 or 2) |
 | **4** | `phase-4/SKILL.md` + `references/phase-4-walkthrough.md` | Track A (4a-0 to 4a-vii), Track B (4b-i to 4b-vi) | Reusable skill + Foundry agent | Optional |

@@ -35,13 +35,14 @@ Before starting, confirm:
 
 → **See `./references/phase-1-walkthrough.md`** for the full step reference table and batching plan.
 
-Run the session-setup questions (project slug, business goal, platform, data source type) in one batch, then ask Setup-E (reference resources) as a separate call before gathering core requirements (purpose, metrics, dimensions, filters, date range, sharing) in a small number of batched `AskUserQuestion` calls.
+Run the session-setup questions (project slug, business goal, platform, data source type) in one batch, then ask Setup-E (reference resources) as a separate call before gathering core requirements. **Setup-E is now MULTI-SELECT** — users may have multiple resources available (`.dash` file, datamodel, existing workflow).
 
-**Special case — Sisense/Treasure Insights exports or datamodels:** If Setup-E turns up a `.dash` file (or JSON with a `"widgets"` array + `"datasource"` key) OR a Treasure Insights datamodel name/OID, do not run the normal Stage A/B flow. Instead follow one of these paths in `./references/steps-1pre.md`:
-- **`.dash` export** → "`.dash` / Sisense Special Case" — converts the file with `../references/dash_to_html.py`, prefills requirements and discovery
-- **Treasure Insights datamodel name/OID** → "Treasure Insights API Special Case" — fetches the schema via Reporting API with `../references/insights-api-helper.py`, prefills requirements and discovery
+**Special cases — Sisense/Treasure Insights exports, datamodels, and workflows:** If Setup-E turns up any of these, do not run the normal Stage A/B flow. Instead follow the appropriate path in `./references/steps-1pre.md`:
+- **`.dash` export alone** → "`.dash` / Sisense Special Case" — converts the file with `../references/dash_to_html.py`, prefills requirements and discovery
+- **Treasure Insights datamodel alone** → "Treasure Insights API Special Case" — fetches schema via Reporting API with `../references/insights-api-helper.py`, prefills requirements and discovery
+- **Multiple resources (`.dash` + datamodel ± workflow)** → "Combined Resources Path" — fetches datamodel, converts `.dash` file, cross-validates both, incorporates workflow metadata if present, then prefills Stage A/B with unified context
 
-Both paths fast-track routing to Phase 2/3 based on the user's migration goal (Replicate / Replicate+improve / Modernize).
+All paths fast-track routing to Phase 2/3 based on the user's migration goal (Replicate / Replicate+improve / Modernize) and workflow selection.
 
 → **See `./references/steps-1a-1o.md`** for detailed guidance on core requirement steps
 → **See `./references/steps-1k-1n-optional.md`** for optional step details (only ask if relevant)
