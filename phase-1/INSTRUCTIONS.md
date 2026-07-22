@@ -276,9 +276,22 @@ HTML Client stores data INLINE in the HTML file (not fetched from API). This cre
 | Data Rows (total) | < 100K | 100K-500K | > 500K |
 | Load Time | < 2s | 2-5s | > 5s |
 
-**During Stage B (data discovery), for EACH widget:**
+**During Stage B (data discovery), for EACH widget AND filter:**
 
-1. **Estimate rows:**
+1. **Analyze filters first (high-cardinality blocks):**
+   ```bash
+   # Check cardinality of each filter column
+   tdx query "SELECT COUNT(DISTINCT region) FROM orders"
+   tdx query "SELECT COUNT(DISTINCT status) FROM orders"
+   tdx query "SELECT COUNT(DISTINCT customer_id) FROM orders"
+   
+   # Safe: < 50 values (use dropdown)
+   # Warning: 50-500 values (consider search)
+   # Danger: > 500 values (use search autocomplete, don't embed)
+   # Breaks: > 10,000 values (definitely not in data.json)
+   ```
+
+2. **Estimate widget rows:**
    ```
    If aggregated (GROUP BY region, date, status):
      90 days × 6 regions × 4 statuses = 2,160 rows ✅
@@ -287,7 +300,7 @@ HTML Client stores data INLINE in the HTML file (not fetched from API). This cre
      2.1M rows ❌ TOO LARGE
    ```
 
-2. **Run actual query to test:**
+3. **Run actual query to test:**
    ```bash
    tdx query --output json < query.sql > data.json
    ls -lh data.json
@@ -296,17 +309,22 @@ HTML Client stores data INLINE in the HTML file (not fetched from API). This cre
    # If > 20 MB: ❌ Likely breaks
    ```
 
-3. **Identify problems:**
+4. **Identify problems:**
+   - High-cardinality filters (customer_id, product_id, user_id)?
    - Too many dimensions (combinations explode)?
    - Raw events instead of aggregated?
    - Too much history (3+ years daily data)?
    - Too many dimensions in GROUP BY?
+   - Too many tabs with independent data?
 
-4. **Solutions:**
+5. **Solutions:**
+   - ✅ Remove high-cardinality filters (use search instead)
    - ✅ Aggregate more (weekly instead of daily, top 10 categories)
    - ✅ Filter scope (last 90 days instead of 3 years)
    - ✅ Reduce dimensions (remove least-used slicing dimension)
    - ✅ Paginate tables (show top 1,000 rows only)
+   - ✅ Limit to 3-5 low-cardinality filters max
+   - ✅ Limit to 3-5 tabs per dashboard
    - ❌ If none work: Recommend Phase 4 (backend API) instead
 
 **Capture in state.md:**
@@ -448,16 +466,31 @@ At end of Phase 1, create `state.md` with this structure:
 - Rendering: HTML Client (standalone, portable)
 
 **HTML Client Data Size Validation:**
-| Widget | Type | Rows | Size | Status |
-|--------|------|------|------|--------|
-| [Widget 1] | [Type] | [N] | [X KB] | ✅ |
-| [Widget 2] | [Type] | [N] | [X KB] | ✅ |
 
-- **Total Data Size:** [X MB]
+**Filters Analysis:**
+- Global Filters: [list, e.g., "Date Range, Region (6), Status (4)"]
+- Tab-Specific Filters: [list or "None"]
+- Cardinality Check: [✅ All < 50 values OR ⚠️ [filter name] has [N] values OR ❌ [filter name] too high]
+- Filter Data Size: [X KB]
+
+**Widget Data:**
+| Widget | Type | Rows | Size | Filters Applied | Status |
+|--------|------|------|------|-----------------|--------|
+| [Widget 1] | [Type] | [N] | [X KB] | [filter names] | ✅ |
+| [Widget 2] | [Type] | [N] | [X KB] | [filter names] | ✅ |
+
+**Total Size Breakdown:**
+- Widget Data: [X KB]
+- Filter Options: [X KB]
+- HTML/JS/CSS: [~50 KB]
+- JSON Overhead: [X KB]
 - **Final HTML File:** [X MB]
+
 - **Load Time (estimated):** [X seconds]
+- **Tab Complexity:** [N tabs - low/medium/high]
+- **Filter Complexity:** [N filters, max cardinality [N] - low/medium/high]
 - **Feasibility:** ✅ Safe for HTML Client OR ⚠️ Warning OR ❌ Not feasible
-- **Actions Taken (if any):** [e.g., "Reduced to weekly aggregation", "Filtered to last 90 days"]
+- **Actions Taken (if any):** [e.g., "Removed high-cardinality customer filter", "Reduced to weekly aggregation"]
 
 ### Path Decision
 
@@ -654,30 +687,40 @@ Rendering:         HTML Client (standalone, portable)
 
 === HTML CLIENT DATA VALIDATION ===
 
-Data Size Estimates (Phase 1 Stage B):
+**Filters Analysis:**
+- Global Filters: Date Range, Region (6), Order Status (4)
+- Filter data size: ~300 bytes
+- Cardinality check: All filters < 50 values ✅
 
-| Widget | Type | Estimated Rows | Size | Status |
-|--------|------|---------|--------|--------|
-| Total Revenue (KPI) | KPI | 1 | < 1 KB | ✅ Safe |
-| Revenue by Region (Bar) | Bar | 6 | < 5 KB | ✅ Safe |
-| Revenue Trend (Line) | Line | 90 | < 30 KB | ✅ Safe |
-| Revenue by Status (Pie) | Pie | 4 | < 2 KB | ✅ Safe |
-| Order Count (KPI) | KPI | 1 | < 1 KB | ✅ Safe |
-| Active Customers (KPI) | KPI | 1 | < 1 KB | ✅ Safe |
-| Orders by Status (Table) | Table | 4 | < 5 KB | ✅ Safe |
-| Orders per Day (Line) | Line | 90 | < 30 KB | ✅ Safe |
-| Customer Acq (Cumulative) | Area | 90 | < 30 KB | ✅ Safe |
+**Widget Data Size Estimates (Phase 1 Stage B):**
 
-**Total Data:** ~107 KB
-**HTML/JS/CSS:** ~50 KB
-**Final HTML File:** ~250 KB
+| Widget | Type | Rows | Size | Filter Impact | Status |
+|--------|------|------|------|---------------|--------|
+| Total Revenue (KPI) | KPI | 1 | < 1 KB | Uses all global filters | ✅ Safe |
+| Revenue by Region (Bar) | Bar | 6 | < 5 KB | Region not in filter (shown in chart) | ✅ Safe |
+| Revenue Trend (Line) | Line | 90 | < 30 KB | Uses all global filters | ✅ Safe |
+| Revenue by Status (Pie) | Pie | 4 | < 2 KB | Status not in filter (shown in chart) | ✅ Safe |
+| Order Count (KPI) | KPI | 1 | < 1 KB | Uses all global filters | ✅ Safe |
+| Active Customers (KPI) | KPI | 1 | < 1 KB | Uses all global filters | ✅ Safe |
+| Orders by Status (Table) | Table | 4 | < 5 KB | Status not in filter (shown in table) | ✅ Safe |
+| Orders per Day (Line) | Line | 90 | < 30 KB | Uses all global filters | ✅ Safe |
+| Customer Acq (Cumulative) | Area | 90 | < 30 KB | Uses global filters (Region, Date) | ✅ Safe |
+
+**Total Size Breakdown:**
+- Widget data: ~105 KB
+- Filter dropdown options: ~300 bytes
+- HTML/JS/CSS: ~50 KB
+- JSON overhead (+20%): ~31 KB
+- **Final HTML File:** ~186 KB
 
 **Feasibility:** ✅ SAFE FOR HTML CLIENT
 - Load time (estimated): < 1 second
 - Browser compatibility: All modern browsers
-- Performance: Smooth interactions
+- Performance: Smooth interactions, all filters responsive
+- Filter complexity: Low (3 filters, max 6 values each)
+- Tab complexity: Low (3 tabs)
 
-**Actions Taken:** None needed — data is well within limits
+**Actions Taken:** None needed — data and filters well within safe limits
 
 Conflicts Detected: None
 ```
