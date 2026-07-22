@@ -1007,7 +1007,7 @@ Neutral:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+  <!-- Chart.js is inlined directly (no CDN, works fully offline) — see templates/*.html for the actual inlined <script> block -->
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto; background: #f8f9fa; }
