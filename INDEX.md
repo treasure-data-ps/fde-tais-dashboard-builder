@@ -124,6 +124,7 @@ Phase 5 has no `references/` subfolder — handoff guide is self-contained with 
 |------|-----------------|
 | `references/architecture-and-state.md` | 5-phase flow, skip rules, state.md append-only pattern, multi-session workflows. |
 | `references/guardrails-lite.md` | Data integrity, database/queries, HTML Client rules, requirements, agent prompts. |
+| `references/treasure-data-theme.md` | **Treasure Data default theme:** CSS variables, chart palette, component styling, custom brand override. Used in Phase 3 dashboard build. |
 | `references/dash_to_html.py` | Sisense .dash to render.js + HTML converter (Python stdlib, no deps). Phase 1 `.dash` Special Case. |
 | `references/insights-api-helper.py` | Treasure Insights Reporting API schema extractor (fetches datamodel, extracts metrics/dimensions/joins). Phase 1 Treasure Insights API Special Case. |
 | `phase-1/references/treasure-insights-api-integration.md` | Treasure Insights API reference (endpoints, auth, extraction logic). Companion to insights-api-helper.py. |

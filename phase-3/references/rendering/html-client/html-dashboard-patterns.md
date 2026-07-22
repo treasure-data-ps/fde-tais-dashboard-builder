@@ -2,6 +2,8 @@
 
 **Reusable patterns for building interactive HTML dashboards.**
 
+> **Theme Reference:** See `../../../../references/treasure-data-theme.md` for the complete Treasure Data theme specification (CSS variables, chart palette, component styling, custom brand color override). This document references that theme.
+
 **Chart colors:** Use the TD palette for any Chart.js series — `["#B4E3E3", "#ABB3DB", "#D9BFDF", "#F8E1B0", "#8FD6D4", "#828DCA", "#C69ED0", "#F5D389", "#6AC8C6", "#5867B8"]` — unless the user specified brand colors during Phase 1 (check "Visual Preferences" in `state.md`).
 
 ---

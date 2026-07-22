@@ -188,7 +188,7 @@ AskUserQuestion:
 - `logo_url` — URL or file path to customer logo — displayed in dashboard header
 - `logo_background` — `transparent` or `white` — determines header background treatment
 
-**If no brand provided:** Set `dashboard_theme = "td-default"` — uses a clean Treasure Data blue/grey palette applied directly in the HTML Client template.
+**If no brand provided:** Set `dashboard_theme = "td-default"` — uses the clean Treasure Data blue/grey palette. See `../../references/treasure-data-theme.md` for the complete theme specification (CSS variables, chart colors, component styling).
 
 **AskUserQuestion — Metrics/Dimensions Confirmation (Step 1b-1c):**
 
