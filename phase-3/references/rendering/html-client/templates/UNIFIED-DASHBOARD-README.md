@@ -9,9 +9,9 @@ A single, flexible HTML template that combines **KPI cards**, **charts**, and **
 
 ---
 
-## Why Unified? Combining All Individual Templates
+## Why Unified?
 
-Instead of choosing between 3 separate templates:
+Instead of choosing between 3 templates:
 
 ```
 ❌ KPI Dashboard (4 cards only)
@@ -19,29 +19,14 @@ Instead of choosing between 3 separate templates:
 ❌ Multi-Chart Dashboard (multiple charts only)
 ```
 
-**✅ Unified Dashboard provides ALL features in one file with tabs:**
-
-### Feature Mapping from Individual Templates
-
-| Original Template | Now in Unified Tab | Features |
-|-------------------|-------------------|----------|
-| **KPI Dashboard** | 📊 **KPI Overview** | 4+ KPI cards, formatted numbers, auto-populated from metrics |
-| **Multi-Chart Dashboard** | 📈 **Analysis** | Line chart (trends), Bar chart (comparisons), Pie chart (distribution) |
-| **Table Dashboard** | 📋 **Data Explorer** | Sortable columns, full-text search, status badges, responsive |
-| *(New bonus feature)* | 💡 **Insights** | Auto-generated findings, opportunities, recommendations |
-| *(New bonus feature)* | ⬇️ **Export** | CSV export, JSON export, PDF print |
-
-### Complete Tab Feature List
+**✅ Unified Dashboard provides ALL features in one file:**
 
 | Tab | Purpose | Features |
 |-----|---------|----------|
-| **📊 KPI Overview** | Executive summary | 4+ KPI cards with auto-formatted numbers, hover effects, custom borders |
-| **📈 Analysis** | Trend & analysis | 3 charts (line/bar/pie), Chart.js, Treasure Data colors, responsive resize |
-| **📋 Data Explorer** | Data exploration | Sortable table (click headers), full-text search, status badges, CSV/JSON export |
-| **💡 Insights** | Key insights | Auto-generated findings, growth opportunities, actionable recommendations |
-| **⬇️ Export** | Data download | Download as CSV, Download as JSON, Print to PDF |
-
-**All in ONE file. No more choosing. All features together.**
+| **📊 KPI Overview** | Executive summary | 4 KPI cards with values |
+| **📈 Analysis** | Trend & analysis | Line chart, Bar chart, Pie chart |
+| **📋 Data Explorer** | Data exploration | Sortable table, Search, Filter |
+| **⬇️ Export** | Data download | CSV, JSON, PDF print |
 
 ---
 
@@ -166,28 +151,6 @@ The script auto-populates from `metrics` object. Just add more keys:
   "Avg Order Value": 2254.18,
   "Conversion Rate": 0.032,           // ← New
   "Churn Rate": 0.015                 // ← New
-}
-```
-
-### Auto-Generate Insights
-
-The Insights tab automatically analyzes your data and generates:
-
-- **Key Findings:** Highlights top-performing metrics and data completeness
-- **Growth Opportunities:** Identifies engagement gaps and improvement areas
-- **Actionable Recommendations:** Suggests monitoring cadence and data quality checks
-
-Customize by editing the `generateInsights()` function in the HTML:
-
-```javascript
-// Example: Add a custom insight based on a metric threshold
-if (data.metrics['Revenue'] > 1000000) {
-  insights.push({
-    type: 'recommendation',
-    title: 'Revenue Milestone',
-    description: 'You\'ve achieved $1M in revenue! Consider scaling operations.',
-    metric: formatNumber(data.metrics['Revenue'])
-  });
 }
 ```
 

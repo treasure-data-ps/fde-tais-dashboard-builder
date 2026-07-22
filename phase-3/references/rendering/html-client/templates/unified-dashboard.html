@@ -1,42 +1,3 @@
-<!--
-  ╔══════════════════════════════════════════════════════════════════════════════╗
-  ║                   UNIFIED TREASURE DATA DASHBOARD TEMPLATE                   ║
-  ║                                                                              ║
-  ║  This template combines all features from three individual templates:       ║
-  ║                                                                              ║
-  ║  ✓ KPI Dashboard Features (Tab 1: KPI Overview)                             ║
-  ║    - 4+ KPI cards with metrics                                              ║
-  ║    - Formatted numbers (1.2M format)                                        ║
-  ║    - Auto-populated from metrics object                                     ║
-  ║                                                                              ║
-  ║  ✓ Multi-Chart Dashboard Features (Tab 2: Analysis)                         ║
-  ║    - Line chart for trend analysis                                          ║
-  ║    - Bar chart for category comparison                                      ║
-  ║    - Pie chart for distribution analysis                                    ║
-  ║    - Chart.js with Treasure Data colors                                     ║
-  ║                                                                              ║
-  ║  ✓ Table Dashboard Features (Tab 3: Data Explorer)                          ║
-  ║    - Sortable columns (click headers)                                       ║
-  ║    - Full-text search across all fields                                     ║
-  ║    - Status badges with color coding                                        ║
-  ║    - Responsive table scrolling                                             ║
-  ║                                                                              ║
-  ║  ✓ Bonus: Insights Tab (Tab 4)                                              ║
-  ║    - Auto-generated key findings from data                                  ║
-  ║    - Growth opportunities and engagement insights                           ║
-  ║    - Actionable recommendations                                             ║
-  ║                                                                              ║
-  ║  ✓ Bonus: Export Tab (Tab 5)                                                ║
-  ║    - Export as CSV                                                          ║
-  ║    - Export as JSON                                                         ║
-  ║    - Print to PDF                                                           ║
-  ║                                                                              ║
-  ║  BRANDING: Treasure Data 2026 (Dark Blue #2D40AA + Purple #847BF2)          ║
-  ║  RESPONSIVE: Desktop (3-col) → Tablet (2-col) → Mobile (1-col)              ║
-  ║  DATA PATTERNS: Pattern A (inline <2MB) or Pattern B (separate data.json)    ║
-  ║                                                                              ║
-  ╚══════════════════════════════════════════════════════════════════════════════╝
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -394,90 +355,6 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    /* Insights Section */
-    .insights-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .insight-card {
-      background: white;
-      border-left: 4px solid var(--td-primary);
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .insight-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .insight-card.opportunity {
-      border-left-color: var(--td-success);
-    }
-
-    .insight-card.recommendation {
-      border-left-color: var(--td-warning);
-    }
-
-    .insight-type {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      margin-bottom: 0.5rem;
-    }
-
-    .insight-type.finding {
-      background: rgba(45, 64, 170, 0.1);
-      color: var(--td-primary);
-    }
-
-    .insight-type.opportunity {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--td-success);
-    }
-
-    .insight-type.recommendation {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--td-warning);
-    }
-
-    .insight-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin: 0.5rem 0 0.75rem 0;
-    }
-
-    .insight-description {
-      font-size: 0.95rem;
-      color: var(--gray-600);
-      line-height: 1.5;
-    }
-
-    .insight-metric {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--td-primary);
-      margin-top: 1rem;
-    }
-
-    .insights-section-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--td-light);
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
       header h1 {
@@ -546,7 +423,6 @@
         <button class="tab-btn active" onclick="switchTab(event, 'kpi-tab')">📊 KPI Overview</button>
         <button class="tab-btn" onclick="switchTab(event, 'charts-tab')">📈 Analysis</button>
         <button class="tab-btn" onclick="switchTab(event, 'table-tab')">📋 Data Explorer</button>
-        <button class="tab-btn" onclick="switchTab(event, 'insights-tab')">💡 Insights</button>
         <button class="tab-btn" onclick="switchTab(event, 'export-tab')">⬇️ Export</button>
       </div>
 
@@ -576,13 +452,7 @@
         </div>
       </div>
 
-      <!-- Tab 4: Insights & Recommendations -->
-      <div id="insights-tab" class="tab-content">
-        <div class="insights-section-title">💡 Key Insights & Recommendations</div>
-        <div class="insights-container" id="insightsContainer"></div>
-      </div>
-
-      <!-- Tab 5: Export -->
+      <!-- Tab 4: Export -->
       <div id="export-tab" class="tab-content">
         <div class="export-section">
           <h2 style="margin-bottom: 1rem; color: var(--td-primary);">Export Data</h2>
@@ -619,7 +489,6 @@
         renderKPIs();
         renderCharts();
         renderTable();
-        renderInsights();
         updateTimestamp();
       } catch (error) {
         console.error('Error initializing dashboard:', error);
@@ -907,108 +776,6 @@
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    }
-
-    // Render Insights & Recommendations
-    function renderInsights() {
-      const container = document.getElementById('insightsContainer');
-      container.innerHTML = '';
-
-      if (!rawData.metrics) return;
-
-      const insights = generateInsights(rawData);
-
-      insights.forEach(insight => {
-        const card = document.createElement('div');
-        card.className = `insight-card ${insight.type === 'opportunity' ? 'opportunity' : insight.type === 'recommendation' ? 'recommendation' : ''}`;
-
-        const typeLabel = insight.type.charAt(0).toUpperCase() + insight.type.slice(1);
-        card.innerHTML = `
-          <div class="insight-type ${insight.type}">${typeLabel}</div>
-          <div class="insight-title">${insight.title}</div>
-          <div class="insight-description">${insight.description}</div>
-          ${insight.metric ? `<div class="insight-metric">${insight.metric}</div>` : ''}
-        `;
-
-        container.appendChild(card);
-      });
-    }
-
-    // Generate insights from data
-    function generateInsights(data) {
-      const insights = [];
-
-      if (!data.metrics || !data.rows) return insights;
-
-      // Analyze metrics for insights
-      const metricEntries = Object.entries(data.metrics);
-      const avgMetric = metricEntries.reduce((sum, [_, val]) => sum + (typeof val === 'number' ? val : 0), 0) / metricEntries.length;
-
-      // Finding 1: Highest performing metric
-      if (metricEntries.length > 0) {
-        const [maxName, maxValue] = metricEntries.reduce((prev, current) =>
-          (typeof current[1] === 'number' && current[1] > (typeof prev[1] === 'number' ? prev[1] : 0)) ? current : prev
-        );
-        insights.push({
-          type: 'finding',
-          title: 'Top Performer',
-          description: `${formatLabel(maxName)} is your highest metric, indicating strong performance in this area.`,
-          metric: formatNumber(maxValue)
-        });
-      }
-
-      // Finding 2: Data volume
-      if (data.rows.length > 0) {
-        insights.push({
-          type: 'finding',
-          title: 'Data Completeness',
-          description: `Dashboard contains ${data.rows.length} data points. Review the Data Explorer tab for detailed records.`,
-          metric: `${data.rows.length} rows`
-        });
-      }
-
-      // Opportunity 1: Status distribution
-      if (data.rows.length > 0) {
-        const statusCounts = {};
-        data.rows.forEach(row => {
-          if (row.status) {
-            statusCounts[row.status] = (statusCounts[row.status] || 0) + 1;
-          }
-        });
-
-        const activeCount = statusCounts['Active'] || 0;
-        const activePercent = Math.round((activeCount / data.rows.length) * 100);
-
-        if (activePercent < 90) {
-          insights.push({
-            type: 'opportunity',
-            title: 'Engagement Opportunity',
-            description: `Only ${activePercent}% of records are active. Consider strategies to increase engagement across inactive records.`,
-            metric: `${activePercent}% active`
-          });
-        }
-      }
-
-      // Recommendation 1: Regular monitoring
-      insights.push({
-        type: 'recommendation',
-        title: 'Track Key Metrics',
-        description: 'Monitor KPI trends weekly. Set alerts for metrics that deviate more than 15% from baseline.',
-        metric: 'Review monthly'
-      });
-
-      // Recommendation 2: Data quality
-      if (data.rows && data.rows.length > 0) {
-        const completeness = Object.keys(data.rows[0]).length;
-        insights.push({
-          type: 'recommendation',
-          title: 'Data Quality Check',
-          description: `Your dataset contains ${completeness} fields. Ensure all critical fields are populated and validated.`,
-          metric: `${completeness} fields tracked`
-        });
-      }
-
-      return insights;
     }
 
     // Utility functions

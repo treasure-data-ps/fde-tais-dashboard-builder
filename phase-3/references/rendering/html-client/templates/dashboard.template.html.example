@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .data-info { font-size: 12px; color: #999; }
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .kpi-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .kpi-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+    .kpi-value { font-size: 24px; font-weight: bold; color: #333; }
+    .chart-container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; position: relative; height: 300px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Dashboard</h1>
+    <div class="data-info">
+      Data as of: <span id="data-timestamp">—</span>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-row" id="kpi-container">
+    <!-- Generated from RAW.kpis -->
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-container">
+    <canvas id="trend-chart"></canvas>
+  </div>
+</div>
+
+<!-- IMPORTANT: Load data.json BEFORE other scripts that use window.RAW -->
+<script>
+(function() {
+  // Load data.json at runtime
+  fetch('data.json')
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to load data.json: ' + response.status);
+      return response.json();
+    })
+    .then(data => {
+      window.RAW = data;
+      console.log('✅ Data loaded:', window.RAW);
+
+      // Show data freshness
+      if (window.RAW && window.RAW._meta) {
+        var dt = new Date(window.RAW._meta.generated_at);
+        var ageMs = Date.now() - dt;
+        var ageMin = Math.round(ageMs / (1000 * 60));
+        var ageHr = Math.round(ageMs / (1000 * 60 * 60));
+        var age = ageMin < 60 ? ageMin + 'm ago' : ageHr + 'h ago';
+        var elem = document.getElementById('data-timestamp');
+        if (elem) {
+          elem.textContent = dt.toLocaleString() + ' (' + age + ')';
+        }
+      }
+
+      // Initialize dashboard
+      initDashboard();
+    })
+    .catch(err => {
+      console.error('❌ Error loading data:', err);
+      document.body.innerHTML = '<p style="padding: 20px; color: red;"><strong>Error:</strong> Failed to load data.json. Make sure generate-data.js was run first.</p>';
+    });
+
+  // Initialize dashboard with RAW data
+  function initDashboard() {
+    if (!window.RAW) {
+      console.error('RAW data not available');
+      return;
+    }
+
+    // Render KPI cards
+    var kpiContainer = document.getElementById('kpi-container');
+    if (window.RAW.kpis) {
+      window.RAW.kpis.forEach(kpi => {
+        var card = document.createElement('div');
+        card.className = 'kpi-card';
+        var value = typeof kpi.value === 'number'
+          ? kpi.value.toLocaleString()
+          : kpi.value;
+        card.innerHTML = '<div class="kpi-label">' + kpi.label + '</div>' +
+                        '<div class="kpi-value">' + value + '</div>';
+        kpiContainer.appendChild(card);
+      });
+    }
+
+    // Render chart (example: trend line chart)
+    if (window.RAW.trend && window.RAW.trend.length > 0) {
+      var ctx = document.getElementById('trend-chart').getContext('2d');
+      var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: window.RAW.trend.map(r => r.month),
+          datasets: [{
+            label: 'Revenue',
+            data: window.RAW.trend.map(r => r.revenue),
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
