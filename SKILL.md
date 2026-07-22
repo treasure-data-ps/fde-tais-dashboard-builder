@@ -1,5 +1,5 @@
 ---
-name: td-general-dashboarding-skill
+name: fde-tais-dashboard-builder
 description: Build or resume custom HTML dashboards from Treasure Data using a 5-phase self-serve pipeline (local, no Confluence/git).
 ---
 

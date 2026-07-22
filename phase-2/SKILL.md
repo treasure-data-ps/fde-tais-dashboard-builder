@@ -1,5 +1,5 @@
 ---
-name: td-general-dashboarding-skill-phase-2
+name: fde-tais-dashboard-builder-phase-2
 description: INTERNAL — Phase 2 only. Deploy a scheduled workflow that pre-aggregates metrics into SINK tables.
 ---
 

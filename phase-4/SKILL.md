@@ -1,5 +1,5 @@
 ---
-name: td-general-dashboarding-skill-phase-4
+name: fde-tais-dashboard-builder-phase-4
 description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Track A) or deploy Foundry agent (Track B).
 ---
 

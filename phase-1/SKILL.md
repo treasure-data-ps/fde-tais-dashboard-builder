@@ -1,5 +1,5 @@
 ---
-name: td-general-dashboarding-skill-phase-1
+name: fde-tais-dashboard-builder-phase-1
 description: |
   INTERNAL — Phase 1 only. Gather business requirements, validate against real data, score promotion (0-6), and route to Phase 2/3. Produces local state.md with requirements, data findings, and path decision.
 ---

@@ -12,7 +12,7 @@ This document shows how all files in the skill work together to ensure instructi
 ## File Structure Overview
 
 ```
-td-general-dashboarding-skill/
+fde-tais-dashboard-builder/
 │
 ├── INSTRUCTIONS.md ← Read FIRST (load_order: 0 — master)
 │   ├── 9 universal rules (all phases)

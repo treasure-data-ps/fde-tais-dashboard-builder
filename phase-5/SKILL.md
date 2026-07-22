@@ -1,5 +1,5 @@
 ---
-name: td-general-dashboarding-skill-phase-5
+name: fde-tais-dashboard-builder-phase-5
 description: INTERNAL — Phase 5 only. Optional: create 4 local handoff documentation files.
 ---
 

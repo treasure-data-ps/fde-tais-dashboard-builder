@@ -1,5 +1,5 @@
 ---
-name: td-general-dashboarding-skill-phase-3
+name: fde-tais-dashboard-builder-phase-3
 description: |
   INTERNAL — Phase 3 only. Build and validate an interactive HTML Client dashboard.
 ---
