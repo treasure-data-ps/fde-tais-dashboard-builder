@@ -3,6 +3,7 @@
   "name": "Custom Dashboard Agent (Lite)",
   "version": "2.0.0",
   "author": "Treasure AI FDE Team",
+  "license": "Proprietary - Treasure Data has all rights",
   "status": "production",
 
   "description": "Build or resume custom HTML dashboards from Treasure Data using a 5-phase self-serve pipeline. No Confluence, no git — everything local. Routes to Non-Workflow (Score 0-2) or Workflow (Score 4-6) based on requirements.",
