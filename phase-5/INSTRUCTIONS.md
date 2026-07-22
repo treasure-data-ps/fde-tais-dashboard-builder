@@ -688,6 +688,35 @@ END Phase 5
 
 ---
 
+## Phase Progression Gate (Final — Project Complete)
+
+**⚠️ CRITICAL: Before marking project COMPLETE, verify:**
+
+- [ ] Phase 3 marked COMPLETE in state.md
+- [ ] All 4 documentation files created:
+  - [ ] Architecture.md (data flow documented)
+  - [ ] Usage Guide.md (how to use documented)
+  - [ ] Runbook.md (operations documented)
+  - [ ] Access & Ownership.md (permissions documented)
+- [ ] Owner approved all 4 docs
+- [ ] state.md appended with Phase 5 results:
+  - 4 documentation files listed
+  - Owner approval captured
+  - "PROJECT COMPLETE" status
+  - Final notes
+
+**If ANY item is missing or unapproved:**
+> "Cannot close project. Phase 5 incomplete.
+> Missing/Unapproved: [specific item]
+> Please complete before marking project as done."
+
+**Only after all items verified:**
+- Append "PROJECT COMPLETE" to state.md
+- Handoff complete
+- Claude engagement ends
+
+---
+
 ## After Phase 5 Completes
 
 **All 4 documentation files created:**

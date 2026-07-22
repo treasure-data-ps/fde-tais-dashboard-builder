@@ -29,6 +29,55 @@ Deploy a scheduled Treasure Data workflow that:
 
 ## Phase 2 Specific Rules (In Addition to Universal Rules)
 
+### Rule P2-0: Dry-Run First (Before Approval)
+
+**⚠️ CRITICAL: CANNOT request approval without showing dry-run output first.**
+
+**Step 1: Run dry-run BEFORE presenting approval template**
+
+```bash
+# Show user what WILL happen (no actual creation)
+tdx wf run [workflow_name] --dry-run
+```
+
+**Step 2: Present dry-run output to user**
+
+Include in presentation:
+- ✓ What tasks will run (task graph)
+- ✓ What queries will execute (which SQL)
+- ✓ What SINK tables will be created (names, schemas)
+- ✓ Estimated duration per run
+- ✓ Estimated query cost
+- ✓ Schedule start time
+- ✓ Frequency (daily/weekly/etc)
+
+**Example:**
+```
+Dry-run shows:
+  Task 1: aggregate_revenue.sql
+    - Will read from: sales_events
+    - Will write to: project_slug_sink_revenue
+    - Estimated rows: 365 (one per day for 1 year)
+  
+  Task 2: aggregate_customers.sql
+    - Will read from: customers
+    - Will write to: project_slug_sink_customers
+    - Estimated rows: 1,200,000
+  
+  Total cost per run: ~$2.50
+  Total storage (incremental): ~500 MB/month
+  Schedule: Daily at 02:00 UTC
+```
+
+**Step 3: Ask user: "Does this match your expectations?"**
+
+- If NO → Adjust plan (different schedule, different metrics, etc.)
+- If YES → Proceed to approval template (Rule P2-1)
+
+**Why:** Dry-run lets user see exactly what will happen BEFORE committing. Prevents surprises.
+
+---
+
 ### Rule P2-1: Approval Gate — SINK Table Creation (ENFORCEMENT)
 
 **⚠️ CRITICAL: CANNOT create SINK tables without explicit user approval.**
@@ -389,6 +438,34 @@ END Phase 2 → Jump to Phase 3
 ### "How much will this cost?"
 **Response:**
 > "Rough estimate based on query volume: ~$X per month. Workflow runs [frequency], and each run queries [N GB] of data. You can adjust the schedule to reduce cost if needed."
+
+---
+
+## Phase Progression Gate (CANNOT Skip)
+
+**⚠️ CRITICAL: Before proceeding to Phase 3, verify:**
+
+- [ ] Phase 1 marked COMPLETE in state.md (promotion score documented)
+- [ ] Promotion score is 4-6 (or user explicitly chose Phase 2)
+- [ ] All SINK tables created (listed in state.md)
+- [ ] Workflow deployed and first run completed successfully
+- [ ] Workflow runs without errors (check logs)
+- [ ] SINK tables populated with expected data
+- [ ] state.md appended with Phase 2 results:
+  - SINK table names (all listed)
+  - Workflow name and schedule
+  - First run results
+  - Validation checklist completed
+  - "Next Action" pointer set to Phase 3
+
+**If ANY item is missing or failed:**
+> "Cannot proceed to Phase 3. Phase 2 incomplete or failed.
+> Missing/Failed: [specific item]
+> Please complete or debug before moving forward."
+
+**Only after all items verified:**
+- Append "Phase 2 COMPLETE" to state.md
+- Proceed to Phase 3
 
 ---
 

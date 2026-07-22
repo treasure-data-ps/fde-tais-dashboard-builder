@@ -35,6 +35,58 @@ Extend the dashboard with two optional automation tracks:
 
 ## Phase 4 Specific Rules (In Addition to Universal Rules)
 
+### Rule P4-0: Dry-Run First (Track B Agent Only)
+
+**⚠️ CRITICAL (Track B only): Test agent with sample queries BEFORE deployment.**
+
+**Step 1: Deploy agent to staging/test environment**
+
+```bash
+# Create agent in test project (not production)
+tdx agent push --project [project_slug]-test
+```
+
+**Step 2: Run sample queries to verify KB accuracy**
+
+Test the knowledge base:
+```
+Query 1: "What is the total revenue for last month?"
+  KB says: Revenue table = [table_name]
+  Agent queries: SELECT SUM(revenue) FROM [table_name]...
+  Result: Returns value ✓
+
+Query 2: "Show me customers by region"
+  KB says: Regions available = US, EU, APAC
+  Agent queries: SELECT * FROM [table] WHERE region IN (...)
+  Result: Returns expected regions ✓
+
+Query 3: "What's the churn rate?"
+  KB says: Churn rate = (churned / total) customers
+  Agent queries: SELECT COUNT(*) ... correctly calculates ✓
+```
+
+**Step 3: Verify KB spot-checks**
+
+Before production deployment:
+- [ ] All tables referenced in KB actually exist in TD
+- [ ] All sample values in KB are current (not stale)
+- [ ] All query patterns in KB run without errors
+- [ ] Agent responds with expected data (no hallucinations)
+
+**If any test fails:**
+- Fix KB (update table names, refresh spot-check values)
+- Redeploy to test
+- Re-run tests
+- Repeat until all pass
+
+**Step 4: Only after all tests pass**
+- Deploy to production
+- Proceed to approval gate
+
+**Why:** Agent KB accuracy = trust. Testing in staging prevents production failures.
+
+---
+
 ### Rule P4-1: Track A Approval Gate — Skill Creation (ENFORCEMENT)
 
 **⚠️ CRITICAL: CANNOT extract skill without explicit user approval.**
@@ -423,6 +475,31 @@ END Phase 4
 ### Track B: "Can the agent write to the database?"
 **Response:**
 > "No — agent has read-only access (SELECT only). This is a security gate to prevent accidental modifications. If you need write access, that would require separate approval + audit logging."
+
+---
+
+## Phase Progression Gate (CANNOT Skip)
+
+**⚠️ CRITICAL: Before proceeding to Phase 5 (optional), verify:**
+
+- [ ] Phase 3 marked COMPLETE in state.md
+- [ ] If Track A chosen: skill extracted and end-to-end tests PASSED
+- [ ] If Track B chosen: agent deployed and sample queries tested
+- [ ] state.md appended with Phase 4 results:
+  - Track A: Skill name, location, test results
+  - Track B: Agent name, KB accuracy, sample queries verified
+  - Both: Completion status
+  - "Next Action" pointer (Phase 5 optional or project complete)
+
+**If ANY item is missing or tests failed:**
+> "Cannot proceed. Phase 4 incomplete or tests failed.
+> Missing/Failed: [specific item]
+> Please complete before moving forward."
+
+**Only after all items verified:**
+- Append "Phase 4 COMPLETE" to state.md
+- If user wants Phase 5: proceed to phase-5/INSTRUCTIONS.md
+- Or project can close (automation done, or skipped)
 
 ---
 

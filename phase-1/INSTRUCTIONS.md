@@ -343,6 +343,33 @@ END Phase 1
 
 ---
 
+## Phase Progression Gate (CANNOT Skip)
+
+**⚠️ CRITICAL: Before proceeding to Phase 2 or Phase 3, verify:**
+
+- [ ] All Stage A questions answered (1a-1o)
+- [ ] All Stage B data validations complete (tables confirmed, columns verified, joins tested)
+- [ ] Promotion Score calculated (0-6, with breakdown)
+- [ ] state.md created with ALL Phase 1 results:
+  - Business requirements documented
+  - Data findings documented
+  - Time column identified
+  - Join keys validated
+  - Promotion score and justification
+  - Path decision (Phase 2 or Phase 3)
+  - "Next Action" pointer
+
+**If ANY item is missing:**
+> "Cannot proceed to next phase. Phase 1 incomplete.
+> Missing: [specific item]
+> Please complete before moving forward."
+
+**Only after all items verified:**
+- Append "Phase 1 COMPLETE" to state.md
+- Move to next phase based on promotion score
+
+---
+
 ## After Phase 1 Completes
 
 **If Score 0-2:**

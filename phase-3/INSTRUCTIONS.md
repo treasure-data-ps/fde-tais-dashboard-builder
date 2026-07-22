@@ -410,6 +410,37 @@ END Phase 3
 
 ---
 
+## Phase Progression Gate (CANNOT Skip)
+
+**⚠️ CRITICAL: Before proceeding to Phase 4 (optional), verify:**
+
+- [ ] Phase 1 marked COMPLETE in state.md
+- [ ] Phase 2 marked COMPLETE in state.md (if applicable)
+- [ ] Dashboard HTML file exists and opens standalone
+- [ ] All filters tested and work correctly
+- [ ] All charts render without errors
+- [ ] 3+ KPI spot-checks PASSED (all exactly matching)
+- [ ] User explicitly approved dashboard (not just "looks good")
+- [ ] state.md appended with Phase 3 results:
+  - Dashboard file size and location
+  - Queries executed (with row counts)
+  - Spot-check results (3 KPIs, all matching)
+  - User approval captured
+  - "Next Action" pointer (Phase 4 optional or Phase 5)
+
+**If ANY item is missing or spot-checks failed:**
+> "Cannot proceed. Phase 3 incomplete.
+> Missing/Failed: [specific item]
+> Please complete before moving forward."
+
+**Only after all items verified:**
+- Append "Phase 3 COMPLETE" to state.md
+- If user wants Phase 4: proceed to phase-4/INSTRUCTIONS.md
+- If user wants Phase 5 or close: proceed to phase-5/INSTRUCTIONS.md
+- Or project is complete
+
+---
+
 ## After Phase 3 Completes
 
 **If dashboard is approved:**
