@@ -48,7 +48,6 @@ Gather business requirements (Stage A), validate them against real data (Stage B
 - [ ] Metrics inferred/validated against live queries
 - [ ] Dimensions validated (cardinality, join fan-out checked)
 - [ ] Data Quality Gate run (all checks passed)
-- [ ] **HTML Client data size validated** (total rows, estimated file size, feasibility check)
 
 **Scoring & Path Decision**
 - [ ] Promotion score calculated (Q1 + Q2 + Q3 = ___ / 6)
@@ -58,38 +57,6 @@ Gather business requirements (Stage A), validate them against real data (Stage B
 - [ ] state.md created with all findings
 - [ ] User approval obtained
 - [ ] Ready to proceed to Phase 2 or Phase 3
-
----
-
----
-
-## ✅ Before You Proceed: Required Reads
-
-**Before executing Phase 1 Stage A, read these reference files:**
-1. **`../references/guardrails-lite.md`** — Cross-phase guardrails (re-read on every engagement)
-2. **`./phase-1/references/dashboard-design-questions.md`** — Stage A question patterns and taxonomy
-3. **`./phase-1/references/steps-1a-1o.md`** — Detailed requirement gathering steps (KPIs, dimensions, filters, freshness)
-
-These files establish the baseline for all Stage A questions and ensure consistent scoping across all engagements.
-
----
-
-## ⚠️ Conditional Reads (Only if applicable)
-
-**If user provides a `.dash` file (Sisense/Treasure Insights export):**
-- **`./phase-1/references/steps-1pre.md`** — Sisense `.dash` migration fast-track (34K)
-  - Converts `.dash` export to dashboard spec
-  - Prefills Stage A/B from widget metadata
-  - Skips manual requirement questions
-- **`../references/dash_to_html.py`** — Conversion script (74K)
-
-**If using Treasure Insights API (real-time query access):**
-- **`./phase-1/references/treasure-insights-api-integration.md`** — Treasure Insights API integration patterns
-- **`../references/insights-api-helper.py`** — API helper script
-
-**If requesting optional Phase 1 exploratory steps:**
-- **`./phase-1/references/steps-1k-1n-optional.md`** — Optional Phase 1 steps (competitive analysis, benchmarks, drill-down design)
-  - Only read if user asks for "advanced requirements" or industry benchmarking
 
 ---
 
@@ -146,63 +113,6 @@ SELECT DISTINCT country FROM sales_table LIMIT 10;
 - +1 if audience > 5 people (concurrency risk)
 
 **Rule:** Calculate score before asking path decision. The score determines the path.
-
----
-
-### Rule P1-2b: Dashboard Design Specification (ENFORCEMENT)
-
-**⚠️ CRITICAL: Phase 1 Stage A must capture complete dashboard design before moving to Stage B.**
-
-During Step 1c (Dimensions, Filters, Layout), capture:
-
-1. **Tab Structure:**
-   - How many tabs? (single or multiple)
-   - What is each tab called?
-   - Which metrics go on each tab?
-
-2. **Global vs Tab Filters:**
-   - Which filters apply to ALL tabs? (date, region, etc.)
-   - Which filters apply to specific tabs only?
-
-3. **Visualization Type per Metric:**
-   - KPI card? Line chart? Bar chart? Pie chart? Table?
-   - What dimensions slice each metric?
-
-4. **Widget Details:**
-   - Widget name
-   - Chart type
-   - Metric and calculation (SUM/COUNT/AVG/etc)
-   - Dimensions (what to slice by)
-   - Filters applied
-   - Business definition
-
-5. **Interactivity:**
-   - Can users click to drill down?
-   - Can users export data?
-   - Which widgets update together?
-
-**See:** `./references/dashboard-design-questions.md` for question sets and examples
-
-**Capture in state.md:**
-```yaml
-### Dashboard Design Specification
-
-**Tabs:** [number and names]
-
-**Global Filters:**
-  - [filter 1]: [type]
-  - [filter 2]: [type]
-
-**Widgets:**
-  - [Tab Name] - [Widget Name]
-    Chart Type: [KPI/Line/Bar/Pie/Table/...]
-    Metric: [metric name]
-    Calculation: [formula]
-    Dimensions: [sliced by]
-    Definition: [business meaning]
-```
-
-**Why:** This prevents rework in Phase 3. Users approve the complete design in Phase 1, so Phase 3 is execution, not design iteration.
 
 ---
 
@@ -296,91 +206,6 @@ For each dimension user requests:
 
 ---
 
-### Rule P1-7b: HTML Client Data Size Validation (ENFORCEMENT)
-
-**⚠️ CRITICAL: Phase 1 must validate that dashboard design is feasible for HTML Client limits.**
-
-HTML Client stores data INLINE in the HTML file (not fetched from API). This creates hard limits:
-
-| Metric | Safe | Warning | Breaking |
-|--------|------|---------|----------|
-| HTML File Size | < 10 MB | 10-50 MB | > 50 MB |
-| Data Rows (total) | < 100K | 100K-500K | > 500K |
-| Load Time | < 2s | 2-5s | > 5s |
-
-**During Stage B (data discovery), for EACH widget AND filter:**
-
-1. **Analyze filters first (high-cardinality blocks):**
-   ```bash
-   # Check cardinality of each filter column
-   tdx query "SELECT COUNT(DISTINCT region) FROM orders"
-   tdx query "SELECT COUNT(DISTINCT status) FROM orders"
-   tdx query "SELECT COUNT(DISTINCT customer_id) FROM orders"
-   
-   # Safe: < 50 values (use dropdown)
-   # Warning: 50-500 values (consider search)
-   # Danger: > 500 values (use search autocomplete, don't embed)
-   # Breaks: > 10,000 values (definitely not in data.json)
-   ```
-
-2. **Estimate widget rows:**
-   ```
-   If aggregated (GROUP BY region, date, status):
-     90 days × 6 regions × 4 statuses = 2,160 rows ✅
-   
-   If raw events (no aggregation):
-     2.1M rows ❌ TOO LARGE
-   ```
-
-3. **Run actual query to test:**
-   ```bash
-   tdx query --output json < query.sql > data.json
-   ls -lh data.json
-   # If < 5 MB: ✅ Safe
-   # If 5-20 MB: ⚠️ Warning
-   # If > 20 MB: ❌ Likely breaks
-   ```
-
-4. **Identify problems:**
-   - High-cardinality filters (customer_id, product_id, user_id)?
-   - Too many dimensions (combinations explode)?
-   - Raw events instead of aggregated?
-   - Too much history (3+ years daily data)?
-   - Too many dimensions in GROUP BY?
-   - Too many tabs with independent data?
-
-5. **Solutions:**
-   - ✅ Remove high-cardinality filters (use search instead)
-   - ✅ Aggregate more (weekly instead of daily, top 10 categories)
-   - ✅ Filter scope (last 90 days instead of 3 years)
-   - ✅ Reduce dimensions (remove least-used slicing dimension)
-   - ✅ Paginate tables (show top 1,000 rows only)
-   - ✅ Limit to 3-5 low-cardinality filters max
-   - ✅ Limit to 3-5 tabs per dashboard
-   - ❌ If none work: Recommend Phase 4 (backend API) instead
-
-**Capture in state.md:**
-```yaml
-### HTML Client Data Validation
-
-Widget | Type | Estimated Rows | Estimated Size | Status
---------|------|--------|--------|--------
-[Widget Name] | [Type] | [N rows] | [X KB/MB] | [✅/⚠️/❌]
-
-Total Estimated Size: [X MB]
-Feasibility: [✅ Safe / ⚠️ Warning / ❌ Not Feasible]
-
-If warning/failing, action taken:
-  - [Solution applied: e.g., "Reduced to weekly instead of daily"]
-  - [User approved: Yes/No]
-```
-
-**See:** `./references/html-client-data-limits.md` for detailed estimation and solutions
-
-**Why:** Discovering data size issues in Phase 1 prevents Phase 3 build failures or slow dashboards.
-
----
-
 ### Rule P1-8: Metrics Validation
 
 For each metric user requests:
@@ -405,101 +230,7 @@ SELECT SUM(revenue) FROM sales_table WHERE DATE(created_at) = '2026-07-22';
 
 ---
 
-### Rule P1-9: Filter Edge Case Question (REQUIRED IN STAGE A)
-
-**⚠️ CRITICAL: Ask explicitly: "What should KPIs show when a filter makes accurate computation impossible?"**
-
-**Add this question to Stage A Step 1c (Filters & Layout):**
-
-```
-For each metric, decide edge case behavior:
-
-Q: "Total Customers" filtered by "Product Category" 
-   = Can't compute accurately (same customer buys multiple categories)
-   Options:
-     a) Show COUNT(DISTINCT customer) per category (separate count per category)
-     b) Show "—" (dash, not available)
-     c) Show estimate with "*" (estimate, confidence note)
-   User decides: (a/b/c)
-
-Q: "Revenue" filtered by "Date" 
-   = Can compute accurately (revenue IS date-filterable)
-   Options:
-     a) Show filtered revenue (correct answer)
-   User decides: (a)
-
-Q: "Unique Visitors" filtered by "Page"
-   = Can't compute accurately (same visitor visits multiple pages)
-   Options:
-     a) Show visitors per page (separate count per page, not unique across)
-     b) Show "—"
-     c) Show all-time visitors (unfiltered, maybe with warning)
-   User decides: (a/b/c)
-```
-
-**Capture in state.md:**
-```yaml
-### Filter Edge Case Behaviors (if filter makes computation impossible)
-
-Metric: Total Customers
-- If filtered by Category: Show "—" (can't count distinct across categories)
-- If filtered by Region: Show COUNT(DISTINCT customer_id) per region ✓
-
-Metric: Unique Sessions
-- If filtered by Page: Show sessions per page OR show "—"
-- If filtered by Date: Show COUNT(DISTINCT session_id) per date ✓
-
-Metric: Revenue
-- All filters: Show filtered revenue (always computable)
-```
-
-**Why:** Prevents Phase 3 discovery of incomputable metrics. Better to decide in Phase 1.
-
----
-
-### Rule P1-9a: Filter Interaction Rules (REQUIRED BEFORE PHASE 3)
-
-**⚠️ CRITICAL: Specify what happens to metrics when filters are applied. Ask explicitly in Stage A Step 1c.**
-
-For each **KPI/metric** that will have filters applied, specify:
-
-1. **Date filter applied:** Does the metric recalculate? Show `—` if impossible to aggregate to single value?
-2. **Category/dimension filter applied:** Does the metric update? Show adjusted value, `—`, or estimate?
-3. **Custom segment filter applied:** How does this affect the KPI? Show for segment only, show total + segment, or exclude?
-
-**Examples:**
-
-| Metric | Date Filter | Category Filter | Segment Filter |
-|--------|------------|-----------------|---|
-| **Total Revenue** | ✅ Recalculate | ✅ Show by category | ✅ Show for segment |
-| **Unique Customers** | ⚠️ Show `—` (can't aggregate) | ⚠️ Show by category | ✅ Show for segment |
-| **Avg Order Value** | ✅ Recalculate | ✅ Show by category | ✅ Show for segment |
-
-**Questions to ask the user:**
-
-1. "For [Metric X], if someone filters to [specific category], should the value update or show `—`?"
-2. "If a metric can't be accurately filtered (e.g., Unique Customers by date), should we show an estimate, hide it, or show a warning?"
-3. "When multiple filters are applied together, should metrics show the intersection, or revert to unfiltered?"
-
-**Capture in state.md:**
-```yaml
-### Filter Interaction Rules
-
-**Metric: [Metric Name]**
-- Date filter behavior: [Recalculate / Show — / Show estimate]
-- Category filter behavior: [Show by category / Show — / Show estimate]
-- Segment filter behavior: [Show for segment / Show total + segment]
-- Multi-filter behavior: [Intersection / Revert]
-
-**Metric: [Next Metric Name]**
-- [Same structure]
-```
-
-**Why:** Prevents Phase 3 confusion about what filters should do to each metric. Discovered late = rework cycles.
-
----
-
-### Rule P1-10: State.md Creation
+### Rule P1-9: State.md Creation
 
 At end of Phase 1, create `state.md` with this structure:
 
@@ -563,60 +294,18 @@ At end of Phase 1, create `state.md` with this structure:
 
 ### Dashboard Plan Summary (Displayed to User)
 
-**Dashboard Filters (applied to all tabs):**
-- [Filter 1]: [dimension/field], type: [dropdown/date-picker/search]
-- [Filter 2]: [dimension/field], type: [dropdown/date-picker/search]
+**Metrics:**
+- [Metric 1]: [definition] — Sample value: [value]
+- [Metric 2]: [definition] — Sample value: [value]
+- [Metric 3]: [definition] — Sample value: [value]
 
-**Tabs:**
-- Tab 1: [name] — Widgets: [count]
-- Tab 2: [name] — Widgets: [count]
+**Dimensions:**
+- [Dimension 1]: [cardinality] values
+- [Dimension 2]: [cardinality] values
 
-**Tab 1: [Tab Name]**
-
-| Widget | Type | Metric | Dimensions | Filters | Calculation |
-|--------|------|--------|-----------|---------|-------------|
-| [Widget 1 Name] | [Chart Type: KPI/Bar/Line/Table] | [Metric] | [Sliced by] | [Filter 1, Filter 2] | [Formula/Aggregation] |
-| [Widget 2 Name] | [Chart Type] | [Metric] | [Sliced by] | [Filters] | [Formula/Aggregation] |
-
-**Tab 2: [Tab Name]**
-
-| Widget | Type | Metric | Dimensions | Filters | Calculation |
-|--------|------|--------|-----------|---------|-------------|
-| [Widget Name] | [Chart Type] | [Metric] | [Sliced by] | [Filters] | [Formula/Aggregation] |
-
-**Data Source:**
-- Database: [database]
-- Tables: [table1, table2, ...]
-- Date Range: [range]
-- Data Freshness: [last updated]
-- Rendering: HTML Client (standalone, portable)
-
-**HTML Client Data Size Validation:**
-
-**Filters Analysis:**
-- Global Filters: [list, e.g., "Date Range, Region (6), Status (4)"]
-- Tab-Specific Filters: [list or "None"]
-- Cardinality Check: [✅ All < 50 values OR ⚠️ [filter name] has [N] values OR ❌ [filter name] too high]
-- Filter Data Size: [X KB]
-
-**Widget Data:**
-| Widget | Type | Rows | Size | Filters Applied | Status |
-|--------|------|------|------|-----------------|--------|
-| [Widget 1] | [Type] | [N] | [X KB] | [filter names] | ✅ |
-| [Widget 2] | [Type] | [N] | [X KB] | [filter names] | ✅ |
-
-**Total Size Breakdown:**
-- Widget Data: [X KB]
-- Filter Options: [X KB]
-- HTML/JS/CSS: [~50 KB]
-- JSON Overhead: [X KB]
-- **Final HTML File:** [X MB]
-
-- **Load Time (estimated):** [X seconds]
-- **Tab Complexity:** [N tabs - low/medium/high]
-- **Filter Complexity:** [N filters, max cardinality [N] - low/medium/high]
-- **Feasibility:** ✅ Safe for HTML Client OR ⚠️ Warning OR ❌ Not feasible
-- **Actions Taken (if any):** [e.g., "Removed high-cardinality customer filter", "Reduced to weekly aggregation"]
+**Date Range:** [range]
+**Data Freshness:** [last updated]
+**Rendering:** HTML Client (standalone, portable)
 
 ### Path Decision
 
@@ -632,7 +321,7 @@ At end of Phase 1, create `state.md` with this structure:
 
 ---
 
-### Rule P1-11: Path Confirmation (ENFORCEMENT)
+### Rule P1-10: Path Confirmation (ENFORCEMENT)
 
 **⚠️ CRITICAL: CANNOT proceed to Phase 2 or Phase 3 without explicit user confirmation of the path.**
 
@@ -652,22 +341,15 @@ After calculating promotion score and recommending a path:
 
 **If Score 3 (User choice):**
 - Ask directly: "Which path? Phase 2 (Workflow) or Phase 3 (Non-Workflow)?"
-- User answers: →  **Immediately proceed** (no second approval needed)
-- If Phase 2 chosen: "Starting Phase 2 now..."
-- If Phase 3 chosen: "Starting Phase 3 now..."
-
-**CRITICAL: Auto-start after confirmation (Rule 0: Phase Auto-Advance)**
-- Score 0-2 confirmed → "Starting Phase 3 now..."
-- Score 4-6 confirmed → "Starting Phase 2 now..."
-- User choice confirmed → Start chosen phase immediately
+- Proceed per user's selection
 
 **See:** `./references/stage-b-path-routing.md` → "Approval Gates" section for full templates
 
-**Why:** Path decisions have real cost/time/complexity implications. User must explicitly confirm they understand the tradeoffs. But once confirmed, start immediately (don't wait).
+**Why:** Path decisions have real cost/time/complexity implications. User must explicitly confirm they understand the tradeoffs.
 
 ---
 
-### Rule P1-12: Dashboard Plan Summary Display (ENFORCEMENT)
+### Rule P1-11: Dashboard Plan Summary Display (ENFORCEMENT)
 
 **⚠️ CRITICAL: Before asking for final approval, show the user a dashboard plan summary.**
 
@@ -703,193 +385,33 @@ Conflicts detected: <None | list conflicts>
 ```
 📊 Dashboard Plan — sales-performance
 
-=== DASHBOARD FILTERS (Global - applies to all tabs) ===
-
-Filters:
-  • Date Range: date-picker (Last 90 days default)
-  • Region: dropdown (North America, Europe, APAC, LATAM, EMEA, APJC)
-  • Order Status: multi-select (Completed, Pending, Cancelled, Returned)
-
-=== TABS ===
-
-Tab 1: "Revenue Overview" — 4 widgets
-Tab 2: "Orders & Customers" — 3 widgets
-Tab 3: "Trends" — 2 widgets
-
-=== TAB 1: REVENUE OVERVIEW ===
-
-Widget 1: Total Revenue (KPI)
-  • Chart Type: KPI card with trend
-  • Metric: Total Revenue
-  • Calculation: SUM(amount) WHERE status NOT IN ('cancelled', 'refunded')
-  • Sample Value: $4,859,839
-  • Filters Applied: Date Range, Region, Order Status
-  • Definition: Total revenue from all completed orders (excludes cancelled/refunded)
-
-Widget 2: Revenue by Region (Bar Chart)
-  • Chart Type: Horizontal Bar Chart
-  • Metric: Total Revenue
-  • Dimensions: Region (x-axis shows region, y-axis shows revenue)
-  • Calculation: SUM(amount) BY region WHERE status NOT IN ('cancelled', 'refunded')
-  • Sample Data: North America ($2.1M), Europe ($1.5M), APAC ($900K), ...
-  • Filters Applied: Date Range, Order Status (not Region — Region is displayed)
-  • Definition: Revenue breakdown by geographic region
-
-Widget 3: Revenue Trend (Line Chart)
-  • Chart Type: Line Chart
-  • Metric: Daily Revenue
-  • Dimensions: Date (x-axis), Revenue (y-axis)
-  • Calculation: SUM(amount) BY DATE(order_date) WHERE status NOT IN ('cancelled', 'refunded')
-  • Period: Last 90 days (daily data points)
-  • Filters Applied: Date Range, Region, Order Status
-  • Definition: Daily revenue trend over time to spot seasonal patterns
-
-Widget 4: Revenue by Order Status (Pie Chart)
-  • Chart Type: Pie Chart
-  • Metric: Revenue by Status
-  • Dimensions: Order Status (slices)
-  • Calculation: SUM(amount) BY status
-  • Sample Data: Completed (85%, $4.1M), Cancelled (3%, $150K), Returned (2%, $80K), Pending (10%, $530K)
-  • Filters Applied: Date Range, Region (not Status — Status is displayed)
-  • Definition: Revenue distribution across order statuses
-
-=== TAB 2: ORDERS & CUSTOMERS ===
-
-Widget 1: Order Count (KPI)
-  • Chart Type: KPI card
-  • Metric: Order Count
-  • Calculation: COUNT(*) FROM orders
-  • Sample Value: 2,156,492
-  • Filters Applied: Date Range, Region, Order Status
-  • Definition: Total number of orders
-
-Widget 2: Active Customers (KPI)
-  • Chart Type: KPI card
-  • Metric: Unique Customers
-  • Calculation: COUNT(DISTINCT customer_id) WHERE purchase_date >= DATE_SUB(NOW(), 90 DAY)
-  • Sample Value: 1,234,567
-  • Filters Applied: Date Range, Region
-  • Definition: Customers with at least 1 purchase in last 90 days
-
-Widget 3: Orders by Status (Table)
-  • Chart Type: Data Table
-  • Metrics: Count, Revenue, Avg Order Value
-  • Dimensions: Order Status (rows)
-  • Calculation: COUNT(*), SUM(amount), AVG(amount) BY status
-  • Sample Data:
-    | Status     | Count   | Revenue  | Avg Value |
-    | Completed  | 1.8M    | $4.1M    | $2,281    |
-    | Pending    | 215K    | $530K    | $2,465    |
-    | Cancelled  | 107K    | $150K    | $1,402    |
-    | Returned   | 34K     | $80K     | $2,353    |
-  • Filters Applied: Date Range, Region (not Status — Status is displayed)
-  • Definition: Detailed breakdown of orders by status with metrics
-
-=== TAB 3: TRENDS ===
-
-Widget 1: Orders per Day (Line Chart)
-  • Chart Type: Line Chart
-  • Metric: Daily Order Count
-  • Dimensions: Date (x-axis), Order Count (y-axis)
-  • Calculation: COUNT(*) BY DATE(order_date)
-  • Period: Last 90 days
-  • Filters Applied: Date Range, Region, Order Status
-  • Definition: Daily order volume trend
-
-Widget 2: Customer Acquisition (Cumulative Line)
-  • Chart Type: Cumulative Area Chart
-  • Metric: New Customers
-  • Dimensions: Date (x-axis), Cumulative Count (y-axis)
-  • Calculation: COUNT(DISTINCT customer_id) CUMULATIVE BY DATE(first_purchase_date)
-  • Period: Last 90 days
-  • Filters Applied: Date Range, Region
-  • Definition: Cumulative new customer count over time
-
-=== DATA SOURCE ===
-
 Source Database:   analytics_prod
 Tables:
   • orders (2.1M rows, updated 2h ago) — FACT
   • customers (156K rows, updated 1d ago) — DIMENSION
   • regions (6 rows, static) — DIMENSION
 
-Promotion Score:   5/6
-Date Range:        Last 90 days
-Data Freshness:    Updated 2 hours ago
+Metrics confirmed:
+  • Total Revenue: SUM(amount) WHERE status NOT IN ('cancelled', 'refunded') = $4.8M
+  • Order Count: COUNT(*) = 2.1M
+  • Avg Order Value: AVG(amount) = $2,254
+
+Dimensions confirmed:
+  • Region: 6 values (North America, Europe, APAC, LATAM, EMEA, APJC)
+  • Order Status: 4 values (Completed, Pending, Cancelled, Returned)
+
+Date range:        Last 90 days
+Data freshness:    Updated 2 hours ago
 Rendering:         HTML Client (standalone, portable)
+Promotion score:   5/6
 
-=== HTML CLIENT DATA VALIDATION ===
-
-**Filters Analysis:**
-- Global Filters: Date Range, Region (6), Order Status (4)
-- Filter data size: ~300 bytes
-- Cardinality check: All filters < 50 values ✅
-
-**Widget Data Size Estimates (Phase 1 Stage B):**
-
-| Widget | Type | Rows | Size | Filter Impact | Status |
-|--------|------|------|------|---------------|--------|
-| Total Revenue (KPI) | KPI | 1 | < 1 KB | Uses all global filters | ✅ Safe |
-| Revenue by Region (Bar) | Bar | 6 | < 5 KB | Region not in filter (shown in chart) | ✅ Safe |
-| Revenue Trend (Line) | Line | 90 | < 30 KB | Uses all global filters | ✅ Safe |
-| Revenue by Status (Pie) | Pie | 4 | < 2 KB | Status not in filter (shown in chart) | ✅ Safe |
-| Order Count (KPI) | KPI | 1 | < 1 KB | Uses all global filters | ✅ Safe |
-| Active Customers (KPI) | KPI | 1 | < 1 KB | Uses all global filters | ✅ Safe |
-| Orders by Status (Table) | Table | 4 | < 5 KB | Status not in filter (shown in table) | ✅ Safe |
-| Orders per Day (Line) | Line | 90 | < 30 KB | Uses all global filters | ✅ Safe |
-| Customer Acq (Cumulative) | Area | 90 | < 30 KB | Uses global filters (Region, Date) | ✅ Safe |
-
-**Total Size Breakdown:**
-- Widget data: ~105 KB
-- Filter dropdown options: ~300 bytes
-- HTML/JS/CSS: ~50 KB
-- JSON overhead (+20%): ~31 KB
-- **Final HTML File:** ~186 KB
-
-**Feasibility:** ✅ SAFE FOR HTML CLIENT
-- Load time (estimated): < 1 second
-- Browser compatibility: All modern browsers
-- Performance: Smooth interactions, all filters responsive
-- Filter complexity: Low (3 filters, max 6 values each)
-- Tab complexity: Low (3 tabs)
-
-**Actions Taken:** None needed — data and filters well within safe limits
-
-Conflicts Detected: None
+Conflicts detected: None
 ```
 
 **Then ask:**
 > "Does this dashboard plan look correct? If yes, we'll move to the next step. If no, what needs to change?"
 
 **Why:** Users need to see a clear summary of what they're approving — metrics, dimensions, data freshness, and path — before committing to Phase 2 or Phase 3.
-
----
-
-### Rule P1-10: Path Confirmation (ENFORCEMENT)
-
-**⚠️ CRITICAL: CANNOT proceed to Phase 2 or Phase 3 without explicit user confirmation of the path.**
-
-After calculating promotion score and recommending a path:
-
-**If Score 0-2 (Non-Workflow recommended):**
-- Present: "Recommended: Non-Workflow Path (Phase 3 only)"
-- Wait for: `YES, BUILD DASHBOARD NOW (Non-Workflow)` OR `NO, SET UP WORKFLOW INSTEAD`
-- If user confirms Non-Workflow: Proceed to Phase 3
-- If user chooses Workflow instead: Proceed to Phase 2
-
-**If Score 4-6 (Workflow recommended):**
-- Present: "Recommended: Workflow Path (Phase 2 → Phase 3)"
-- Wait for: `YES, PROCEED WITH WORKFLOW PATH` OR `NO, SKIP WORKFLOW AND BUILD NOW`
-- If user confirms Workflow: Proceed to Phase 2
-- If user declines Workflow: Proceed to Phase 3 instead
-
-**If Score 3 (User choice):**
-- Ask directly: "Which path? Phase 2 (Workflow) or Phase 3 (Non-Workflow)?"
-- Proceed per user's selection
-
-**See:** `./references/stage-b-path-routing.md` → "Approval Gates" section for full templates
-
-**Why:** Path decisions have real cost/time/complexity implications. User must explicitly confirm they understand the tradeoffs.
 
 ---
 
@@ -981,11 +503,10 @@ END Phase 1
 
 - [ ] All Stage A questions answered (1a-1o)
 - [ ] All Stage B data validations complete (tables confirmed, columns verified, joins tested)
-- [ ] **HTML Client data size validated** (all widgets checked, feasibility confirmed)
 - [ ] Promotion Score calculated (0-6, with breakdown)
-- [ ] Dashboard Plan Summary displayed to user (Rule P1-12) — includes data validation
-- [ ] User reviewed and approved the plan (including data feasibility)
-- [ ] Path Confirmation obtained (Rule P1-11)
+- [ ] Dashboard Plan Summary displayed to user (Rule P1-11)
+- [ ] User reviewed and approved the plan
+- [ ] Path Confirmation obtained (Rule P1-10)
 - [ ] state.md created with ALL Phase 1 results:
   - Business requirements documented
   - Data findings documented
