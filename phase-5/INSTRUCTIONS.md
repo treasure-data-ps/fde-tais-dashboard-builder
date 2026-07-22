@@ -26,6 +26,69 @@ Create 4 markdown documentation files for users and operators:
 
 ---
 
+## Quick Checklist (Quick Reference)
+
+**Pre-Phase-5 Gate**
+- [ ] Phase 3 complete (dashboard.html approved)
+- [ ] Phase 4 complete (optional, if automation done)
+- [ ] state.md updated through all prior phases
+- [ ] Project owner identified (name, email, Slack)
+
+**4 Documentation Files to Create**
+
+**Architecture.md** - Data Flow & Components
+- [ ] Data flow diagram (source → workflow? → SINK → queries → HTML)
+- [ ] Component list (tables, workflow, SINK, queries, dashboard)
+- [ ] Dependencies and refresh frequency
+- [ ] Troubleshooting section
+
+**Usage Guide.md** - How to Use Dashboard
+- [ ] 1-2 sentence overview
+- [ ] How to open (download, email, web server)
+- [ ] KPIs with real values + interpretation
+- [ ] Filters (options and effects)
+- [ ] Charts descriptions
+- [ ] Tips & tricks (export, share, spot-check)
+- [ ] FAQs
+
+**Runbook.md** - Operations & Troubleshooting
+- [ ] Owner + backup owner (names, emails, Slack, phone)
+- [ ] Daily health checks (workflow status, SINK freshness)
+- [ ] Weekly maintenance (check logs, table growth, feedback)
+- [ ] Troubleshooting (common issues + solutions)
+- [ ] Emergency procedures
+- [ ] Scheduled maintenance windows
+- [ ] Real escalation contacts + phone numbers
+
+**Access & Ownership.md** - Permissions & Change Management
+- [ ] Owner/backup owner details (real names, not "contact admin")
+- [ ] Access tiers (Tier 1: view only, Tier 2: operator, Tier 3: admin)
+- [ ] How to request access
+- [ ] Change management process (minor vs major)
+- [ ] TD permissions by role
+- [ ] Disaster recovery procedures
+- [ ] Support SLA + response time
+
+**Content Validation**
+- [ ] Architecture.md: Project-specific (not template), actual table names, real costs
+- [ ] Usage Guide.md: Real KPI values, actual filter options, real user workflows
+- [ ] Runbook.md: Real owner names + phone, tested diagnostic commands
+- [ ] Access & Ownership.md: Real people + roles (not "contact admin")
+
+**Quality Gate**
+- [ ] All 4 docs approved by owner
+- [ ] Owner checked: data flow correct, permissions accurate, contacts current
+- [ ] Ready for handoff
+
+**Project Completion**
+- [ ] Update state.md: "PROJECT COMPLETE"
+- [ ] All 4 docs saved to shared location
+- [ ] Share with stakeholders
+- [ ] Training/onboarding using docs
+- [ ] Claude engagement complete
+
+---
+
 ## Phase 5 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P5-1: Architecture.md Must Show Real Data Flow

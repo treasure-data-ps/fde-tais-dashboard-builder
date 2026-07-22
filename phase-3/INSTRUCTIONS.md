@@ -27,6 +27,43 @@ Build a single portable `dashboard.html` file that:
 
 ---
 
+## Quick Checklist (Quick Reference)
+
+**Pre-Phase-3 Gate**
+- [ ] Phase 1 complete (database, tables, metrics, dimensions validated)
+- [ ] Phase 2 skipped OR complete (SINK tables ready if done)
+- [ ] state.md updated with all findings
+- [ ] Rendering engine: HTML Client
+- [ ] Path confirmed: query source tables OR query SINK tables
+
+**Dashboard Build Steps**
+- [ ] 4b: Write SQL for each widget/KPI (< 5s target)
+- [ ] 4c: Build HTML structure (filters, widgets, tabs)
+- [ ] 4d: Write generate-data.js, customize queries
+- [ ] 4e: Render, validate (open in browser, check for data)
+- [ ] 4f-4l: Validate data accuracy, test filters, check performance
+
+**Quality Gate (Before Approval)**
+- [ ] All metrics match Phase 1/2 confirmed values
+- [ ] Filters applied at SQL layer, tested independently
+- [ ] Performance acceptable (queries < 5s, load < 5s)
+- [ ] No console errors (F12 → Console)
+- [ ] Responsive design tested (if required)
+
+**Customer Approval**
+- [ ] Show dashboard summary to user
+- [ ] Get approval: "Does this meet your needs?"
+- [ ] If NO → iterate, re-test, re-ask
+- [ ] If YES → record sign-off, proceed to Phase 4/5 or close
+
+**Post-Approval**
+- [ ] Update state.md: "Phase 3 — Complete"
+- [ ] Optionally proceed to Phase 4 (automation/agent)
+- [ ] Optionally proceed to Phase 5 (handoff docs)
+- [ ] Or close out and share dashboard.html
+
+---
+
 ## Phase 3 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P3-1: Query Source Decision

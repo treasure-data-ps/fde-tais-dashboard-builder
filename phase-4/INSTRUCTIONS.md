@@ -33,6 +33,38 @@ Extend the dashboard with two optional automation tracks:
 
 ---
 
+## Quick Checklist (Quick Reference)
+
+**Pre-Phase-4 Gate**
+- [ ] Phase 3 complete (dashboard.html approved)
+- [ ] Phase 2 complete (SINK ready) OR skipped (querying source)
+- [ ] state.md updated through Phase 3
+- [ ] User decided: Track A, Track B, both, or neither?
+
+**Track A: Extract Reusable Skill**
+- [ ] 4a-0: Assemble knowledge package
+- [ ] 4a-i: Extract dashboard skill definition
+- [ ] 4a-ii: Extract & parameterize query scripts
+- [ ] 4a-iii: Create configuration templates
+- [ ] 4a-iv: Document deployment checklist
+- [ ] 4a-v: Validate skill end-to-end (spot-check ±5%)
+- [ ] 4a-vi: Final packaging (show full zip instructions)
+- [ ] 4a-vii: Generate Installation Guide
+
+**Track B: Deploy Foundry Agent**
+- [ ] 4b-i/ii: Decide agent + capability
+- [ ] 4b-iii: Pre-flight checks (access, data, compliance)
+- [ ] 4b-iv: Configure knowledge bases (system_prompt.md ≤ 9KB)
+- [ ] 4b-v: Deploy agent (`tdx agent push`)
+- [ ] 4b-vi: Test agent (`tdx agent test`)
+
+**Phase 4 → Phase 5 Handoff**
+- [ ] Update state.md with track(s) run
+- [ ] Record skill name (Track A) or agent name (Track B)
+- [ ] Inform user: Phase 5 (optional) or close engagement
+
+---
+
 ## Phase 4 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P4-0: Dry-Run First (Track B Agent Only)
@@ -108,7 +140,7 @@ Skill will:
 Skill components:
   • SKILL.md (instructions)
   • INSTRUCTIONS.md (rules)
-  • CHECKLIST.md (quick reference)
+  • Quick Checklist in INSTRUCTIONS.md (quick reference)
   • references/ (query templates, theme)
   • tests/ (end-to-end verification)
 
