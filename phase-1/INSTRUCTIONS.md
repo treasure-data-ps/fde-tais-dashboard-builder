@@ -19,6 +19,33 @@ Gather business requirements (Stage A), validate them against real data (Stage B
 
 ---
 
+## Quick Checklist (Quick Reference)
+
+**Stage A: Session Setup + Requirements**
+- [ ] Project slug chosen (short, kebab-case)
+- [ ] Business goal / dashboard purpose (1 sentence)
+- [ ] Platform target? (Treasure Work / Treasure AI Studio)
+- [ ] Data source type? (Raw/Transactional / Pre-aggregated / Snapshot / Mixed)
+- [ ] Use AskUserQuestion for every question (never plain text)
+
+**Stage B: Data Discovery & Validation**
+- [ ] Database selected, tables confirmed to exist (`tdx databases`, `tdx describe`)
+- [ ] Time column identified (business-event datetime vs TD insert-time `time` column)
+- [ ] Metrics inferred/validated against live queries
+- [ ] Dimensions validated (cardinality, join fan-out checked)
+- [ ] Data Quality Gate run (all checks passed)
+
+**Scoring & Path Decision**
+- [ ] Promotion score calculated (Q1 + Q2 + Q3 = ___ / 6)
+- [ ] Path decision made (Score 0-2 → Phase 3, Score 3 → user chooses, Score 4-6 → Phase 2 then Phase 3)
+
+**Completion**
+- [ ] state.md created with all findings
+- [ ] User approval obtained
+- [ ] Ready to proceed to Phase 2 or Phase 3
+
+---
+
 ## Phase 1 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P1-1: Requirements Must Be Validated Against Real Data

@@ -27,6 +27,37 @@ Deploy a scheduled Treasure Data workflow that:
 
 ---
 
+## Quick Checklist (Quick Reference)
+
+**Pre-Phase-2 Gate**
+- [ ] Phase 1 complete (state.md saved with Stage A/B)
+- [ ] Promotion score 4-6 OR user chose Workflow at score 3
+- [ ] SINK database confirmed
+- [ ] Workflow project name decided
+
+**Workflow Deployment Steps**
+- [ ] 2a: Copy workflow template
+- [ ] 2b: Configure input_params.yaml (databases, schedule, date range)
+- [ ] 2c: Build queries from state.md (verify metrics/dimensions)
+- [ ] 2d: Configure datamodel (if applicable)
+- [ ] 2e: Review configuration, run --dry-run
+- [ ] 2f: Deploy workflow, verify SINK tables created
+- [ ] 2g: Validate SINK output (metrics match, performance < 1s)
+- [ ] 2h: Set incremental strategy (if applicable)
+
+**Quality Gate (Before Phase 3)**
+- [ ] All Stage B metrics reproduced in SINK
+- [ ] Query performance acceptable (SINK < 1s)
+- [ ] SINK schema documented in state.md
+- [ ] No data validation errors
+
+**Handoff to Phase 3**
+- [ ] Update state.md: "Phase 2 — Complete"
+- [ ] SINK table info documented (names, columns)
+- [ ] Ready for Phase 3: Build Dashboard from SINK
+
+---
+
 ## Phase 2 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P2-0: Dry-Run First (Before Approval)
