@@ -27,6 +27,20 @@ Gather business requirements (Stage A), validate them against real data (Stage B
 - [ ] Platform target? (Treasure Work / Treasure AI Studio)
 - [ ] Data source type? (Raw/Transactional / Pre-aggregated / Snapshot / Mixed)
 - [ ] Use AskUserQuestion for every question (never plain text)
+- [ ] **1a:** Dashboard purpose & success criteria
+- [ ] **1b:** Metrics/KPIs (what to measure)
+- [ ] **1c-1d:** Dimensions + Filters + Layout
+- [ ] **⚠️ CRITICAL 1e-1f:** Date range, timezone, refresh/freshness
+- [ ] **1g:** Historical depth
+- [ ] **1h:** Sharing, access, target users (if customer-facing)
+- [ ] **1j:** Alerts/thresholds (if applicable)
+- [ ] **1o:** Exclusion rules & data quality
+
+**Optional (only if relevant):**
+- [ ] **1k:** Mobile/responsive design
+- [ ] **1l:** Compliance/data sensitivity
+- [ ] **1m:** Data source complexity / canonical ID
+- [ ] **1n:** Drill-down depth
 
 **Stage B: Data Discovery & Validation**
 - [ ] Database selected, tables confirmed to exist (`tdx databases`, `tdx describe`)
