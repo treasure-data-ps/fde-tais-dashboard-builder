@@ -90,13 +90,23 @@ AskUserQuestion:
 
 ## Step 1b: Define Metrics (What to Measure)
 
+**Common Metrics Reference** — If user needs examples, suggest from this list by category:
+
+| Category | Examples |
+|----------|----------|
+| **Financial** | Total Revenue, Avg Order Value, Gross Margin, Cost per Acquisition, Lifetime Value |
+| **Volume** | New Customers, Orders, Page Views, Sessions, Sign-ups |
+| **Growth** | Month-over-month Growth %, Year-over-year Growth %, Churn Rate, Retention Rate |
+| **Performance** | Conversion Rate, Click-through Rate, Engagement Rate, Load Time, Error Rate |
+| **Efficiency** | Cost per Customer, Revenue per Employee, Time to Resolution, Support Tickets Resolved |
+| **Quality** | Net Promoter Score, Customer Satisfaction, Defect Rate, Data Accuracy % |
+
 **What to do:**
 - Ask what metrics the user wants to track
 - Get metric definitions in their own words
 - List 5-10 key performance indicators (KPIs)
 - Capture the top 3-5 questions they most frequently ask of this data — surfaces implicit metrics they forgot to mention
 - Collect a business glossary of domain-specific terms that appear in column names, segment names, or filter values
-- Give a place holder for all KPI'S trends etc that user would like to track from this dashboard
 
 **Key actions:**
 - Ask: "What metrics are most important?" (revenue, count, rate, efficiency?)
@@ -163,6 +173,30 @@ AskUserQuestion:
 - Ask: **"Do you have brand colors or a logo you'd like applied to the dashboard?"** — capture hex codes or brand guide link; fall back to Treasure Data default theme if not provided. See output field `dashboard_theme` below.
 - Ask: **"Do you have a rough idea of how many sections or tabs you'd want?"** — e.g., "Sales, Customers, Products, Trends". Even a rough sketch here reduces rework later. Not required — Stage B will infer if not provided. Captured as `proposed_tabs` in `state.md`.
 - Confirm all via AskUserQuestion
+
+**AskUserQuestion — Layout Preferences (Step 1c):**
+
+```
+AskUserQuestion:
+  header: "Layout & visualization style"
+  question: "How do you prefer to view your metrics? (Select all that apply)"
+  multiSelect: true
+  options:
+    - label: "Summary KPI cards"
+      description: "Large numbers at the top with sparklines or trend indicators"
+    - label: "Sortable data tables"
+      description: "Raw data rows with filters and sorting"
+    - label: "Charts (line, bar, pie)"
+      description: "Visual trends and comparisons"
+    - label: "Heatmaps / color-coded grids"
+      description: "Visual patterns across dimensions"
+    - label: "Gauges / progress indicators"
+      description: "Status vs target, performance meters"
+    - label: "Drill-down / multi-level detail"
+      description: "Summary → click to see detail"
+    - label: "Other layout style"
+      description: "I'll describe what I want"
+```
 
 **AskUserQuestion — Dashboard Theme & Branding (Step 1c):**
 

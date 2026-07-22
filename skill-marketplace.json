@@ -32,7 +32,10 @@
   ],
 
   "requirements": {
-    "min_claude_version": "claude-opus-4-8",
+    "claude_model": {
+      "recommended": "claude-sonnet-5",
+      "note": "Balanced cost/performance. Works with all Claude models (Haiku 4.5, Sonnet 5, Opus 4.7/4.8); Sonnet is the best default."
+    },
     "tdx_cli": {
       "required": true,
       "min_version": "0.9.0"
