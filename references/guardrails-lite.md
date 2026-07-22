@@ -9,6 +9,8 @@ load_order: 0
 
 **Read this before doing anything else in a dashboarding session.**
 
+**⚠️ CRITICAL — RE-READ THIS AFTER CONTEXT COMPACTION:** If context gets compressed/summarized, or when moving between phases, **STOP and re-read this entire file** before proceeding. Guardrails must not be lost or forgotten due to context boundaries.
+
 These rules are derived from production incidents and real re-work on the full dashboarding-skills solution. Every rule has a reason. Violating any of them has caused rebuilds, wrong customer data, or lost trust in past engagements.
 
 ---
