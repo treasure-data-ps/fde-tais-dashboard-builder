@@ -27,6 +27,36 @@ Build a single portable `dashboard.html` file that:
 
 ---
 
+## Pre-Execution Validation (Checkpoint)
+
+**Cannot execute Phase 3 without validating:**
+
+From `state.md` Phase 1 section, verify:
+- ✅ Phase 1 marked ✅ Complete
+- ✅ KPIs documented are still relevant
+- ✅ Data sources accessible (database, tables still exist)
+
+From `state.md` Phase 2 section (if applicable), verify:
+- ✅ Phase 2 marked ✅ Complete (if Workflow path chosen)
+- ✅ SINK tables created and populated
+
+**Runtime validation before rendering:**
+```bash
+# If Phase 2 (Workflow path):
+tdx describe <SINK_DB>.<SINK_table>
+SELECT COUNT(*) FROM <SINK_DB>.<SINK_table>  # Verify populated
+
+# If Phase 2 skipped (Non-Workflow path):
+tdx describe <SOURCE_DB>.<source_table>
+SELECT COUNT(*) FROM <SOURCE_DB>.<source_table>  # Verify data exists
+```
+
+**If ANY validation FAILS:**
+→ STOP: "Data source validation failed: [reason]"
+→ User action: Verify workflow ran (if Phase 2), or confirm source data accessible
+
+---
+
 ## Quick Checklist (Quick Reference)
 
 **Pre-Phase-3 Gate**

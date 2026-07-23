@@ -33,6 +33,37 @@ Extend the dashboard with two optional automation tracks:
 
 ---
 
+## Pre-Execution Validation (Checkpoint)
+
+**Cannot execute Phase 4 without validating:**
+
+From `state.md` Phase 3 section, verify:
+- ✅ Phase 3 marked ✅ Complete
+- ✅ Dashboard approved by user (approval recorded)
+- ✅ Data accuracy validated (spot-checks documented)
+- ✅ Performance acceptable (query times recorded)
+
+**Runtime validation before deploying agent (Track B only):**
+```bash
+# Verify dashboard data is current
+tdx describe <SINK_DB>.<SINK_table>  # or source table if Phase 2 skipped
+SELECT COUNT(*) FROM <table>          # Verify recent data
+
+# Run one spot-check from state.md:
+SELECT [KPI] FROM [table] WHERE [filter]
+# Compare against spot-check value in state.md Phase 3 section
+```
+
+**If spot-check is STALE (> 1 day old):**
+→ WARN: "Dashboard data may be stale. Re-run Phase 3 queries first?"
+→ User decides: update dashboard or proceed with existing data
+
+**If ANY validation FAILS:**
+→ STOP: "Prerequisite validation failed: [reason]"
+→ User action: Go back to Phase 3 and refresh data
+
+---
+
 ## Quick Checklist (Quick Reference)
 
 **Pre-Phase-4 Gate**

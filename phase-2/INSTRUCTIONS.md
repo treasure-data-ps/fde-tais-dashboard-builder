@@ -27,6 +27,33 @@ Deploy a scheduled Treasure Data workflow that:
 
 ---
 
+## Pre-Execution Validation (Checkpoint)
+
+**Cannot execute Phase 2 without validating:**
+
+From `state.md` Phase 1 section, verify:
+- ✅ Phase 1 marked ✅ Complete
+- ✅ Time column documented (is it still non-nullable?)
+- ✅ Join keys tested (cardinality check documented)
+- ✅ Promotion score ≥ 4 (or user override recorded)
+- ✅ User approved Workflow path (approval recorded)
+
+**Runtime validation before proceeding:**
+```bash
+# Verify Phase 1 requirements still valid
+tdx describe <SOURCE_DB>.<time_column_table>
+# Verify time column exists and is non-nullable
+
+# Verify SINK database exists
+tdx databases | grep <SINK_DB>
+```
+
+**If ANY validation FAILS:**
+→ STOP: "Prerequisite validation failed: [reason]"
+→ User action: Go back to Phase 1, update state.md, or re-run validation
+
+---
+
 ## Quick Checklist (Quick Reference)
 
 **Pre-Phase-2 Gate**

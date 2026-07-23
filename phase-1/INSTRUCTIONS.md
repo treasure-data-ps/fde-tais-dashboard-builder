@@ -19,6 +19,26 @@ Gather business requirements (Stage A), validate them against real data (Stage B
 
 ---
 
+## Pre-Execution Validation (Before Starting)
+
+**Cannot execute Phase 1 without:**
+
+If resuming from a broken session:
+- ✅ User has Treasure Data access (can run `tdx databases`)
+- ✅ Database name confirmed and accessible
+- ✅ Previous progress saved in `state.md`
+
+If starting fresh:
+- ✅ Project slug chosen (kebab-case, no spaces)
+- ✅ User can articulate dashboard purpose in 1 sentence
+- ✅ At least one metric/KPI identified
+
+**If validation FAILS:**
+→ STOP: "Missing prerequisite: [reason]"
+→ User action: Confirm database access or provide state.md from prior session
+
+---
+
 ## Quick Checklist (Quick Reference)
 
 **Stage A: Session Setup + Requirements**
