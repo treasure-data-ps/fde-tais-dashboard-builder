@@ -25,13 +25,15 @@ Self-contained HTML files you can download and share. No backend required - all 
 | **KPI Dashboard** | 📊 Tab 1 | 4+ metric cards, formatted numbers |
 | **Multi-Chart Dashboard** | 📈 Tab 2 | Line/Bar/Pie charts, trends, analysis |
 | **Table Dashboard** | 📋 Tab 3 | Sortable table, search, status badges |
-| *(New)* | ⬇️ Tab 4 | CSV/JSON/PDF export |
+| *(New)* | 💡 Tab 4 | Auto-generated insights & recommendations |
+| *(New)* | ⬇️ Tab 5 | CSV/JSON/PDF export |
 
 ### All Features in One Template:
-- ✅ 4 tabs: KPI Overview, Analysis, Data Explorer, Export
+- ✅ 5 tabs: KPI Overview, Analysis, Data Explorer, Insights, Export
 - ✅ KPI cards with auto-formatted numbers
 - ✅ 3 chart types: Line (trends), Bar (comparisons), Pie (distribution)
 - ✅ Sortable/searchable data table with status badges
+- ✅ **Auto-generated insights, opportunities & recommendations**
 - ✅ CSV/JSON export and PDF print
 - ✅ Treasure Data 2026 branding (dark blue + purple theme)
 - ✅ Fully responsive (mobile/tablet/desktop)
