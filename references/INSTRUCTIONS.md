@@ -392,6 +392,141 @@ See: `./phase-2/sink-dashboard-mapping.md`
 
 ---
 
+### Phase Completion: Always Proactively Present Next Step (ENFORCEMENT)
+
+**⚠️ CRITICAL: After EVERY phase completes, immediately present the next step with a default action. NEVER wait for user to ask "what's next?"**
+
+**Pattern (apply after each phase completes):**
+
+```
+✅ Phase [N] Complete
+
+### Summary
+[2-3 line summary of what was accomplished]
+
+### Next Step
+Ready for Phase [N+1]? Here's what we'll do:
+
+**Option A (Recommended):** Phase [N+1] — [Description]
+→ We'll [action 1], [action 2], [action 3]
+→ Estimated time: X hours
+→ Requires: [prerequisites]
+
+**Option B:** Skip to Phase [M]
+→ Reason: [when this makes sense]
+
+**Option C:** Close engagement
+→ Your dashboard is complete and ready to share
+
+**→ Which would you like? (A/B/C or describe something different)**
+```
+
+**Examples:**
+
+**After Phase 1:**
+```
+✅ Phase 1 Complete — Requirements validated against live data
+
+### Summary
+- 4 KPIs identified: Revenue, Customers, Order Value, Churn
+- 3 source tables confirmed: sales_events, customers, returns
+- Promotion Score: 5 (workflow recommended)
+
+### Next Step
+Ready for Phase 2? Here's what we'll do:
+
+**Option A (Recommended):** Phase 2 — Build Pre-Aggregation Workflow
+→ We'll create SINK tables for fast dashboard queries
+→ Estimated time: 2-3 hours
+→ Requires: Treasure Data account access + write permissions
+
+**Option B:** Skip to Phase 3 (Direct Build)
+→ We'll build the dashboard directly from source tables
+→ Reason: Simpler but slower queries
+
+**Option C:** Close engagement
+→ Your requirements are documented in state.md
+
+**→ Which would you like? (A/B/C or describe something different)**
+```
+
+**After Phase 3:**
+```
+✅ Phase 3 Complete — Dashboard approved and ready
+
+### Summary
+- 5 tabs rendered: KPI Overview, Analysis, Data Explorer, Insights, Export
+- All 3 KPIs spot-checked (Revenue ±0%, Customers ±0.2%, AOV ±0.1%)
+- 2.3 MB HTML file, loads in 3 seconds
+
+### Next Step
+What's next for your dashboard?
+
+**Option A (Recommended):** Phase 4A — Extract Reusable Skill
+→ We'll package this dashboard as a reusable Claude skill
+→ Estimated time: 1 hour
+→ Benefit: Future dashboards for similar projects build 10× faster
+
+**Option B:** Phase 4B — Deploy Conversational Agent
+→ We'll create a Foundry agent so users can ask questions in natural language
+→ Estimated time: 1.5 hours
+→ Benefit: Users ask "What's revenue by region?" instead of opening filters
+
+**Option C:** Phase 5 — Documentation & Handoff
+→ We'll create runbooks, architecture docs, and access guides
+→ Estimated time: 1 hour
+→ Benefit: CS/ops teams can troubleshoot without escalating
+
+**Option D:** Close engagement
+→ Your dashboard is ready to share with stakeholders
+
+**→ Which would you like? (A/B/C/D or describe something different)**
+```
+
+**Why:**
+- Users don't know the phase structure (they don't read INSTRUCTIONS.md)
+- "What's next?" questions waste time and context (they pull conversation off-track)
+- Default recommendations steer projects toward value (A is always the most common next step)
+- Options give agency (user chooses, not forced forward)
+- Prevents stalls ("do I continue or close?")
+
+**Timing:**
+- **Immediate:** Present within the same message that announces completion
+- **Not:** Wait for user to say "thanks, what's next?"
+- **Not:** Say "Phase 3 is complete" and then wait
+- **Not:** Offer generic "Do you want to continue?" — be specific about what Phase N+1 contains
+
+**Example bad pattern (❌ DO NOT DO THIS):**
+```
+✅ Phase 3 complete. Ready for Phase 4?
+```
+
+**Example good pattern (✅ DO THIS):**
+```
+✅ Phase 3 Complete
+
+### Summary
+[...]
+
+### Next Step
+Ready for Phase 4A (Extract Skill)?
+→ We'll create a reusable skill from this dashboard
+→ Time: 1 hour
+→ Or prefer Phase 4B (Agent) or Phase 5 (Docs)?
+
+→ Your choice: 4A / 4B / 5 / or close engagement
+```
+
+**In state.md:**
+Always end each phase with a "Next Action" pointer that references this completed phase:
+```yaml
+## Next Action
+✅ Phase 3 Complete. Ready for Phase 4A (Extract Skill)?
+→ Choose: 4A (extract skill) / 4B (agent) / 5 (docs) / close
+```
+
+---
+
 ## 8. If an Instruction Cannot Be Followed
 
 **STOP immediately.** Return to user with:
