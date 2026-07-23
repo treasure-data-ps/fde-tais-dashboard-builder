@@ -29,6 +29,67 @@ The key architectural difference is that Workflow path dashboards never touch so
 
 ---
 
+## Architecture: Two-Tier Filter Pattern + Three Data Shapes (CRITICAL)
+
+### Two-Tier Filter Architecture
+
+**All Phase 3 dashboards must implement exactly two tiers:**
+
+**Tier 1: Global Date Range Filter (F.start, F.end)**
+- Source: `sink_overview_kpis` (daily grain, NO dimension columns)
+- Scope: All KPI cards + trend chart globally
+- Applies to: All tabs simultaneously
+- Why: Date filtering requires daily or finer grain; impossible on pre-grouped dimension data
+
+**Tier 2: Per-Tab Dimension Filters (FS.<tab>.<dimension>)**
+- Source: Distinct values from each tab's SINK table
+- Scope: Active tab's widgets only
+- Applies to: Only the currently visible tab
+- Why: Separates dimension aggregation (monthly grain, coarse) from date filtering (precise)
+
+**Logic flow:**
+```javascript
+if (activeDimFilters.length === 0) {
+  // No dimension filter → use daily overview data
+  data = sink_overview_kpis.filter(r => r.date >= F.start && r.date <= F.end);
+} else {
+  // Dimension filter active → use monthly+dimension table (Shape S3, item below)
+  data = sink_<tab>_monthly_dims.filter(r => 
+    r.month >= F.start.slice(0,7) && 
+    r.month <= F.end.slice(0,7) &&
+    matchesDimFilters(r, FS.<tab>)
+  );
+}
+```
+
+### Three Required Data Shapes (Not Two!)
+
+Every Phase 3 **must generate exactly three data shapes**. Missing the third is the most common architecture gap.
+
+| Shape | Query Pattern | Use Case |
+|-------|---------------|----------|
+| **S1: Daily, no dims** | `SELECT date, SUM(revenue) FROM sink_daily GROUP BY date` | Date-filtered KPIs when no dimension filter active |
+| **S2: All-time, with dims** | `SELECT category, SUM(revenue) FROM sink_daily GROUP BY category` | Breakdown charts; dimension filter only (no date range) |
+| **S3: Monthly, with dims** ⭐ | `SELECT SUBSTR(date,1,7), category, SUM(revenue) FROM sink_daily GROUP BY 1,2` | **Respond to BOTH date + dimension filters simultaneously** |
+
+**Shape S3 is what's typically missing.** Without it, KPI cards cannot update when users set both a date range AND a dimension filter.
+
+**Query generation (ALL SHAPES REQUIRED):**
+```javascript
+const q1 = query_overview();                    // S1
+const q2 = query_breakdown_category_alltime();  // S2
+const q3 = query_breakdown_payment_alltime();   // S2
+const q4 = query_sales_monthly_dims();          // S3 ← CRITICAL
+const q5 = query_web_monthly_dims();            // S3 ← CRITICAL
+const q6 = query_customers_monthly_dims();      // S3 ← CRITICAL
+
+const results = await Promise.all([q1, q2, q3, q4, q5, q6]);
+```
+
+**See `phase-3-data-patterns.md` item 2** for cardinality estimation and LIMIT sizing for S3 queries.
+
+---
+
 ## Build+Validate Loop
 
 ```
@@ -652,21 +713,123 @@ See [`references/rendering/html-client/html-deployment-guide.md`](references/ren
 ---
 
 
-## Quality Gates (ALL must pass before exiting)
+## Quality Gates — 22-Point Implementation Checklist (ALL must pass)
 
-✅ All 5 queries validated locally
-✅ Dashboard structure matches Phase 1 layout
-✅ All filters wired + error states handled
-✅ Renders with real data — no blank components
-✅ Data range banner present (static dashboards)
-✅ Every widget has an info tooltip with definition + calculation
-✅ **Data accuracy validated** — all KPIs match Phase 1/2 spot-checks (Step 4f)
-✅ All filters tested — independence, combinations, edge cases (Step 4g)
-✅ Performance baseline recorded — queries < 5 sec (Step 4h)
-✅ **User approved** — feedback resolved (Step 4i)
-✅ Parameters documented in `state.md` (Step 4j)
-✅ Mobile tested if Phase 1 required (Step 4k)
-✅ `state.md` updated (append only)
+### Architecture & Data Integrity (Items 1-12 from phase-3-query-and-filter-design.md)
+
+- [ ] **Filter Architecture (Item 1):** Two-tier pattern fully wired
+  - [ ] Global date range (F.start, F.end) affects all KPI cards + trend chart
+  - [ ] Per-tab dimension filters (FS.<tab>.<dim>) affect active tab only
+  - [ ] Code path switches between overview (no dims) and monthly+dims (dims active)
+
+- [ ] **All Three Data Shapes Generated (Item 2):**
+  - [ ] S1: Daily, no dimensions (sink_overview_kpis)
+  - [ ] S2: All-time with dimensions (breakdown queries)
+  - [ ] S3: Monthly + dimensions (monthly+dim queries for responsive date+dimension filtering)
+
+- [ ] **Monthly Query Cardinality Validated (Item 3):**
+  - [ ] Expected rows calculated for each S3 query
+  - [ ] LIMIT set to ≥ 2× expected rows
+  - [ ] Post-query check: no query returned exactly LIMIT (no truncation)
+  - [ ] Cardinality audit documented in state.md
+
+- [ ] **Cross-Filter Pattern Applied (Item 4):**
+  - [ ] Each breakdown chart excludes its own dimension from active filters
+  - [ ] Selecting category shows full category distribution (not collapsed to 1 bar)
+
+- [ ] **Breakdown Charts Respond to Date Filter (Item 5):**
+  - [ ] All breakdown charts use Shape S3 (monthly+dim), not all-time data
+  - [ ] Date range changes update breakdown charts (not static)
+
+- [ ] **Non-Additive Metrics Handled (Item 6):**
+  - [ ] All COUNT DISTINCT columns documented with Phase 3 handling choice
+  - [ ] If summed across dimensions: using overview OR source query OR fallback metric
+  - [ ] Never blind SUM(unique_customers) across dimensional breakdowns
+
+- [ ] **Payload Budget Pre-Calculated (Item 7):**
+  - [ ] Estimated row counts × 40 bytes/row for all S3 queries
+  - [ ] Total projected payload < 2 MB
+  - [ ] Documented in state.md
+
+- [ ] **Known Limitations Annotated (Item 8):**
+  - [ ] Every limited widget has .widget-note (all-time only, non-date-filterable, approximation)
+  - [ ] Annotation explains limitation and why
+
+- [ ] **State.md Phase 3 Block Appended (Item 9):**
+  - [ ] Query plan (all Q1–QN with row counts)
+  - [ ] Payload size documented
+  - [ ] Filter architecture summary
+  - [ ] Known limitations list
+
+- [ ] **Special Characters in Templates (Item 10):**
+  - [ ] All non-ASCII in JavaScript strings use Unicode escapes (\uXXXX)
+  - [ ] ÷, →, —, ×, &, ≈ all properly escaped
+
+- [ ] **Dimension Combination Handling (Item 11):**
+  - [ ] If monthly+dim cardinality > 5K: options presented + chosen approach documented
+  - [ ] Trade-offs explained in state.md
+
+- [ ] **Overview Path Documented (Item 12):**
+  - [ ] Explicit documentation: overview used for date-only path; separate paths when filters active
+
+### Code Implementation (Items 13-22 from phase-3-implementation-checklist.md)
+
+- [ ] **Spot-Check Date Window Correct (Item 13):**
+  - [ ] Window matches Phase 1 baseline exactly (not rolling 30 days)
+  - [ ] Verified: dateEnd - 30 days = same window as Phase 1
+
+- [ ] **Spot-Check Expected Values (Item 14):**
+  - [ ] Values read from state.md (not hardcoded literals)
+  - [ ] Or using all-time stable metrics (monotonically increasing)
+
+- [ ] **Hidden Tab Charts Render Correctly (Item 15):**
+  - [ ] Charts on hidden tabs re-rendered on switch (visibility issue fixed)
+  - [ ] Or use visibility:hidden instead of display:none
+
+- [ ] **No Dead Data in Payload (Item 16):**
+  - [ ] No unused SINK columns included in RAW mapping
+  - [ ] Or documented in comment why included but unused
+
+- [ ] **Tab Filters Symmetric (Item 17):**
+  - [ ] All SINK dimension columns have filter dropdowns
+  - [ ] Not missing filters on one tab that exist on another
+
+- [ ] **Filter-Active Indicator on Tabs (Item 18):**
+  - [ ] Tab buttons show visual indicator (dot/badge) when that tab has active filters
+  - [ ] Indicator updates on every filter change
+
+- [ ] **Table Row Limits Transparent (Item 19):**
+  - [ ] Every table shows "top N of M" in header
+  - [ ] LIMIT is configurable constant (not magic number)
+  - [ ] User sees they're viewing a ranked subset
+
+- [ ] **Schema Validation at Build Time (Item 20):**
+  - [ ] Required columns validated after Q1 runs
+  - [ ] Build fails fast with clear error if schema mismatch
+  - [ ] Not silently coercing undefined to 0
+
+- [ ] **Offline Capability (Item 21):**
+  - [ ] Chart.js inlined (true offline) OR
+  - [ ] Clear disclaimer about CDN dependency
+
+- [ ] **Render Optimization (Item 22):**
+  - [ ] Only active tab re-rendered on filter changes
+  - [ ] Not re-rendering all 4 tabs (wasteful)
+
+### Standard Quality Gates
+
+- [ ] Dashboard structure matches Phase 1 layout
+- [ ] All filters wired + error states handled
+- [ ] Renders with real data — no blank components
+- [ ] Data range banner present (showing actual date window)
+- [ ] Every widget has tooltip with definition + calculation
+- [ ] **Data accuracy validated** — 3+ KPIs match Phase 1/2 spot-checks ±0.1%
+- [ ] All filters tested — independence, combinations, edge cases
+- [ ] Performance baseline recorded — queries < 5 sec, load < 5 sec
+- [ ] No console errors (F12 → Console)
+- [ ] **User approved** — feedback resolved
+- [ ] Mobile tested (if Phase 1 required)
+- [ ] `state.md` updated with Phase 3 block (append only)
 
 ---
 

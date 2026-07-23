@@ -85,6 +85,72 @@ GROUP BY customer_id, vehicle_model, region, service_type;
 
 ---
 
+## PHASE 3 CRITICAL: Three Data Shapes Required
+
+Every Phase 3 dashboard must generate exactly three query shapes for the two-tier filter architecture to work:
+
+### Shape S1: Daily, No Dimensions (Global Date Filter)
+```sql
+-- Use: Overview KPIs when no dimension filter is active
+-- Source: sink_overview_kpis (Workflow) or source table (Non-Workflow)
+-- Key: Daily grain to support per-day filtering
+
+SELECT date,
+       SUM(net_revenue) as revenue,
+       COUNT(DISTINCT order_id) as order_count,
+       COUNT(DISTINCT customer_id) as unique_customers,
+       SUM(email_sends) as email_sends
+FROM sink_overview_kpis
+WHERE td_time_range(date, '2026-06-23', '2026-07-23')
+GROUP BY date
+ORDER BY date ASC;
+-- Result: ~31 rows (one per day)
+```
+
+### Shape S2: All-Time, With Dimensions (Breakdown Charts)
+```sql
+-- Use: Breakdown charts when filtering by dimension only (no date range)
+-- Key: All-time aggregate, one row per dimension value
+
+SELECT category, SUM(net_revenue) as revenue, COUNT(*) as count
+FROM sink_sales_daily
+GROUP BY category
+ORDER BY revenue DESC;
+
+-- Result: ~12 rows (one per category)
+-- Use cases: "Revenue by category (all time)", "Orders by payment (all time)"
+```
+
+### Shape S3: Monthly + Dimensions ⭐ (CRITICAL - Respond to BOTH Filters)
+```sql
+-- Use: KPI cards when BOTH date range + dimension filter are active
+-- Key: Monthly grain allows date filtering + dimensions allow filtering by category/region/etc
+-- This shape is what enables dashboard responsiveness to both filter tiers
+
+SELECT SUBSTR(date, 1, 7) as month,
+       category,
+       payment_type,
+       status,
+       SUM(net_revenue) as revenue,
+       COUNT(DISTINCT order_id) as order_count,
+       COUNT(DISTINCT customer_id) as unique_customers
+FROM sink_sales_daily
+WHERE td_time_range(date, '2025-01-01', '2026-12-31')
+GROUP BY 1, 2, 3, 4
+ORDER BY month ASC;
+-- Result: 61 months × 12 categories × 4 payment_types × 3 statuses = ~8,784 rows
+-- CRITICAL: Set LIMIT to at least 2× expected rows
+LIMIT 20000;
+```
+
+**Why Three Shapes:**
+- S1 only: Can't filter by dimension
+- S2 only: Can't filter by date range
+- S1 + S2 only: Can't do BOTH simultaneously
+- S1 + S2 + S3: Full flexibility for two-tier architecture ✓
+
+---
+
 ## ⚠️ WORKFLOW PATH: VARCHAR Date Columns in SINK Tables
 
 **Critical:** SINK tables store dates as **VARCHAR** (e.g., `'2025-03-15'`) from `DATE_FORMAT(FROM_UNIXTIME(...), '%Y-%m-%d')`, not native DATE type.
