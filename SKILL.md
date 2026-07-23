@@ -30,7 +30,12 @@ Build custom dashboards from Treasure Data databases using a **self-serve 5-phas
 
 #### New Engagement Path
 
-Once you confirm this is a **new engagement**, **re-read `./references/guardrails-lite.md` immediately**, then follow these 2 steps:
+Once you confirm this is a **new engagement**, **re-read these files immediately** (in this order):
+1. **`./references/guardrails-lite.md`** — Cross-phase guardrails (293 lines)
+2. **`./references/treasure-data-theme.md`** — Brand colors, fonts, component styles (396 lines)
+3. **`./STATE-CHECKPOINT-SYSTEM.md`** — Runtime validation and recovery (453 lines)
+
+Then follow these 2 steps:
 
 1. **Say to the user:** "For this project, here are the 5 phases we'll work through step by step."
 
@@ -66,7 +71,11 @@ Once you confirm this is a **new engagement**, **re-read `./references/guardrail
 
 #### Existing Engagement Path
 
-Once you confirm this is **resuming an existing project**, **re-read `./references/guardrails-lite.md` immediately**, then follow these 3 steps:
+Once you confirm this is **resuming an existing project**, **re-read these files immediately** (in this order):
+1. **`./references/guardrails-lite.md`** — Cross-phase guardrails (293 lines)
+2. **`./STATE-CHECKPOINT-SYSTEM.md`** — Runtime validation and recovery (453 lines)
+
+Then follow these 3 steps:
 
 1. **Ask for the project slug:**
    - "What's the project slug or folder name you're resuming? (e.g. `./<project-slug>/`)"

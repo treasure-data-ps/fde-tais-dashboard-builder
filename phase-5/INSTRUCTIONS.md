@@ -69,6 +69,17 @@ Create 4 markdown documentation files for users and operators:
 - [ ] Disaster recovery procedures
 - [ ] Support SLA + response time
 
+---
+
+## ✅ Before You Proceed: Required Reads
+
+**Before executing Phase 5 documentation creation, read:**
+1. **`./phase-5/references/phase-5-walkthrough.md`** — Step-by-step guide for all 4 documentation files
+
+This walkthrough covers the structure, required sections, and validation gates for Architecture.md, Usage Guide.md, Runbook.md, and Access & Ownership.md (ensures consistent structure, no generic "contact admin" placeholders).
+
+---
+
 **Content Validation**
 - [ ] Architecture.md: Project-specific (not template), actual table names, real costs
 - [ ] Usage Guide.md: Real KPI values, actual filter options, real user workflows

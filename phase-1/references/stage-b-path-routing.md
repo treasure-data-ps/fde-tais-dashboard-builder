@@ -179,16 +179,99 @@ IF skip_workflow == true (data source is pre-aggregated):
   → Route to PHASE 3 (Build Dashboard) immediately
 
 IF promotion_score >= 4:
-  → RECOMMEND Workflow path (scheduled refresh, production-ready)
-  → Route to PHASE 2 (Workflow), then PHASE 3
+  → ⚠️ RECOMMEND Workflow path (scheduled refresh, production-ready)
+  → WAIT FOR USER CONFIRMATION (see approval gate below)
+  → If confirmed: Route to PHASE 2 (Workflow), then PHASE 3
+  → If declined: Route to PHASE 3 (Non-Workflow) instead
 
 IF promotion_score == 3:
   → Ask user: "Quick build now (Phase 3, same session) or set up scheduled refresh first (Phase 2, ~15-30 min)?"
   → Proceed per user's choice
 
 IF promotion_score <= 2:
-  → RECOMMEND Non-Workflow path (low business need)
-  → Route to PHASE 3 (Build Dashboard) immediately
+  → ⚠️ RECOMMEND Non-Workflow path (low business need)
+  → WAIT FOR USER CONFIRMATION (see approval gate below)
+  → If confirmed: Route to PHASE 3 (Build Dashboard) immediately
+  → If user prefers workflow: Route to PHASE 2 instead
+```
+
+---
+
+## ⚠️ APPROVAL GATES — After Path Recommendation
+
+**⚠️ CRITICAL: After any path recommendation, WAIT for explicit user confirmation before proceeding.**
+
+### Gate A: Workflow Path Confirmation (Score ≥ 4)
+
+**When to use:** After recommending Workflow path
+
+```
+📋 Recommended: Workflow Path (Phase 2 → Phase 3)
+
+Based on your data:
+  • Promotion Score: 5/6 (Score criteria met for Workflow)
+  • Business Need: High (frequent refresh, production dashboard)
+  • Data Complexity: Complex (multiple tables, joins required)
+  • Recommendation: Set up scheduled Workflow to pre-aggregate metrics
+
+⏱️ Time commitment:
+  • Phase 2 (Workflow setup): ~20-30 minutes
+  • Phase 3 (Dashboard build): ~30-45 minutes
+  • Total: ~1 hour from now
+
+💰 Cost Impact:
+  • Workflow runs daily (adjust schedule in Phase 2)
+  • Estimated query cost: ~$X per day
+  • Storage cost for SINK tables: ~$X per month
+
+✅ Benefits:
+  • Dashboard loads in <2s (pre-aggregated)
+  • Data refreshes on schedule automatically
+  • Production-ready for team adoption
+
+To proceed, please type exactly:
+YES, PROCEED WITH WORKFLOW PATH
+
+Or type:
+NO, SKIP WORKFLOW AND BUILD NOW (Phase 3 only)
+```
+
+---
+
+### Gate B: Non-Workflow Path Confirmation (Score ≤ 2)
+
+**When to use:** After recommending Non-Workflow path
+
+```
+📋 Recommended: Non-Workflow Path (Phase 3 only)
+
+Based on your data:
+  • Promotion Score: 2/6 (Low business complexity)
+  • Business Need: Low (infrequent refresh, exploratory)
+  • Data Source: Simple (few tables, light queries)
+  • Recommendation: Build dashboard directly without scheduled workflow
+
+⏱️ Time commitment:
+  • Phase 3 (Dashboard build): ~30-45 minutes
+  • Total: from now
+
+💰 Cost Impact:
+  • No workflow infrastructure
+  • Query cost per dashboard load: minimal (~$0.01 per view)
+  • No ongoing storage cost
+
+⚠️ Trade-offs:
+  • Dashboard loads in 5-10s (queries run on-demand)
+  • Data is fresh but slower to fetch
+  • Refreshes only when you re-open dashboard (manual)
+
+You can always add a workflow later (Phase 4: Automate & Deploy)
+
+To proceed, please type exactly:
+YES, BUILD DASHBOARD NOW (Non-Workflow)
+
+Or type:
+NO, SET UP WORKFLOW INSTEAD (Phase 2 → Phase 3)
 ```
 
 **Canonical score boundaries (single source of truth — use these, not values in other files):**

@@ -58,6 +58,35 @@ Deploy a scheduled Treasure Data workflow that:
 
 ---
 
+---
+
+## ✅ Before You Proceed: Required Reads
+
+**Before executing Phase 2 workflow deployment (step 2a), read these reference files:**
+1. **`./phase-2/references/workflow-setup-configure.md`** — SINK table design patterns, aggregation strategies, workflow configuration (27.8K)
+2. **`./phase-2/references/pre-deployment-checklist.md`** — Validation steps before workflow runs
+
+These files establish SINK table structure and workflow patterns to prevent fan-out aggregation errors and query performance issues.
+
+---
+
+## ⚠️ Conditional Reads (Only if applicable)
+
+**If using incremental load strategy (not full-refresh):**
+- **`./phase-2/references/incremental_update_patterns.md`** — Incremental load patterns (16K)
+  - Delta detection, deduplication, upsert patterns
+  - State management for incremental runs
+  - Only read if user chooses incremental vs full-refresh
+
+**If using TD-specific time functions (not CAST/string operations):**
+- **`./phase-2/references/td-time-functions.md`** — TD time functions (td_interval, td_time_range, etc.)
+  - Partition pruning with td_interval
+  - Japan fiscal year calculations
+  - Timezone handling
+  - Only read if queries need advanced time operations
+
+---
+
 ## Phase 2 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P2-0: Dry-Run First (Before Approval)
@@ -228,6 +257,118 @@ Where:
 - `sales_dashboard_sink_customers`
 
 **Why:** Phase 3 dashboard queries reference these exact names. Misnamed tables = no data in dashboard.
+
+---
+
+### Rule P2-4a: Fan-Out Detection (REQUIRED BEFORE SINK DESIGN)
+
+**⚠️ CRITICAL: Check for 1-to-many join fan-out that will overcount metrics.**
+
+For every join in Phase 2 SQL:
+
+1. **Identify the join relationship:** Is it 1-to-1, 1-to-many, many-to-many?
+2. **Check if it affects COUNT DISTINCT:**
+   - If joining `orders (1) ←→ order_items (many)`, COUNT DISTINCT customer_id will overcount
+   - If joining `users (1) ←→ sessions (many)`, COUNT DISTINCT user_id will overcount
+
+3. **Test cardinality:**
+```sql
+-- Check join fan-out
+SELECT COUNT(DISTINCT order_id), COUNT(*) 
+FROM orders o 
+JOIN order_items oi ON o.order_id = oi.order_id;
+
+-- If COUNT(DISTINCT) < COUNT(*), there's a 1-to-many join
+```
+
+4. **If fan-out detected:**
+   - ❌ Do NOT pre-aggregate COUNT DISTINCT in multi-dimension SINK
+   - ✅ DO query source at dashboard build time (Pattern: `querySrc()` function)
+   - ✅ Or create separate date-only SINK for COUNT DISTINCT
+
+**Capture in state.md:**
+```yaml
+### Join Fan-Out Analysis
+
+| Source Join | Type | COUNT Impact | Solution |
+|--|--|--|--|
+| orders ← order_items | 1-to-many | Overcounts | Query source at build time |
+| customers ← sessions | 1-to-many | No impact on COUNT(customer_id) | Safe to pre-aggregate |
+```
+
+---
+
+### Rule P2-4b: COUNT DISTINCT Pattern — Never Pre-Aggregate with Multiple Dimensions
+
+**⚠️ CRITICAL: Never put COUNT DISTINCT in a multi-dimension SINK grain.**
+
+❌ **WRONG:**
+```sql
+SELECT 
+  DATE(date) AS date,
+  region,
+  category,
+  status,
+  COUNT(DISTINCT customer_id) AS unique_customers  -- WRONG GRAIN!
+FROM events
+GROUP BY date, region, category, status
+```
+
+This counts the same customer multiple times if they appear in multiple status groups.
+
+✅ **RIGHT Option 1: Date-only SINK for COUNT DISTINCT**
+```sql
+-- SINK table: sink_unique_customers (date-only)
+SELECT 
+  DATE(event_date) AS date,
+  COUNT(DISTINCT customer_id) AS unique_customers
+FROM events
+GROUP BY DATE(event_date)
+```
+
+✅ **RIGHT Option 2: Query source at dashboard build time**
+```javascript
+// In dashboard generation script
+function querySrc() {
+  // Fetch COUNT DISTINCT from source at build time
+  // Not pre-aggregated, so joins don't overcount
+  return executeQuery(`SELECT COUNT(DISTINCT customer_id) FROM events`);
+}
+```
+
+**Rule:** If a KPI is COUNT DISTINCT and the SINK has 2+ dimensions, choose Option 1 or 2.
+
+**Document in state.md:**
+```yaml
+### COUNT DISTINCT Handling
+
+**Metric: Unique Customers**
+- Grain: Date only (not by region/category)
+- Reason: Avoids over-counting across dimensions
+- SINK table: project_sink_unique_customers
+- Query pattern: Date-only grouping
+```
+
+---
+
+### Rule P2-4c: SINK → Dashboard Section Mapping (OUTPUT ARTIFACT)
+
+**⚠️ REQUIRED: Before Phase 3, create a mapping table showing which SINK table feeds which dashboard widget.**
+
+**Create this as a Phase 2 deliverable in state.md:**
+
+```yaml
+### SINK → Dashboard Mapping
+
+| Dashboard Section | Widget | Metric | SINK Table | SINK Columns |
+|--|--|--|--|--|
+| Tab 1: KPI Overview | Card: Revenue | Total Revenue | project_sink_revenue | date, total_revenue |
+| Tab 1: KPI Overview | Card: Customers | Unique Customers | project_sink_unique_customers | date, unique_customers |
+| Tab 2: Analysis | Chart: Revenue by Region | Revenue by Region | project_sink_revenue | date, region, total_revenue |
+| Tab 3: Data Table | Table: Orders | All Orders | project_sink_orders | order_id, date, region, status, revenue |
+```
+
+**Why:** Eliminates ambiguity during Phase 3. Phase 3 builder knows exactly which SINK to query for each widget.
 
 ---
 
@@ -500,25 +641,41 @@ END Phase 2 → Jump to Phase 3
 
 ---
 
-## After Phase 2 Completes
+## After Phase 2 Completes (Rule 0: Phase Auto-Advance)
 
-**If workflow deploys successfully:**
+**If workflow deploys successfully (IMMEDIATE AUTO-START):**
+
+**Say this (EXACT SCRIPT):**
 ```
-✓ Phase 2 Complete → Jump to Phase 3
-  Read: ../phase-3/INSTRUCTIONS.md
-  Then: ../phase-3/SKILL.md
+✅ Phase 2 Complete — Workflow deployed and running
+
+### Summary
+- SINK tables created: [list]
+- Workflow schedule: [frequency]
+- First run: [timestamp or "queued"]
+
+### Next: Phase 3 — Build Dashboard
+Now we'll create the interactive dashboard using your optimized SINK tables.
+Estimated time: 2-3 hours
+
+Starting Phase 3...
 ```
+
+**Then immediately proceed to Phase 3 (no approval needed, no "let me know")**
 
 **If workflow fails:**
 ```
-✗ Phase 2 Blocked → Troubleshoot
-  Check:
+✗ Phase 2 Blocked — Troubleshoot before Phase 3
+  
+Debug checklist:
   1. Is auth still valid? (tdx auth show)
   2. Do SINK tables exist? (tdx tables <db>)
   3. Did the first run complete? (tdx wf show <workflow_name>)
   
-  If unresolved: Return to user with error details
+Return to user with error details + next troubleshooting step
 ```
+
+**Why:** Phase 2 success = immediate trigger to Phase 3. No stop, no pause, no "should we continue?"
 
 ---
 

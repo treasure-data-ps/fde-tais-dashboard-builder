@@ -12,47 +12,45 @@ Self-contained HTML files you can download and share. No backend required - all 
 
 ---
 
-## Template 1: Basic KPI Dashboard
+## ⭐ Recommended: Unified Dashboard
 
-**Best for:** Simple metrics overview, shareable reports  
-**Build time:** 10 minutes  
-**File size:** ~207KB (self-contained, includes inlined Chart.js)  
-**Features:**
-- 4 KPI cards with values
-- Summary section
-- Last updated timestamp
-- Responsive on mobile/desktop
-- Can be emailed or embedded in Confluence
-
----
-
-## Template 2: Table Dashboard
-
-**Best for:** Data exploration, sorting, searching  
+**Best for:** All dashboard types in one flexible template  
 **Build time:** 15 minutes  
-**File size:** ~209KB (includes inlined Chart.js)  
-**Features:**
-- Sortable columns (click to sort)
-- Search/filter rows
-- Status badges with color coding
-- CSV export button
-- Summary metrics above table
-- Responsive table scrolling on mobile
+**File size:** ~800KB (single file includes everything)  
+
+### Combines All Individual Templates in One File:
+
+| Individual Template | Now in Unified | Features |
+|-------------------|---|---|
+| **KPI Dashboard** | 📊 Tab 1 | 4+ metric cards, formatted numbers |
+| **Multi-Chart Dashboard** | 📈 Tab 2 | Line/Bar/Pie charts, trends, analysis |
+| **Table Dashboard** | 📋 Tab 3 | Sortable table, search, status badges |
+| *(New)* | 💡 Tab 4 | Auto-generated insights & recommendations |
+| *(New)* | ⬇️ Tab 5 | CSV/JSON/PDF export |
+
+### All Features in One Template:
+- ✅ 5 tabs: KPI Overview, Analysis, Data Explorer, Insights, Export
+- ✅ KPI cards with auto-formatted numbers
+- ✅ 3 chart types: Line (trends), Bar (comparisons), Pie (distribution)
+- ✅ Sortable/searchable data table with status badges
+- ✅ **Auto-generated insights, opportunities & recommendations**
+- ✅ CSV/JSON export and PDF print
+- ✅ Treasure Data 2026 branding (dark blue + purple theme)
+- ✅ Fully responsive (mobile/tablet/desktop)
+- ✅ Works offline (Pattern A) or with separate data.json (Pattern B)
+
+**→ Start here:** See `UNIFIED-DASHBOARD-README.md` for complete docs
 
 ---
 
-## Template 3: Multi-Chart Dashboard
+## Legacy Templates (Deprecated)
 
-**Best for:** Comprehensive analysis with visualizations  
-**Build time:** 20 minutes  
-**File size:** ~208KB (includes inlined Chart.js)  
-**Features:**
-- Line chart (trends)
-- Bar chart (comparisons)
-- Pie chart (distribution)
-- KPI cards
-- Legend and tooltips
-- Responsive charts (resize with window)
+The three individual templates below have been consolidated into the **Unified Dashboard** above. Use unified-dashboard.html instead.
+
+**Historical reference only:**
+- kpi-dashboard.html (removed - use Unified → KPI Overview tab)
+- table-dashboard.html (removed - use Unified → Data Explorer tab)
+- multi-chart-dashboard.html (removed - use Unified → Analysis tab)
 
 ---
 
@@ -128,56 +126,39 @@ The templates support two architecturally different patterns:
 
 **⚠️ Reference only.** The 3 checked-in templates (`kpi-dashboard.html`, `table-dashboard.html`, `multi-chart-dashboard.html`) already contain their own inline rendering `<script>` — they do NOT need a separate `render.js` file or `fetch('data.json')` call for the default Pattern A workflow. The steps below only apply if you deliberately opt into Pattern B (payload > 2MB) and need to wire up a standalone `render.js` that fetches a separate `data.json`.
 
-### Step 1: Choose a Template
-Copy the HTML file into your engagement's dashboard directory.
+### Step 1: Use Unified Template
+The **unified-dashboard.html** template is now the standard. It includes all 4 tabs (KPI Overview, Analysis, Data Explorer, Export) in one file.
 
-### Step 2: Start from `generate-data.js`
-A starter `generate-data.js` is included in this directory. It covers Pattern A (inline injection) and Pattern B (separate data.json). Copy and customize the SQL queries and column names for your SINK table:
+### Step 2: Start from `generate-data-unified.js`
+A starter script is included. Copy and customize the SQL queries for your database:
 
 ```bash
-cp generate-data.js /path/to/engagement/dashboards/html-client/generate-data.js
+cp generate-data-unified.js /path/to/engagement/dashboards/
 # Edit: DB, table names, column names in the Queries section
-SOURCE_DB=your_database node generate-data.js
+SOURCE_DB=your_database node generate-data-unified.js
 ```
 
-**⚠️ CRITICAL: The `query()` helper includes `--limit 10000` by default.** Without this flag, results silently truncate to the default 40 rows. Always verify queries return expected row counts before delivering to customer. The correct tdx flag is `tdx --json query -d "<db>" "<sql>" --limit <N> 2>/dev/null` — not `tdx query --format json`.
+**⚠️ CRITICAL: Always add `--limit <N>` to queries.** Without this flag, results silently truncate to the default 40 rows. Always verify queries return expected row counts before delivering to customer.
 
-### Step 3: Run `generate-data.js`
+### Step 3: Run `generate-data-unified.js`
 ```bash
-SOURCE_DB=your_db node generate-data.js
+SOURCE_DB=your_db node generate-data-unified.js
 # or for Workflow path (SINK tables):
-SINK_DB=your_sink_db node generate-data.js
+SINK_DB=your_sink_db node generate-data-unified.js
 ```
-Outputs `dashboard.html` (Pattern A) or `data.json` (Pattern B).
+Outputs `dashboard.html` (Pattern A: inline, < 2MB) or separate `data.json` (Pattern B: large, > 2MB).
 
-### Step 4: Write `render.js`
-Create a JS file that reads `data.json` via `fetch()` and renders charts/tables.
-See `render.js` in this same `templates/` folder for the full pattern.
-
-### Step 5: Link `render.js` in `dashboard.html`
-Add at the bottom of `<body>`:
-```html
-<script src="render.js"></script>
-```
-
-### Step 6: Serve and Test
+### Step 4: Serve and Test
 ```bash
 npx serve .   # open http://localhost:3000
 # or: preview_document in Treasure Work
 ```
 
-### Step 7: Share
-Zip all three files together:
-```bash
-zip dashboard.zip dashboard.html render.js data.json
-```
-Recipients unzip and open in any browser.
+### Step 5: Share
+- **Pattern A (< 2MB):** Email or share single `dashboard.html` file
+- **Pattern B (> 2MB):** Zip together: `zip dashboard.zip dashboard.html data.json`
 
-### Step 8: Alternative Sharing Methods
-- Download .html file
-- Email to stakeholders
-- Embed in Confluence
-- Print to PDF
+Recipients unzip (if needed) and open in any browser.
 
 ---
 

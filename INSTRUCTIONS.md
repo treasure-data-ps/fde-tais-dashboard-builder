@@ -42,6 +42,40 @@ Load Order 1.1-1.5: ./phase-N/INSTRUCTIONS.md (phase-specific)
 
 ---
 
+## Rule 0: Phase Auto-Advance (ENFORCED — NEVER STOP)
+
+**⚠️ CRITICAL: After EVERY phase completes, IMMEDIATELY start or offer the next phase. NEVER say "let me know if you'd like to proceed". NEVER wait for user input on progression.**
+
+### Auto-Advance Rules by Phase Type:
+
+**Required Phases (auto-start, no approval needed):**
+- Phase 1 → Phase 2 or 3 (based on promotion score)
+- Phase 2 → Phase 3 (automatic, no stop)
+- Phase 3 → Phase 4 (automatic offer)
+
+**Optional Phases (one immediate yes/no question, no "let me know"):**
+- Phase 4 Track A or B (ask once: "Track A (extract skill) or Track B (agent)? Or close?")
+- Phase 5 (ask once: "Create handoff docs? Or close?")
+
+### Script Format (REQUIRED for each auto-advance):
+
+```
+✅ Phase [N] Complete
+
+### Summary
+[2-3 lines what was done]
+
+### Next: Phase [N+1]
+[Explicit script to say, with prompt]
+
+[Only for optional phases:]
+Ready? → **YES** (proceed) / **NO** (skip to Phase [M]) / **CLOSE** (end engagement)
+```
+
+**NOT "Would you like to?" or "Should we continue?" or "Let me know if..."**
+
+---
+
 ## Enforcement Gates (High-Risk Actions — CANNOT BYPASS)
 
 These are **blocking gates**. If conditions are not met, Claude **CANNOT proceed** — not optional, not flexible, not negotiable.
@@ -81,6 +115,44 @@ These are **blocking gates**. If conditions are not met, Claude **CANNOT proceed
 
 **If spot-checks fail:**
 > "Dashboard shows [KPI]=[value] but database shows [value]. 1% mismatch. I cannot mark this complete until the numbers match exactly. Debugging..."
+
+---
+
+### Gate 2b: Proactive Next Step Presentation (All Phases)
+
+**AFTER each phase completes, IMMEDIATELY present next step with default action.**
+
+**Never wait for user to ask "what's next?" or "where are we?"**
+
+**Template (use every time):**
+```
+✅ Phase [N] Complete
+
+### Summary
+[2-3 lines of what was accomplished]
+
+### Next Step
+Ready for Phase [N+1]?
+
+**Option A (Recommended):** [Phase N+1 description]
+→ We'll [action 1], [action 2], [action 3]
+→ Estimated time: X hours
+→ Requires: [prerequisites]
+
+**Option B:** [Alternative phase or close]
+
+**Option C:** [Another alternative]
+
+**→ Which would you like? (A/B/C or describe something different)**
+```
+
+**Why this matters:**
+- Users don't memorize the 5 phases
+- Every "what's next?" question wastes context and time
+- Proactive options = faster engagement completion
+- Prevents decision paralysis (A is the default path)
+
+**Past incident:** Engagement stalled for 2 days after Phase 1 because neither user nor Claude knew whether Phase 2 was needed. Explicit "Ready for Phase 2?" with default recommendation would have clarified immediately.
 
 ---
 

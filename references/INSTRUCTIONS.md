@@ -13,6 +13,64 @@ These rules apply **across all phases** and must never be violated. Every rule h
 
 ---
 
+## ⚠️ BEFORE EVERY ENGAGEMENT — Required Reads
+
+**On every new engagement (not resumed), re-read these guardrails files in order:**
+1. **`./guardrails-lite.md`** (293 lines) — Core cross-phase guardrails, scoping, and data integrity rules
+2. **`./treasure-data-theme.md`** (396 lines) — Brand colors, fonts, component styles (establishes dashboard aesthetics)
+3. **`../STATE-CHECKPOINT-SYSTEM.md`** (453 lines) — Runtime validation and recovery protocol (establishes state.md discipline)
+
+**Why:** These three files establish the baseline for ALL downstream decisions (brand compliance, data integrity, scoping accuracy). Skipping them leads to rework (wrong colors, incorrect queries, over-scoped dashboards).
+
+---
+
+## 0. Phase Auto-Advance (READ THIS FIRST BEFORE EVERY PHASE TRANSITION)
+
+**⚠️ CRITICAL: NEVER stop at phase completion. IMMEDIATELY auto-advance or ask the next step.**
+
+**Root cause of past stalls:** Phase completion sections said "read phase-N INSTRUCTIONS.md next" but didn't tell the skill **what to say or when to say it**. Result: engagements paused waiting for user to ask "what's next?"
+
+**Fix: Explicit scripts at each phase completion**
+
+### Phase 1 Completion → Auto-Route
+```
+Score 0-2: "Phase 3 is optimal for you. Starting Phase 3..."
+Score 3: "Your project could go either way. Phase 2 (workflow) or Phase 3 (direct)?"
+        [ONE immediate yes/no question, no "let me know"]
+Score 4-6: "Phase 2 (workflow) is recommended. Proceeding to Phase 2..."
+```
+
+### Phase 2 Completion → Auto-Advance
+```
+"Phase 2 complete. Now building the dashboard (Phase 3)..."
+[Start Phase 3 immediately, no approval needed]
+```
+
+### Phase 3 Completion → Present Phase 4
+```
+"Dashboard approved. What's next?
+
+Track A: Extract this as a reusable skill (1 hour)
+Track B: Deploy conversational agent (1.5 hours)
+Track C: Close engagement
+
+→ Which? (A/B/C)"
+[Only ask once, get immediate answer]
+```
+
+### Phase 4 Completion → Present Phase 5
+```
+"[Track A/B] complete. Final step: documentation & handoff?
+
+Phase 5: Create runbooks, access guides, handoff docs (1 hour)
+Or: Close engagement
+
+→ Phase 5? (YES/NO)"
+[Only ask once]
+```
+
+---
+
 ## 1. Data Integrity — NO Exceptions
 
 ### Never use synthetic, mock, or hardcoded data
@@ -309,7 +367,225 @@ SELECT * FROM events WHERE DATE(time) >= '2026-01-01'
 
 ---
 
-## 7. If an Instruction Cannot Be Followed
+## 7. Tooling & Implementation Best Practices
+
+### Python Zipfile as Default (Phase 4 packaging)
+
+When packaging extracted skills or agent projects, use **Python's `zipfile` module** as the default, not shell `zip` command.
+
+**Why:** `zip` command is not guaranteed to exist on all systems (especially Windows). Python is always available in this environment.
+
+**Pattern:**
+
+```python
+# ✅ RIGHT: Python zipfile (always available)
+import zipfile
+import os
+
+def create_skill_zip(skill_dir, output_path):
+    with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(skill_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, skill_dir)
+                zf.write(file_path, arcname)
+
+create_skill_zip('./fde-dashboard-skill', './fde-dashboard-skill.zip')
+```
+
+**Not:**
+```bash
+# ❌ WRONG: shell zip (may not exist)
+zip -r fde-dashboard-skill.zip fde-dashboard-skill/
+```
+
+---
+
+### State.md Size Discipline (All phases)
+
+**Each phase block in state.md must not exceed 50 lines.** Large artifacts go in referenced files.
+
+**Structure:**
+```yaml
+## Phase 2 — Workflow Deployment
+**Date:** 2026-07-22
+**Status:** ✅ Complete
+**Duration:** 1.5 hours
+
+### SINK Tables Created
+- project_sink_revenue (365 rows, date-only aggregation)
+- project_sink_customers (1.2M rows, pre-deduplicated)
+
+### Performance
+- Query latency: 0.8s avg
+- Incremental load: 2min per day
+
+### SINK → Dashboard Mapping
+See: `./phase-2/sink-dashboard-mapping.md`
+
+### Data Validation
+- ✅ 3+ KPIs verified against source
+- ✅ Join fan-out checked
+- ✅ COUNT DISTINCT pattern validated
+
+### Next Action
+→ Proceed to Phase 3: Build Interactive Dashboard
+```
+
+**Large artifacts go elsewhere:**
+- Full SQL queries → `./phase-2/queries/`
+- SINK schema → `./phase-2/references/sink-schema.md`
+- Join validation analysis → `./phase-2/references/join-analysis.md`
+
+**Why:** Keeps state.md navigable and reviewable. By Phase 5, a large state.md becomes unusable.
+
+**Guidelines:**
+- Phase 1 block: ≤ 40 lines (requirements + data findings summary)
+- Phase 2 block: ≤ 50 lines (SINK summary + link to detailed schema)
+- Phase 3 block: ≤ 45 lines (dashboard summary + link to full plan)
+- Phase 4 block: ≤ 35 lines (skill/agent summary + link to full config)
+- Phase 5 block: ≤ 30 lines (handoff summary + link to docs)
+
+**"Next Action" must always be at the bottom of each phase block and stay ≤ 2 lines.**
+
+---
+
+### Phase Completion: Always Proactively Present Next Step (ENFORCEMENT)
+
+**⚠️ CRITICAL: After EVERY phase completes, immediately present the next step with a default action. NEVER wait for user to ask "what's next?"**
+
+**Pattern (apply after each phase completes):**
+
+```
+✅ Phase [N] Complete
+
+### Summary
+[2-3 line summary of what was accomplished]
+
+### Next Step
+Ready for Phase [N+1]? Here's what we'll do:
+
+**Option A (Recommended):** Phase [N+1] — [Description]
+→ We'll [action 1], [action 2], [action 3]
+→ Estimated time: X hours
+→ Requires: [prerequisites]
+
+**Option B:** Skip to Phase [M]
+→ Reason: [when this makes sense]
+
+**Option C:** Close engagement
+→ Your dashboard is complete and ready to share
+
+**→ Which would you like? (A/B/C or describe something different)**
+```
+
+**Examples:**
+
+**After Phase 1:**
+```
+✅ Phase 1 Complete — Requirements validated against live data
+
+### Summary
+- 4 KPIs identified: Revenue, Customers, Order Value, Churn
+- 3 source tables confirmed: sales_events, customers, returns
+- Promotion Score: 5 (workflow recommended)
+
+### Next Step
+Ready for Phase 2? Here's what we'll do:
+
+**Option A (Recommended):** Phase 2 — Build Pre-Aggregation Workflow
+→ We'll create SINK tables for fast dashboard queries
+→ Estimated time: 2-3 hours
+→ Requires: Treasure Data account access + write permissions
+
+**Option B:** Skip to Phase 3 (Direct Build)
+→ We'll build the dashboard directly from source tables
+→ Reason: Simpler but slower queries
+
+**Option C:** Close engagement
+→ Your requirements are documented in state.md
+
+**→ Which would you like? (A/B/C or describe something different)**
+```
+
+**After Phase 3:**
+```
+✅ Phase 3 Complete — Dashboard approved and ready
+
+### Summary
+- 5 tabs rendered: KPI Overview, Analysis, Data Explorer, Insights, Export
+- All 3 KPIs spot-checked (Revenue ±0%, Customers ±0.2%, AOV ±0.1%)
+- 2.3 MB HTML file, loads in 3 seconds
+
+### Next Step
+What's next for your dashboard?
+
+**Option A (Recommended):** Phase 4A — Extract Reusable Skill
+→ We'll package this dashboard as a reusable Claude skill
+→ Estimated time: 1 hour
+→ Benefit: Future dashboards for similar projects build 10× faster
+
+**Option B:** Phase 4B — Deploy Conversational Agent
+→ We'll create a Foundry agent so users can ask questions in natural language
+→ Estimated time: 1.5 hours
+→ Benefit: Users ask "What's revenue by region?" instead of opening filters
+
+**Option C:** Phase 5 — Documentation & Handoff
+→ We'll create runbooks, architecture docs, and access guides
+→ Estimated time: 1 hour
+→ Benefit: CS/ops teams can troubleshoot without escalating
+
+**Option D:** Close engagement
+→ Your dashboard is ready to share with stakeholders
+
+**→ Which would you like? (A/B/C/D or describe something different)**
+```
+
+**Why:**
+- Users don't know the phase structure (they don't read INSTRUCTIONS.md)
+- "What's next?" questions waste time and context (they pull conversation off-track)
+- Default recommendations steer projects toward value (A is always the most common next step)
+- Options give agency (user chooses, not forced forward)
+- Prevents stalls ("do I continue or close?")
+
+**Timing:**
+- **Immediate:** Present within the same message that announces completion
+- **Not:** Wait for user to say "thanks, what's next?"
+- **Not:** Say "Phase 3 is complete" and then wait
+- **Not:** Offer generic "Do you want to continue?" — be specific about what Phase N+1 contains
+
+**Example bad pattern (❌ DO NOT DO THIS):**
+```
+✅ Phase 3 complete. Ready for Phase 4?
+```
+
+**Example good pattern (✅ DO THIS):**
+```
+✅ Phase 3 Complete
+
+### Summary
+[...]
+
+### Next Step
+Ready for Phase 4A (Extract Skill)?
+→ We'll create a reusable skill from this dashboard
+→ Time: 1 hour
+→ Or prefer Phase 4B (Agent) or Phase 5 (Docs)?
+
+→ Your choice: 4A / 4B / 5 / or close engagement
+```
+
+**In state.md:**
+Always end each phase with a "Next Action" pointer that references this completed phase:
+```yaml
+## Next Action
+✅ Phase 3 Complete. Ready for Phase 4A (Extract Skill)?
+→ Choose: 4A (extract skill) / 4B (agent) / 5 (docs) / close
+```
+
+---
+
+## 8. If an Instruction Cannot Be Followed
 
 **STOP immediately.** Return to user with:
 
