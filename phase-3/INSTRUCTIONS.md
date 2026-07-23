@@ -85,6 +85,8 @@ Build a single portable `dashboard.html` file that:
 
 ---
 
+---
+
 ## Phase 3 Specific Rules (In Addition to Universal Rules)
 
 ### Rule P3-1: Query Source Decision
