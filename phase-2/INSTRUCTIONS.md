@@ -462,7 +462,7 @@ tdx query "CREATE TABLE IF NOT EXISTS test_table (id INT)" --database <target_db
 
 Before deploying workflow, execute the aggregation query manually:
 
-- [ ] Run: `tdx query < workflow_query.sql`
+- [ ] Run: `tdx query -f workflow_query.sql -d <database>`
 - [ ] Verify: Results are aggregated (not raw data)
 - [ ] Verify: Row count is reasonable
 - [ ] Spot-check: Numbers match expectations from Phase 1

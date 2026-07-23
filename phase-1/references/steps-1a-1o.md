@@ -49,7 +49,7 @@ AskUserQuestion:
 
 **AskUserQuestion — Table Confirmation (Step 1a):**
 
-Run `tdx describe <db>.%`, classify tables by type, then confirm:
+Run `tdx tables --in <db>` to list tables, then `tdx describe <db>.<table>` per table of interest (NOT `tdx describe <db>.%` — describe rejects wildcards), classify tables by type, then confirm:
 
 ```markdown
 I found these relevant tables in `analytics_prod`:

@@ -643,50 +643,60 @@ incremental_look_back_days: 2       # days to look back on incremental runs (cov
 
 ```yaml
 # From <project_slug>_data_prep.dig — already wired in the template
-+check_refresh_mode:
-  if>: ${refresh_mode == 'full'}
-  _do:
-    +prepare_source_data_full:
-      td>: sql/01_data_prep.sql
-      engine: presto
-      session_vars:
-        data_window: full
-  _else_do:
-    +prepare_source_data_incremental:
-      td>: sql/01_data_prep.sql
-      engine: presto
-      session_vars:
-        data_window: incremental
+# NOTE: 01_data_prep.sql branches directly on ${refresh_mode} inside its own SQL
+# (refresh_mode is already exported globally from input_params.yaml) — there is
+# no .dig-level if> for this staging task and no "session_vars" parameter.
+# ⚠️ session_vars is NOT a real digdag/td> parameter. An earlier version of this
+# template passed a per-branch flag via "session_vars: data_window: full/incremental"
+# — this is silently ignored by the td> operator, so ${data_window} was undefined and
+# every run failed at evaluation time with "ReferenceError: data_window is not defined".
+# Never reintroduce this pattern — branch on ${refresh_mode} (or another real exported
+# variable) directly inside the SQL, or in the .dig file's own if>/_do/_else_do.
++prepare_source_data:
+  td>: sql/01_data_prep.sql
+  engine: presto
+  create_table: ${project_prefix}_events_prep
 ```
 
-**If your eligibility assessment (Step 2h-1) found tasks that need per-task `insert_into:` branching** (rather than the template's single `data_window` session variable passed into one shared SQL file), extend `sql/01_data_prep.sql` to read `${data_window}` and branch its own `WHERE` clause, or split into two files and wire an additional `if>` block per eligible task, following the same pattern:
+**If your eligibility assessment (Step 2h-1) found tasks that need per-task `insert_into:` branching**, split into two files (`_full.sql` / `_incremental.sql`) and wire an `if>` block per eligible task in the `.dig` file itself, following the same pattern:
 
 ```yaml
 # ✅ Eligible task — branches on refresh_mode
 +kpi_daily:
   if>: ${refresh_mode == 'incremental'}
   _do:
+    _retry: 3
     +delete_stale:
-      td>: |
-        DELETE FROM ${sink_database}.kpi_daily
-        WHERE date >= DATE_FORMAT(
-          DATE_ADD(NOW(), INTERVAL -${incremental_look_back_days} DAY), '%Y-%m-%d')
+      td>:
+        data: |
+          DELETE FROM ${sink_database}.kpi_daily
+          WHERE date >= TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')
+      engine: presto
+      database: ${sink_database}
     +insert_incremental:
       td>: sql/kpi_daily_incremental.sql
+      engine: presto
       database: ${sink_database}
       insert_into: kpi_daily
   _else_do:
     +full_refresh:
       td>: sql/kpi_daily.sql
+      engine: presto
       database: ${sink_database}
       create_table: kpi_daily
 
 # ❌ Non-eligible task — always full-refresh, no branching
 +cohort_retention:
   td>: sql/cohort_retention.sql
+  engine: presto
   database: ${sink_database}
   create_table: cohort_retention
 ```
+
+**Two things that will fail silently or loudly if you get them wrong:**
+
+1. **`td>: data: |`, never `td>: query: |`** for an inline literal statement like DELETE. Using `query:` produces `Parameter 'data' is required but not...` — `query:` is for referencing a query *template with variable substitution in a different sub-field structure*; for a plain inline SQL string, `data:` is the required key.
+2. **Match the DELETE comparison type to your grain key's actual column type.** If your SINK table's date/grain column is a BIGINT epoch (e.g. produced by `TD_DATE_TRUNC`), compare against `TD_TIME_ADD(...)` directly (also bigint) — do NOT wrap it in `DATE_FORMAT`/`FROM_UNIXTIME` to compare as a string, that produces `Cannot apply operator: bigint <= varchar`. If your grain key is a formatted date STRING (e.g. from `DATE_FORMAT(FROM_UNIXTIME(...), '%Y-%m-%d')`), compare against the same string form instead. **Verify the actual column type** with `tdx describe <sink_database>.<sink_table>` before writing the DELETE, and test the DELETE manually against a COPY of the table (see the mandatory safety gate below) before trusting it in the workflow.
 
 **Two SQL files per eligible task:**
 - `sql/kpi_daily.sql` — full date range (`${start_date}` → `${end_date}`), used on `full` path
@@ -731,6 +741,46 @@ If No, restore `input_params.yaml` to the previous full-refresh settings.
 
 ---
 
+### ⚠️ MANDATORY: Pre-Incremental Safety Gate (run BEFORE Step 2h-3 push)
+
+**This gate is not optional and cannot be skipped, even under time pressure.** A production incident occurred from skipping exactly this check: switching a live project's `refresh_mode` from `'full'` to `'incremental'` without first validating the incremental SQL/DELETE logic silently collapsed 5 years of backfilled SINK data down to a few days, because the incremental variant read-and-replaced the same table it was writing to under `create_table:` instead of using DELETE+`insert_into:`. The workflow *deployed successfully* and only failed at runtime, against real production tables that were already serving a live dashboard.
+
+**Before pushing any `refresh_mode: 'incremental'` change to a project whose SINK tables already hold real historical data:**
+
+1. **Record a baseline — for every SINK table, capture row count AND date range, not just row count:**
+   ```bash
+   tdx query "SELECT COUNT(*) as row_count, MIN(date) as min_date, MAX(date) as max_date FROM ${sink_database}.<project_prefix>_aggregate_final"
+   # Repeat for every SINK table produced by this workflow. Save these numbers somewhere
+   # you can compare against after the test run — do not rely on memory.
+   ```
+
+2. **Manually dry-run the DELETE statement's WHERE clause as a SELECT first** (never trust a DELETE you haven't previewed):
+   ```bash
+   # Swap DELETE FROM ... WHERE ... for SELECT COUNT(*) FROM ... WHERE ... with the
+   # exact same WHERE clause the .dig task will run. Confirm the row count it will
+   # delete looks like "the last N days" and not "the entire table".
+   tdx query "SELECT COUNT(*) FROM ${sink_database}.<project_prefix>_aggregate_final WHERE <delete_where_clause>"
+   ```
+
+3. **Confirm the DELETE comparison type matches the grain key's actual column type** — run `tdx describe ${sink_database}.<project_prefix>_aggregate_final` and check whether the grain/date column is BIGINT or VARCHAR before trusting any `WHERE date >= ...` comparison (see the type-matching note under Step 2h-2).
+
+4. **Run the full workflow once in a scratch/test project against a COPY of production data, or against the production project but only after Step 1's baseline is recorded** — either way, confirm the run succeeds AND that post-run row counts + date ranges exactly match the pre-run baseline from Step 1 (not "close to" — exactly, unless new rows were genuinely expected in the incremental window).
+
+5. **If anything is wrong at this point — STOP.** Do not let the workflow run on its schedule while unverified. Revert `refresh_mode` to `'full'` in `input_params.yaml`, re-push, and re-run a full backfill to restore any data that may have already been affected, before debugging further.
+
+```
+AskUserQuestion:
+  header: "Pre-incremental safety gate"
+  question: "Baseline recorded for all N SINK tables (row count + date range)? DELETE WHERE clause previewed as a SELECT? Grain key type confirmed?"
+  options:
+    - label: "Yes — all checks passed, proceed to push"
+    - label: "No — I need to complete these checks first"
+```
+
+**Do not proceed to Step 2h-3 without an explicit "Yes" on this gate.**
+
+---
+
 ### Step 2h-3 — Push Updated Workflow
 
 **Confirm before pushing:**
@@ -771,31 +821,43 @@ Monitor until complete:
 tdx wf timeline <project_name>.<project_slug>_launch --follow
 ```
 
-**Validate the incremental run:**
+**Validate the incremental run — compare against the Pre-Incremental Safety Gate baseline you recorded, not just "does it look reasonable":**
 
 ```bash
-# 1. Row counts should be IDENTICAL to after the first run (not doubled)
-tdx query "SELECT COUNT(*) FROM ${sink_database}.<project_prefix>_aggregate_final"
+# 1. Row count should match: (baseline row count) - (rows the DELETE removed) + (fresh rows inserted).
+#    If your incremental window doesn't add NEW dates (e.g. you're testing against a
+#    window with no new source data), the count should be EXACTLY UNCHANGED from baseline.
+tdx query "SELECT COUNT(*) as row_count, MIN(date) as min_date, MAX(date) as max_date FROM ${sink_database}.<project_prefix>_aggregate_final"
 
-# 2. Most recent date should be today or yesterday (not missing)
-tdx query "SELECT MAX(date) as latest FROM ${sink_database}.<project_prefix>_aggregate_final"
+# 2. Confirm the ENTIRE date range from baseline is still present — not just the max date.
+#    A collapsed table (the exact incident this gate exists to prevent) still has a
+#    plausible-looking MAX(date); only checking MIN(date) too catches it.
 
-# 3. Run duration should be much shorter than the first run
-#    Target: 30-90 sec vs 2-5 min for first run
+# 3. Check for duplicate grain-key rows introduced by an overlapping DELETE/INSERT boundary
+tdx query "SELECT date, <other_grain_columns>, COUNT(*) as cnt FROM ${sink_database}.<project_prefix>_aggregate_final GROUP BY date, <other_grain_columns> HAVING COUNT(*) > 1 LIMIT 5"
+# Expect: no rows returned. If rows come back, the DELETE and the fresh INSERT window
+# don't line up exactly (e.g. comparing a truncated day boundary against a full
+# TD_SCHEDULED_TIME() timestamp) — fix the WHERE clause boundary before trusting this run.
+
+# 4. Run duration should be much shorter than the first (full) run
 tdx wf sessions <project_name> --limit 2
-# Compare duration of session 1 (historical) vs session 2 (incremental)
+# Compare duration of session 1 (historical/full) vs session 2 (incremental)
 ```
 
 Present results:
 
 | Check | Expected | Actual | Pass? |
 |-------|----------|--------|-------|
-| Row count unchanged | Same as after first run | — | |
-| Latest date | Today or yesterday | — | |
-| Run duration | 30-90 sec | — | |
+| Row count vs baseline | Matches expected delta exactly (see above) | — | |
+| MIN(date) unchanged | Same as Pre-Incremental Safety Gate baseline | — | |
+| MAX(date) | Today or yesterday | — | |
+| Duplicate grain-key rows | Zero | — | |
+| Run duration | Much shorter than full run | — | |
 
-**If row counts doubled:** `insert_into:` ran without the delete step — fix the delete task and re-run.
-**If latest date is stale:** Time filter window is off — check `TD_SCHEDULED_TIME()` vs `NOW()` usage.
+**If MIN(date) moved forward (history is missing):** This is the collapsed-table incident — the incremental branch used `create_table:` instead of DELETE+`insert_into:`, or the DELETE's WHERE clause matched far more rows than intended. STOP, revert `refresh_mode` to `'full'`, re-push, and re-run a full backfill to restore the lost history before debugging further.
+**If row counts don't match the expected delta:** `insert_into:` ran without the delete step (rows accumulated/duplicated), or the delete/insert windows don't line up (a gap or overlap) — fix the delete task's WHERE clause and re-run.
+**If duplicate grain-key rows exist:** DELETE and INSERT windows overlap at a boundary (e.g. comparing a truncated day against a precise timestamp) — align both to the same granularity (see the type-matching note under Step 2h-2) and re-run.
+**If latest date is stale:** Time filter window is off — check `TD_SCHEDULED_TIME()` usage in the SQL.
 **If duration unchanged:** Partition pruning not applied — verify `td_time_range()` is in the SQL WHERE clause.
 
 ---

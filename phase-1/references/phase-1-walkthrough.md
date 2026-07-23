@@ -135,7 +135,7 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 
 ## Stage B: Data Discovery — stage-b-database-discovery.md
   Step 1: tdx databases → confirm database (skip if already known from Stage A)
-  Step 2: tdx describe <db>.% → confirm tables → identify time column
+  Step 2: tdx tables --in <db> (list tables) → tdx describe <db>.<table> per table (describe rejects wildcards) → confirm tables → identify time column
   Step 3: Run aggregation queries → validate metrics against Stage A assumptions
   Step 4: Run DISTINCT-value queries → validate dimensions, classify filter scope
   Step 5: Data Quality Gate (validation-queries.md, Checks 1-12)

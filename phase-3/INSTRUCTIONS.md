@@ -161,7 +161,7 @@ Phase 2 completed?
 
 For every query used in dashboard:
 
-- [ ] Execute manually first: `tdx query < query.sql`
+- [ ] Execute manually first: `tdx query -f query.sql -d <database>`
 - [ ] Verify results:
   - Are there rows returned? (not empty)
   - Do columns match what template expects?
@@ -1018,7 +1018,7 @@ Append Phase 3 results to state.md (updated in Phase 2 or created in Phase 1):
 ### Query Readiness
 - [ ] Decision made: use SINK tables or source tables directly?
 - [ ] Queries written for each dashboard element (KPIs, charts, filters)
-- [ ] Queries tested manually (`tdx query < query.sql`)
+- [ ] Queries tested manually (`tdx query -f query.sql -d <database>`)
 - [ ] Results verified (not empty, numbers reasonable)
 
 ### Dashboard Scope
@@ -1075,7 +1075,7 @@ END Phase 3
 
 ### "The dashboard is slow to load"
 **Response:**
-> "Let's check: (1) Are queries already fast? (tdx query < query.sql — time it), (2) Is the HTML too large? (check file size), (3) Are there too many data rows? (limit to most recent 1000, or use SINK tables from Phase 2 for pre-aggregation)"
+> "Let's check: (1) Are queries already fast? (tdx query -f query.sql -d <database> — time it), (2) Is the HTML too large? (check file size), (3) Are there too many data rows? (limit to most recent 1000, or use SINK tables from Phase 2 for pre-aggregation)"
 
 ### "The chart shows the wrong data"
 **Response:**

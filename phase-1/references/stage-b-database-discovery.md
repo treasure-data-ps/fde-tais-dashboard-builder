@@ -53,7 +53,7 @@
 **Action items:**
 
 1. **Primary search (Stage A specified database):**
-   - Run `tdx describe <database>` to list all tables
+   - Run `tdx tables --in <database>` to list all tables (NOT `tdx describe <database>` — describe always requires a specific table, it errors on a bare database name)
    - **FILTER for relevance:** Only show tables matching Stage A requirements
      - Stage A metrics: "Revenue, Order Count, AOV" → Look for `orders`, `transactions`, `sales`
      - Stage A dimensions: "Region, Segment" → Look for `customers`, `accounts`, `geography`

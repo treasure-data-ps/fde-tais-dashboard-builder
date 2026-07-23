@@ -5,8 +5,9 @@ Real-world configuration examples for custom dashboard workflows, using the exac
 > ⚠️ **Critical Rules (learned from production deployments):**
 > 1. **All variables MUST be top-level** — never nest under `globals:` or any parent key. Digdag resolves only root-level keys; nested variables cause `Failed to evaluate variable ${...}` at runtime.
 > 2. **`cleanup_temp_tables: 'no'` unless temp tables are used** — setting `'yes'` when no temp tables exist causes cleanup to fail.
-> 3. **SQL files use plain `SELECT`, not `INSERT INTO`** — the `td>` operator with `create_table:` handles writing. See SQL examples below.
+> 3. **SQL files use plain `SELECT`, not `INSERT INTO`** — the `td>` operator with `create_table:`/`insert_into:` handles writing. See SQL examples below.
 > 4. **`refresh_mode`** controls the full ↔ incremental execution path. Set `'full'` for first run; switch to `'incremental'` after Step 2g validation passes.
+> 5. **There is no YAML-driven "list of aggregate tables" schema.** Each SINK table is its own explicit task pair in the `.dig` file (`+create_<name>` with `if>: ${refresh_mode == 'full'}` branching to a `create_table:` task or a DELETE + `insert_into:` task pair) and its own `_full.sql` / `_incremental.sql` file. Adding a new SINK table means adding a new task pair to the `.dig` file and a new SQL file pair — not adding an entry to an `aggregate_metrics_tables:` list. (An earlier version of this doc showed such a list; it was never actually read by any `.dig` or `.sql` file and has been removed below.)
 
 ---
 
@@ -46,49 +47,28 @@ api_endpoint: 'https://api.treasuredata.com'
 cleanup_temp_tables: 'no'
 refresh_mode: 'full'
 incremental_look_back_days: 2
-apply_time_filter: 'yes'
+table_filter: "status != 'cancelled'"
 start_date: '2024-01-01'
 end_date: '2024-12-31'
-filter_regex:
 
 td:
   database: ecom_dashboards
 
 temporary_tables: []
-
-aggregate_metrics_tables:
-  - src_table: ecom_production.orders
-    output_table: orders_kpis
-    unixtime_col: time
-    join_key: customer_id
-    apply_time_filter: 'yes'
-    table_filter: "status != 'cancelled'"
-    query_type:
-    metrics:
-      - metric_name: total_orders
-        agg: count
-        agg_col_name: '1'
-        filter:
-      - metric_name: total_revenue
-        agg: sum
-        agg_col_name: amount
-        filter:
-      - metric_name: unique_customers
-        agg: approx_distinct
-        agg_col_name: customer_id
-        filter:
 ```
 
-**Corresponding SQL file (`sql/10_create_aggregates.sql`):**
+**Corresponding SQL file (`sql/10_create_aggregates_full.sql`, paired with `..._incremental.sql`):**
 ```sql
 -- ✅ Plain SELECT + UNION ALL — NOT INSERT INTO
--- Multiple breakdown types in one SINK table
+-- Multiple breakdown types in one SINK table (task uses create_table: on the full path,
+-- DELETE + insert_into: on the incremental path — see workflow-deployment-validate.md
+-- Step 2h-2 for the .dig task pair this pairs with)
 
 SELECT 'overall' AS breakdown_type, 'all' AS breakdown_value,
        COUNT(*) AS total_orders, COALESCE(SUM(amount),0) AS total_revenue,
        APPROX_DISTINCT(customer_id) AS unique_customers
-FROM ecom_production.orders
-WHERE td_time_range(time, '${start_date}', '${end_date}', 'UTC')
+FROM ${source_database}.${source_table}
+WHERE td_time_range(time, TD_TIME_PARSE('${start_date} 00:00:00', 'UTC'), TD_TIME_PARSE('${end_date} 23:59:59', 'UTC'), 'UTC')
   AND status != 'cancelled'
 
 UNION ALL
@@ -96,8 +76,8 @@ UNION ALL
 SELECT 'product_category' AS breakdown_type, product_category AS breakdown_value,
        COUNT(*) AS total_orders, COALESCE(SUM(amount),0) AS total_revenue,
        APPROX_DISTINCT(customer_id) AS unique_customers
-FROM ecom_production.orders
-WHERE td_time_range(time, '${start_date}', '${end_date}', 'UTC')
+FROM ${source_database}.${source_table}
+WHERE td_time_range(time, TD_TIME_PARSE('${start_date} 00:00:00', 'UTC'), TD_TIME_PARSE('${end_date} 23:59:59', 'UTC'), 'UTC')
   AND status != 'cancelled'
 GROUP BY product_category
 
@@ -107,10 +87,36 @@ SELECT 'monthly_trend' AS breakdown_type,
        DATE_FORMAT(FROM_UNIXTIME(time), '%Y-%m') AS breakdown_value,
        COUNT(*) AS total_orders, COALESCE(SUM(amount),0) AS total_revenue,
        APPROX_DISTINCT(customer_id) AS unique_customers
-FROM ecom_production.orders
-WHERE td_time_range(time, '${start_date}', '${end_date}', 'UTC')
+FROM ${source_database}.${source_table}
+WHERE td_time_range(time, TD_TIME_PARSE('${start_date} 00:00:00', 'UTC'), TD_TIME_PARSE('${end_date} 23:59:59', 'UTC'), 'UTC')
   AND status != 'cancelled'
 GROUP BY DATE_FORMAT(FROM_UNIXTIME(time), '%Y-%m')
+```
+
+**`.dig` task pair (`SLUG_data_prep.dig`):**
+```yaml
++create_aggregates:
+  if>: ${refresh_mode == 'full'}
+  _do:
+    +full:
+      td>: sql/10_create_aggregates_full.sql
+      engine: presto
+      database: ${sink_database}
+      create_table: ${project_prefix}_aggregate_final
+  _else_do:
+    _retry: 3
+    +delete_lookback_window:
+      td>:
+        data: |
+          DELETE FROM ${sink_database}.${project_prefix}_aggregate_final
+          WHERE breakdown_type = 'overall'  -- adjust to your grain key; verify type per Step 2h-2
+      engine: presto
+      database: ${sink_database}
+    +insert_fresh:
+      td>: sql/10_create_aggregates_incremental.sql
+      engine: presto
+      database: ${sink_database}
+      insert_into: ${project_prefix}_aggregate_final
 ```
 
 **Expected SINK table rows:** ~50 rows (1 overall + ~10 categories + ~12 months)
@@ -119,7 +125,7 @@ GROUP BY DATE_FORMAT(FROM_UNIXTIME(time), '%Y-%m')
 
 ## Example 2: SaaS Usage Analytics
 
-**Use case:** Track feature adoption, active users, subscription revenue — two output tables from two source tables
+**Use case:** Track feature adoption, active users, subscription revenue — two SINK tables from two source tables in the same database
 
 ```yaml
 project_prefix: saas
@@ -131,50 +137,75 @@ api_endpoint: 'https://api.treasuredata.com'
 cleanup_temp_tables: 'no'
 refresh_mode: 'full'
 incremental_look_back_days: 2
-apply_time_filter: 'yes'
+table_filter: ""
 start_date: '2024-01-01'
 end_date: '2024-12-31'
-filter_regex:
 
 td:
   database: saas_analytics
 
 temporary_tables: []
+```
 
-aggregate_metrics_tables:
-  - src_table: saas_events.events
-    output_table: usage_kpis
-    unixtime_col: time
-    join_key: user_id
-    apply_time_filter: 'yes'
-    table_filter: ""
-    query_type:
-    metrics:
-      - metric_name: active_users
-        agg: approx_distinct
-        agg_col_name: user_id
-        filter:
-      - metric_name: event_count
-        agg: count
-        agg_col_name: '1'
-        filter:
+**Two source tables in one database → two independent SINK task pairs** (both use `source_database`, but the second SQL file references `${source_database}.subscriptions` directly instead of `${source_table}` since it's a second table, not the primary one):
 
-  - src_table: saas_events.subscriptions
-    output_table: subscription_kpis
-    unixtime_col: time
-    join_key: user_id
-    apply_time_filter: 'yes'
-    table_filter: ""
-    query_type:
-    metrics:
-      - metric_name: active_subscriptions
-        agg: count
-        agg_col_name: '1'
-        filter: "status = 'active'"
-      - metric_name: mrr
-        agg: sum
-        agg_col_name: monthly_price
-        filter: "status = 'active'"
+```yaml
+# SLUG_data_prep.dig — one task pair per SINK table
++create_usage_kpis:
+  if>: ${refresh_mode == 'full'}
+  _do:
+    +full:
+      td>: sql/10_usage_kpis_full.sql       # FROM ${source_database}.${source_table} (events)
+      engine: presto
+      database: ${sink_database}
+      create_table: ${project_prefix}_usage_kpis
+  _else_do:
+    _retry: 3
+    +delete_lookback_window: {td>: {data: "DELETE FROM ${sink_database}.${project_prefix}_usage_kpis WHERE ..."}, engine: presto, database: ${sink_database}}
+    +insert_fresh:
+      td>: sql/10_usage_kpis_incremental.sql
+      engine: presto
+      database: ${sink_database}
+      insert_into: ${project_prefix}_usage_kpis
+
++create_subscription_kpis:
+  if>: ${refresh_mode == 'full'}
+  _do:
+    +full:
+      td>: sql/11_subscription_kpis_full.sql  # FROM ${source_database}.subscriptions (explicit table name)
+      engine: presto
+      database: ${sink_database}
+      create_table: ${project_prefix}_subscription_kpis
+  _else_do:
+    _retry: 3
+    +delete_lookback_window: {td>: {data: "DELETE FROM ${sink_database}.${project_prefix}_subscription_kpis WHERE ..."}, engine: presto, database: ${sink_database}}
+    +insert_fresh:
+      td>: sql/11_subscription_kpis_incremental.sql
+      engine: presto
+      database: ${sink_database}
+      insert_into: ${project_prefix}_subscription_kpis
+```
+
+```sql
+-- sql/10_usage_kpis_full.sql
+SELECT
+  TD_DATE_TRUNC('day', TD_TIME_PARSE(time, 'UTC'), 'UTC') AS event_date,
+  APPROX_DISTINCT(user_id) AS active_users,
+  COUNT(*) AS event_count
+FROM ${source_database}.${source_table}
+WHERE td_time_range(TD_TIME_PARSE(time, 'UTC'), TD_TIME_PARSE('${start_date} 00:00:00', 'UTC'), TD_TIME_PARSE('${end_date} 23:59:59', 'UTC'), 'UTC')
+GROUP BY TD_DATE_TRUNC('day', TD_TIME_PARSE(time, 'UTC'), 'UTC')
+```
+
+```sql
+-- sql/11_subscription_kpis_full.sql
+SELECT
+  TD_DATE_TRUNC('day', TD_TIME_PARSE(time, 'UTC'), 'UTC') AS event_date,
+  COUNT(CASE WHEN status = 'active' THEN 1 END) AS active_subscriptions,
+  COALESCE(SUM(CASE WHEN status = 'active' THEN monthly_price END), 0) AS mrr
+FROM ${source_database}.subscriptions
+WHERE td_time_range(TD_TIME_PARSE(time, 'UTC'), TD_TIME_PARSE('${start_date} 00:00:00', 'UTC'), TD_TIME_PARSE('${end_date} 23:59:59', 'UTC'), 'UTC')
+GROUP BY TD_DATE_TRUNC('day', TD_TIME_PARSE(time, 'UTC'), 'UTC')
 ```
 
 ---
@@ -195,7 +226,7 @@ api_endpoint: 'https://api.treasuredata.com'
 cleanup_temp_tables: 'no'
 refresh_mode: 'full'
 incremental_look_back_days: 2
-apply_time_filter: 'yes'
+table_filter: "status != 'cancelled'"
 start_date: '2024-01-01'
 end_date: '2024-12-31'
 
@@ -207,59 +238,9 @@ td:
   database: retail_dashboards
 
 temporary_tables: []
-
-aggregate_metrics_tables:
-  - src_table: crm_production.customers       # SQL references ${source_db_crm}.customers
-    output_table: customer_kpis
-    unixtime_col: time
-    join_key: customer_id
-    apply_time_filter: 'yes'
-    table_filter: "status = 'active'"
-    query_type:
-    metrics:
-      - metric_name: active_customers
-        agg: count
-        agg_col_name: '1'
-        filter:
-      - metric_name: avg_lifetime_value
-        agg: avg
-        agg_col_name: lifetime_value
-        filter:
-
-  - src_table: web_analytics.page_views       # SQL references ${source_db_events}.page_views
-    output_table: web_kpis
-    unixtime_col: time
-    join_key: visitor_id
-    apply_time_filter: 'yes'
-    table_filter: ""
-    query_type:
-    metrics:
-      - metric_name: pageviews
-        agg: count
-        agg_col_name: '1'
-        filter:
-      - metric_name: unique_visitors
-        agg: approx_distinct
-        agg_col_name: visitor_id
-        filter:
-
-  - src_table: commerce_db.orders             # SQL references ${source_database}.orders
-    output_table: orders_kpis
-    unixtime_col: time
-    join_key: customer_id
-    apply_time_filter: 'yes'
-    table_filter: "status != 'cancelled'"
-    query_type:
-    metrics:
-      - metric_name: total_orders
-        agg: count
-        agg_col_name: '1'
-        filter:
-      - metric_name: total_revenue
-        agg: sum
-        agg_col_name: amount
-        filter:
 ```
+
+**Three SINK tables (customer_kpis, web_kpis, orders_kpis) → three independent task pairs in `SLUG_data_prep.dig`**, each with its own `_full.sql`/`_incremental.sql` file pair pointing at the relevant `source_db_*` variable:
 
 **Corresponding SQL file (`sql/10_create_aggregates.sql`) using multi-source variables:**
 ```sql

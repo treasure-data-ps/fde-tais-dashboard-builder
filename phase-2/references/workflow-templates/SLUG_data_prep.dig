@@ -3,29 +3,17 @@ _export:
 
 # ── Section 1: Source Data Prep (staging table — always create_table:) ──
 #
-# Branch on refresh_mode:
-#   'full'        → load the complete start_date → end_date historical window
-#   'incremental' → load only the last incremental_look_back_days (covers late-arriving data)
+# 01_data_prep.sql branches internally on ${refresh_mode} (already exported globally
+# from input_params.yaml) to pick the full start_date→end_date window vs the
+# incremental_look_back_days window — no .dig-level if> branch needed for this task.
 #
 # events_prep is a STAGING table — it only ever needs to hold the current run's window,
-# so create_table: is correct for BOTH branches here (this is different from the SINK
+# so create_table: is correct regardless of refresh_mode (this is different from the SINK
 # aggregate tables below, which must accumulate history — see Section 2).
-+check_refresh_mode:
-  if>: ${refresh_mode == 'full'}
-  _do:
-    +prepare_source_data_full:
-      td>: sql/01_data_prep.sql
-      engine: presto
-      create_table: ${project_prefix}_events_prep
-      session_vars:
-        data_window: full
-  _else_do:
-    +prepare_source_data_incremental:
-      td>: sql/01_data_prep.sql
-      engine: presto
-      create_table: ${project_prefix}_events_prep
-      session_vars:
-        data_window: incremental
++prepare_source_data:
+  td>: sql/01_data_prep.sql
+  engine: presto
+  create_table: ${project_prefix}_events_prep
 
 +validate_data_quality:
   td>: sql/02_data_validation.sql
@@ -47,6 +35,16 @@ _export:
 #                    writes to — a single query that reads-and-replaces the same table is
 #                    not supported by TD's engine and was found unsafe even via UNION ALL).
 #
+# ⚠️ The DELETE WHERE clause below compares event_date (a BIGINT epoch, produced by
+# TD_DATE_TRUNC in 01_data_prep.sql / 10_/11_/12_ _full.sql) directly against
+# TD_TIME_ADD(...) (also bigint) — do NOT wrap either side in DATE_FORMAT/FROM_UNIXTIME
+# to compare as strings; "bigint <= varchar" is a type error on TD's engine. If your
+# engagement's SINK grain key is a formatted date STRING instead (e.g. '2026-07-19' from
+# DATE_FORMAT(FROM_UNIXTIME(...), '%Y-%m-%d'), as used in some engagements' date columns),
+# compare against the matching string form instead — match the WHERE clause's type to
+# whatever type your grain key column actually is, and verify with a manual DELETE test
+# against a copy of the SINK table before trusting it in the workflow.
+#
 # Rename SQL files and task names to match your engagement
 # (e.g. 10_sink_sales_daily_full.sql / 10_sink_sales_daily_incremental.sql).
 
@@ -64,7 +62,7 @@ _export:
       td>:
         data: |
           DELETE FROM ${sink_database}.${project_prefix}_aggregate_final
-          WHERE event_date >= DATE_FORMAT(FROM_UNIXTIME(TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')), '%Y-%m-%d')
+          WHERE event_date >= TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')
       engine: presto
       database: ${sink_database}
     +insert_fresh:
@@ -87,7 +85,7 @@ _export:
       td>:
         data: |
           DELETE FROM ${sink_database}.${project_prefix}_path_stats
-          WHERE event_date >= DATE_FORMAT(FROM_UNIXTIME(TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')), '%Y-%m-%d')
+          WHERE event_date >= TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')
       engine: presto
       database: ${sink_database}
     +insert_fresh:
@@ -110,7 +108,7 @@ _export:
       td>:
         data: |
           DELETE FROM ${sink_database}.${project_prefix}_unique_visitors
-          WHERE event_date >= DATE_FORMAT(FROM_UNIXTIME(TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')), '%Y-%m-%d')
+          WHERE event_date >= TD_TIME_ADD(TD_SCHEDULED_TIME(), '-${incremental_look_back_days}d', 'UTC')
       engine: presto
       database: ${sink_database}
     +insert_fresh:

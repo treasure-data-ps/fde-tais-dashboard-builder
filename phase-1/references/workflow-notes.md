@@ -202,10 +202,9 @@ At end of Stage B (Step 2f complete):
 ### Treasure Data CLI
 ```bash
 tdx databases                           # List databases
-tdx table <database>                    # List tables
-tdx describe <database>                 # Full schema
-tdx describe <database>.<table>         # Column details
-tdx query <database> "SELECT ..."       # Run queries
+tdx tables --in <database>              # List tables (NOT "tdx table <database>")
+tdx describe <database>.<table>         # Column details — always requires a table, no bare-database or wildcard form
+tdx query "SELECT ..." -d <database>    # Run queries (database is a -d flag, not positional)
 ```
 
 ### Query Patterns

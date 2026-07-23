@@ -521,24 +521,28 @@ _________________________________________________________________________
 # List all databases
 tdx databases
 
-# List tables in a database
-tdx table <database>
+# List tables in a database (NOT "tdx table <database>" — that command doesn't exist)
+tdx tables --in <database>
 
-# Get full schema (columns + data types)
-tdx describe <database>
-
-# Get column details for a specific table
+# Get column schema for a specific table (tdx describe always requires a table —
+# it does NOT accept a bare database name or a wildcard pattern)
 tdx describe <database>.<table>
 
-# Run ad-hoc query for validation
-tdx query <database> "SELECT SUM(revenue) FROM orders LIMIT 10"
+# Run ad-hoc query for validation (NOT "tdx query <database> \"SQL\"" — database is
+# a -d/--database flag, not a positional argument)
+tdx query "SELECT SUM(revenue) FROM orders LIMIT 10" -d <database>
 
 # Get table row count
-tdx query <database> "SELECT COUNT(*) FROM orders"
+tdx query "SELECT COUNT(*) FROM orders" -d <database>
 
 # Get date range
-tdx query <database> "SELECT MIN(order_date), MAX(order_date) FROM orders"
+tdx query "SELECT MIN(order_date), MAX(order_date) FROM orders" -d <database>
 ```
+
+**Verified against the real CLI** (`tdx describe --help`, `tdx tables --help`, `tdx query --help`):
+- `tdx describe <database>` alone errors with a usage message — always pass `<database>.<table>` or `<table> --in <database>`.
+- `tdx table <database>` is not a real command — the correct form is `tdx tables --in <database>` (or `tdx tables "<database>.*"`).
+- `tdx query <database> "SQL"` is not valid — `database` is only accepted via `-d`/`--database`/`--in`, never as a leading positional argument.
 
 ---
 

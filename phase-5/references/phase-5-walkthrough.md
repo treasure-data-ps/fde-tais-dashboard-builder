@@ -254,7 +254,7 @@ Dashboard queries `<database>.<table>`. Built with HTML Client (single portable 
 ## Updating the Dashboard
 
 ### Adding a New Metric
-1. Confirm column exists: `tdx describe <database> <table>`
+1. Confirm column exists: `tdx describe <database>.<table>` (or `tdx describe <table> --in <database>`)
 2. Update `generate-data.js` query or `dashboard.html` widget
 3. Test with sample data
 4. Re-run `generate-data.js` and reopen `dashboard.html` to confirm
@@ -271,7 +271,7 @@ Dashboard queries `<database>.<table>`. Built with HTML Client (single portable 
 -- Check data freshness
 SELECT MAX(<date_col>) FROM <database>.<table>;
 -- Verify permissions
-tdx describe <database> <table>
+tdx describe <database>.<table>
 ```
 
 ### "Dashboard is slow"
