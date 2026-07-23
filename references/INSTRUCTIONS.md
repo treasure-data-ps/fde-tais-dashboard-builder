@@ -18,9 +18,8 @@ These rules apply **across all phases** and must never be violated. Every rule h
 **On every new engagement (not resumed), re-read these guardrails files in order:**
 1. **`./guardrails-lite.md`** (293 lines) — Core cross-phase guardrails, scoping, and data integrity rules
 2. **`./treasure-data-theme.md`** (396 lines) — Brand colors, fonts, component styles (establishes dashboard aesthetics)
-3. **`../STATE-CHECKPOINT-SYSTEM.md`** (453 lines) — Runtime validation and recovery protocol (establishes state.md discipline)
 
-**Why:** These three files establish the baseline for ALL downstream decisions (brand compliance, data integrity, scoping accuracy). Skipping them leads to rework (wrong colors, incorrect queries, over-scoped dashboards).
+**Why:** These two files establish the baseline for ALL downstream decisions (brand compliance, data integrity, scoping accuracy). Skipping them leads to rework (wrong colors, incorrect queries, over-scoped dashboards). Checkpoint validation is embedded in each phase's `INSTRUCTIONS.md` file.
 
 ---
 

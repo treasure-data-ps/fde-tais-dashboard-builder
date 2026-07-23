@@ -59,7 +59,7 @@ Stage A/B: Interactive     Phase 2: Workflow           Phase 3: Dashboard
 
 ## Starting Point: Locally Embedded Templates
 
-The workflow templates are bundled with this skill — no external repo access needed. Everything in `./references/workflow-templates/` (`dashboard-workflow-launch.dig`, `dashboard-workflow-data-prep.dig`, `dashboard-workflow-cleaner.dig`, `input_params.yaml`, `sql/*.sql`) is a ready-to-customize starting point.
+The workflow templates are bundled with this skill — no external repo access needed. Everything in `./references/workflow-templates/` (`<project_slug>_launch.dig`, `<project_slug>_data_prep.dig`, `<project_slug>_cleaner.dig`, `input_params.yaml`, `sql/*.sql`) is a ready-to-customize starting point.
 
 ---
 
@@ -96,7 +96,7 @@ schedule:
 
 ## Phase 2 Optional: Data Retention with Cleaner Task
 
-**Template:** `./references/workflow-templates/dashboard-workflow-cleaner.dig`
+**Template:** `./references/workflow-templates/<project_slug>_cleaner.dig`
 
 **When to use:**
 - Dashboard only needs recent data (e.g., last 90 days)
@@ -110,10 +110,10 @@ schedule:
    SINK_RETENTION_DAYS: 90
    ```
 
-2. **Include cleaner in your main workflow** (`dashboard-workflow-launch.dig`):
+2. **Include cleaner in your main workflow** (`<project_slug>_launch.dig`):
    ```yaml
    +run_cleaner:
-     +call>: dashboard-workflow-cleaner.dig
+     +call>: <project_slug>_cleaner.dig
      params: {SINK_DB: ${SINK_DB}, SINK_RETENTION_DAYS: ${SINK_RETENTION_DAYS}}
    ```
 
@@ -359,9 +359,9 @@ Before starting Phase 2, confirm all Stage A/B deliverables:
 
 **Current template structure:**
 ```
-dashboard-workflow-launch.dig         ← main orchestrator
-dashboard-workflow-data-prep.dig      ← data preparation
-dashboard-workflow-cleaner.dig        ← temp cleanup
+<project_slug>_launch.dig         ← main orchestrator
+<project_slug>_data_prep.dig      ← data preparation
+<project_slug>_cleaner.dig        ← temp cleanup
 ```
 
 ### Numbering Not Required (But Clarifies Execution Order)
@@ -377,13 +377,13 @@ You can rename files for clarity (optional):
 
 ```bash
 # Personal preference only — not required
-mv dashboard-workflow-launch.dig       01-dashboard-workflow-launch.dig
-mv dashboard-workflow-data-prep.dig    02-dashboard-workflow-data-prep.dig
-mv dashboard-workflow-cleaner.dig      03-dashboard-workflow-cleaner.dig
+mv <project_slug>_launch.dig       01-<project_slug>_launch.dig
+mv <project_slug>_data_prep.dig    02-<project_slug>_data_prep.dig
+mv <project_slug>_cleaner.dig      03-<project_slug>_cleaner.dig
 
 # Update `call>:` references in main .dig files:
-# Before: call>: dashboard-workflow-data-prep.dig
-# After:  call>: 01-dashboard-workflow-data-prep.dig
+# Before: call>: <project_slug>_data_prep.dig
+# After:  call>: 01-<project_slug>_data_prep.dig
 ```
 
 ### Best Practice
@@ -395,12 +395,12 @@ mv dashboard-workflow-cleaner.dig      03-dashboard-workflow-cleaner.dig
 
 **Keep the execution DAG explicit in your main `.dig` file:**
 ```yaml
-# dashboard-workflow-launch.dig
+# <project_slug>_launch.dig
 +run_data_prep:
-  call>: dashboard-workflow-data-prep.dig
+  call>: <project_slug>_data_prep.dig
 
 +run_cleanup:
-  call>: dashboard-workflow-cleaner.dig
+  call>: <project_slug>_cleaner.dig
 ```
 
 Readers see the execution order right there, no need for filenames to communicate it.
@@ -459,7 +459,7 @@ Append to **`state.md`**:
 
 ### Workflow Project
 - workflow_name / TD project name: [project-name]
-- Orchestrator: [main .dig file, e.g. dashboard-workflow-launch.dig]
+- Orchestrator: [main .dig file, e.g. <project_slug>_launch.dig]
 - Schedule: [daily 2 AM UTC / other — first run = full history; subsequent = incremental]
 - SINK Database: [sink_database]
 - First run mode: full (start_date: [YYYY-MM-DD] → end_date: [YYYY-MM-DD])

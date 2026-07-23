@@ -161,25 +161,44 @@ source_db_commerce: commerce_db
 
 ---
 
-## Step 2a: Set Up Workflow Project Folder (5-10 min)
+## Step 2a: Set Up Workflow Project Folder (10-15 min)
 
 **What to do:**
 - Set up workflow project folder using the locally embedded template
+- Rename workflow files with the project slug
 
 **Action items:**
-1. Copy the embedded template into your project working directory:
+
+1. **Copy the embedded template into your project working directory:**
    ```bash
    mkdir -p ./<project_slug>/workflows
    cp -r ../references/workflow-templates/. ./<project_slug>/workflows/
    ```
 
-2. Verify template structure:
+2. **Rename workflow files with project slug** (REQUIRED):
+   ```bash
+   cd ./<project_slug>/workflows
+   
+   # Rename all .dig files to use the project slug
+   mv SLUG_launch.dig <project_slug>_launch.dig
+   mv SLUG_data_prep.dig <project_slug>_data_prep.dig
+   mv SLUG_cleaner.dig <project_slug>_cleaner.dig
+   ```
+   
+   **Example:** If `project_slug = "sales_dashboard"`:
+   ```bash
+   mv SLUG_launch.dig sales_dashboard_launch.dig
+   mv SLUG_data_prep.dig sales_dashboard_data_prep.dig
+   mv SLUG_cleaner.dig sales_dashboard_cleaner.dig
+   ```
+
+3. **Verify template structure after renaming:**
    ```
    ./<project_slug>/workflows/
-   ├── input_params.yaml           ← Customize: metrics, dimensions, schedule
-   ├── dashboard-workflow-launch.dig
-   ├── dashboard-workflow-data-prep.dig
-   ├── dashboard-workflow-cleaner.dig
+   ├── input_params.yaml                    ← Customize: metrics, dimensions, schedule
+   ├── <project_slug>_launch.dig            ← Renamed from SLUG_launch.dig
+   ├── <project_slug>_data_prep.dig         ← Renamed from SLUG_data_prep.dig
+   ├── <project_slug>_cleaner.dig           ← Renamed from SLUG_cleaner.dig
    └── sql/
        ├── 01_data_prep.sql
        ├── 02_data_validation.sql
@@ -189,7 +208,7 @@ source_db_commerce: commerce_db
        └── 12_create_unique_visitors.sql
    ```
 
-**Output:** Workflow template directory structure verified and ready locally
+**Output:** Workflow template directory structure verified, files renamed with project slug, ready locally
 
 ---
 
@@ -277,19 +296,11 @@ tdx query -d sales_db < sql/kpi_daily_optimized.sql
 **What to do:**
 - Define scheduled workflow using Digdag syntax
 - Map queries to output tables
+- (If needed) Add additional tasks to the orchestrator
 
-The embedded template already ships with a working `.dig` orchestrator (`dashboard-workflow-launch.dig` → `dashboard-workflow-data-prep.dig` → optional `dashboard-workflow-cleaner.dig`, all driven by `input_params.yaml`). Most of the time you only need to edit `input_params.yaml` and the `sql/*.sql` files — not the `.dig` files themselves.
+The template already ships with a working `.dig` orchestrator (`<project_slug>_launch.dig` → `<project_slug>_data_prep.dig` → optional `<project_slug>_cleaner.dig`, all driven by `input_params.yaml`). Most of the time you only need to edit `input_params.yaml` and the `sql/*.sql` files — not the `.dig` files themselves.
 
-### If You Need to Rename or Add Tasks
-
-**All `.dig` files may be renamed to match your workflow project name** (from `state.md` → `td_project_name`) if you prefer that convention over the generic template names:
-
-| File purpose | Template name | Example rename (project: `acme_custom_dashboard`) |
-|---|---|---|
-| Launch / orchestrator | `dashboard-workflow-launch.dig` | `acme_custom_dashboard-launch.dig` |
-| SQL data prep (all queries) | `dashboard-workflow-data-prep.dig` | `acme_custom_dashboard-data-prep.dig` |
-
-**How to derive the project name:** Read `td_project_name` from `state.md` (set in Stage A Step 1-pre). If it is TBD or missing, derive it as `<project_slug>` (lowercase, underscores, no hyphens) and confirm with the user before renaming any files.
+**Note:** `.dig` files were already renamed to `<project_slug>_*.dig` format in Step 2a. If you need to add additional tasks or modify the orchestration, edit the renamed files directly.
 
 ⚠️ **CRITICAL: `database:` parameter must be on a separate line**
 
@@ -317,7 +328,7 @@ _export:
 **Advanced: Use Session Variables for Dynamic Dates**
 
 ```yaml
-# dashboard-workflow-data-prep.dig — all queries live here
+# <project_slug>_data_prep.dig — all queries live here
 +kpi_daily:
   td>: sql/10_create_aggregates.sql
   engine: presto
@@ -433,7 +444,7 @@ jq '.' config.json  # Should output JSON without errors
 
 1. **Pre-aggregation** — Output tables are dashboard-ready (aggregated, not raw events)
 2. **Grain clarity** — Each output table has a clear grain (date, country, product, etc.)
-3. **Cardinality control** — Keep dimension combinations < 100K rows for fast queries
+3. **Cardinality control** — Target < 100K rows for < 1 sec queries (soft limit; 100K-500K acceptable with user approval)
 4. **Additive measures** — Design metrics that can be safely SUMmed up
 5. **Star schema** — Facts + dimensions (dimensional modeling best practices)
 
@@ -452,21 +463,84 @@ SELECT SUM(avg_order_value)
 
 ### Cardinality Planning
 
-Target < 100K rows per SINK table for < 1 second dashboard queries.
+**Soft Limit: < 100K rows per SINK table** for optimal < 1 second dashboard queries.
+
+- **< 100K rows** → Fast queries (< 1 sec), optimal for dashboards
+- **100K-500K rows** → Acceptable, monitor query performance in Phase 3
+- **> 500K rows** → Acceptable if justified, but requires testing + user approval on performance trade-offs
 
 ```
 ✅ Grain: [date, country, device_type] = 365 × 5 × 3 = 5,475 rows
-❌ Grain: [date, user_id, product_id] = 365 × 1,000,000 × 10,000 = HUGE
+⚠️ Grain: [date, country, product_id] = 365 × 5 × 50,000 = 91.25M rows (TOO HIGH)
 ```
 
-Fix cardinality explosion: aggregate user_id → user_segment, product_id → product_category.
+Fix cardinality explosion: aggregate product_id → product_category, or split into separate tables.
 
 ### Cardinality Audit Checklist (Before Finalizing SINK Tables)
 
-- [ ] Fact table row count < 100K rows
-- [ ] Grain is explicit and documented
+**Step 1: Calculate estimated row count**
+```sql
+-- For each SINK table, estimate grain cardinality
+SELECT 
+  COUNT(DISTINCT date) as unique_dates,
+  COUNT(DISTINCT country) as unique_countries,
+  COUNT(DISTINCT product_category) as unique_categories,
+  COUNT(DISTINCT date, country, product_category) as estimated_grain_rows
+FROM source_table
+WHERE <date_filter>
+```
+
+**Step 2: Show user BEFORE/AFTER summary**
+
+Present a summary showing:
+```
+SINK Table: sales_daily_metrics
+
+BEFORE (original grain):
+  Dimensions: [date, country, region, customer_segment, product_id]
+  Estimated rows: 365 × 50 × 500 × 10 × 100,000 = 91.25B rows ❌
+
+AFTER (optimized grain):
+  Dimensions: [date, country, region, customer_segment, product_category]
+  Estimated rows: 365 × 50 × 500 × 10 × 50 = 456.25M rows ⚠️
+
+WHY: product_id has 100K unique values (too high). 
+Aggregated to product_category (50 unique values).
+Query performance: ~2-3 seconds (acceptable).
+
+Metrics: revenue (SUM), order_count (SUM), unique_customers (COUNT DISTINCT pre-deduped)
+```
+
+**Step 3: User approval gate (if filters needed)**
+
+If optimization requires removing dimensions or filters:
+
+```
+AskUserQuestion:
+  header: "Cardinality optimization"
+  question: "To reach acceptable performance, I propose aggregating product_id → product_category. 
+  
+  This means:
+  - Dashboard can filter by category (e.g., 'Electronics', 'Clothing')
+  - Dashboard cannot filter by individual product (e.g., 'SKU-12345')
+  
+  Is this acceptable?"
+  options:
+    - label: "Yes, proceed with aggregation"
+    - label: "No — keep individual products"
+      description: "Accept slower queries (3-5s), or split into separate tables"
+    - label: "Alternative — split into multiple SINK tables"
+      description: "One table per product category, less flexible filtering"
+```
+
+**Step 4: Final validation checklist**
+
+- [ ] Final SINK table row count documented (actual or estimated)
+- [ ] Grain is explicit and documented (list all dimensions)
+- [ ] If > 100K rows: user approved trade-offs (performance, filtering scope)
 - [ ] All measures are additive (or recalculated from additive components)
-- [ ] Dashboard query performance < 1 second expected
+- [ ] Dashboard query performance estimated/tested (< 3 seconds acceptable)
+- [ ] Filters removed vs original requirements: documented in state.md with reasoning
 
 ---
 
@@ -486,12 +560,18 @@ Visualization (< 1 sec)
 
 ### Pattern 1: Daily Metrics by Dimension
 
+**Before deploying, estimate grain cardinality:**
+```sql
+-- Estimate: 365 days × 50 countries × 200 products = 3.65M rows (too high)
+-- Fix: aggregate product → product_category (20 categories) = 365M rows (still high, acceptable with testing)
+```
+
 ```sql
 INSERT INTO ${sink_database}.${project_prefix}_aggregate_final
 SELECT
   event_date,
   country,
-  product,
+  product_category,                                                     -- Aggregated from product_id
   APPROX_DISTINCT(user_id)                                              AS unique_users,
   APPROX_DISTINCT(session_id)                                           AS sessions,
   COUNT(*)                                                              AS event_count,
@@ -502,7 +582,7 @@ FROM ${sink_database}.${project_prefix}_events_prep
 WHERE td_time_range(event_time,
   TD_TIME_ADD(TD_SCHEDULED_TIME(), '-1d', 'UTC'),
   TD_SCHEDULED_TIME(), 'UTC')
-GROUP BY event_date, country, product
+GROUP BY event_date, country, product_category
 ```
 
 ### Pattern 2: Cumulative / Running Total
@@ -692,13 +772,13 @@ GROUP BY event_date, country
 | Filter with `td_time_range()` first | Use `WHERE date >= CURRENT_DATE - INTERVAL ...` |
 | Use `COALESCE(SUM(col), 0)` for nullable metrics | Leave NULL metric columns |
 | Aggregate at natural grain, then join dimensions | Join dimensions before aggregating |
-| Target < 100K rows per output table | Leave output cardinality unchecked |
+| Target < 100K rows (soft limit, 100K-500K acceptable) | Leave output cardinality unchecked; exceed 500K without testing |
 
 ---
 
 ## Schedule Configuration (Reference for Step 2c)
 
-Configure the `schedule:` block in `dashboard-workflow-launch.dig`. Use `workflow-skills:digdag` for full Digdag schedule operator reference.
+Configure the `schedule:` block in `<project_slug>_launch.dig`. Use `workflow-skills:digdag` for full Digdag schedule operator reference.
 
 ### Schedule Patterns
 

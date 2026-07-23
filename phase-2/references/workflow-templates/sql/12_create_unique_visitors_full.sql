@@ -1,13 +1,12 @@
--- Create unique visitor metrics by date
+-- Create unique visitor metrics by date (FULL MODE)
 -- Skill: sql-skills:trino | sql-skills:trino-optimizer
 --
--- Written as a plain SELECT — the workflow task uses create_table: (full-refresh).
--- Never use INSERT INTO here.
+-- Used only when refresh_mode == 'full'. Paired with create_table: in the .dig file.
 --
 -- Use APPROX_DISTINCT instead of COUNT(DISTINCT) for columns with high
 -- cardinality — 2% error margin is acceptable for dashboard display.
--- Remove this file and its task from dashboard-workflow-create-data-model.dig
--- if visitor-level metrics are not in scope for this engagement.
+-- Remove this file (both variants) and its .dig tasks if visitor-level metrics are
+-- not in scope for this engagement.
 
 SELECT
   event_date,
@@ -16,10 +15,6 @@ SELECT
   COUNT(*)                        AS total_events_all_users
 FROM
   ${sink_database}.${project_prefix}_events_prep
-WHERE
-  td_time_range(event_time,
-    TD_TIME_ADD(TD_SCHEDULED_TIME(), '-1d', 'UTC'),
-    TD_SCHEDULED_TIME(), 'UTC')
 GROUP BY
   event_date
 ORDER BY

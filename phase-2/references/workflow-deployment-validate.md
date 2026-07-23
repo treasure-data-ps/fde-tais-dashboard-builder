@@ -43,7 +43,7 @@ Then re-ask the AskUserQuestion above. Do NOT proceed to dry-run until the user 
 - [ ] `input_params.yaml` — all variables at TOP LEVEL (no `globals:` nesting)
 - [ ] `cleanup_temp_tables: 'no'` unless temp tables are actually created by SQL
 - [ ] SQL files under `sql/` use plain `SELECT` (or `SELECT + UNION ALL`) — output is written via `create_table:`/`insert_into:` on the `.dig` task, not `INSERT INTO` in the SQL itself
-- [ ] Launch file (`dashboard-workflow-launch.dig`) runs `+run_data_prep_and_sink` unconditionally, and `+check_if_cleanup_needed` only if `cleanup_temp_tables: 'yes'`
+- [ ] Launch file (`<project_slug>_launch.dig`) runs `+run_data_prep_and_sink` unconditionally, and `+check_if_cleanup_needed` only if `cleanup_temp_tables: 'yes'`
 - [ ] Database names correct (`source_database`, `sink_database`)
 - [ ] Table names match Stage B validated schema
 - [ ] Metrics calculations match Stage B requirements
@@ -266,7 +266,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
      question: "Start the first workflow run covering historical data? This will create SINK tables in Treasure Data."
      options:
        - label: "Yes, trigger now"
-         description: "Run: tdx wf run <PROJECT_NAME>.dashboard-workflow-launch — creates SINK tables"
+         description: "Run: tdx wf run <PROJECT_NAME>.<project_slug>_launch — creates SINK tables"
        - label: "No, I'll trigger manually"
          description: "Cancel this run. I'll trigger it manually from the TAS console"
        - label: "No, cancel — review first"
@@ -277,7 +277,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
    ```markdown
    **First Workflow Run Preview:**
    - Project: <PROJECT_NAME>
-   - Workflow: dashboard-workflow-launch
+   - Workflow: <project_slug>_launch
    - Date range: [start_date] to [end_date] (historical full load)
    - SINK tables created: [aggregate_final, path_stats, unique_visitors, etc.]
    - Row count: [N rows expected per SINK table]
@@ -291,7 +291,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 9. **Trigger first historical run manually:**
 
    ```bash
-   tdx wf run ${PROJECT_NAME}.dashboard-workflow-launch
+   tdx wf run ${PROJECT_NAME}.<project_slug>_launch
 
    # Expected:
    # ✔ Workflow run started
@@ -303,10 +303,10 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 
    ```bash
    # Visual timeline (updates live)
-   tdx wf timeline ${PROJECT_NAME}.dashboard-workflow-launch --follow
+   tdx wf timeline ${PROJECT_NAME}.<project_slug>_launch --follow
 
    # Or check after a few seconds
-   tdx wf timeline ${PROJECT_NAME}.dashboard-workflow-launch --attempt-id <attempt_id>
+   tdx wf timeline ${PROJECT_NAME}.<project_slug>_launch --attempt-id <attempt_id>
 
    # Expected (all green):
    # +run_data_prep_and_sink
@@ -631,7 +631,7 @@ AskUserQuestion:
 
 ### Step 2h-2 — Set the `refresh_mode` Flag
 
-The embedded template already wires `refresh_mode` in `input_params.yaml` — every task in `dashboard-workflow-data-prep.dig` branches on it:
+The embedded template already wires `refresh_mode` in `input_params.yaml` — every task in `<project_slug>_data_prep.dig` branches on it:
 
 ```yaml
 # Refresh mode — controls whether SQL loads the full historical window or appends incrementally
@@ -642,7 +642,7 @@ incremental_look_back_days: 2       # days to look back on incremental runs (cov
 ```
 
 ```yaml
-# From dashboard-workflow-data-prep.dig — already wired in the template
+# From <project_slug>_data_prep.dig — already wired in the template
 +check_refresh_mode:
   if>: ${refresh_mode == 'full'}
   _do:
@@ -763,12 +763,12 @@ Confirm push succeeded before running the incremental test.
 Trigger a new manual run against the same project:
 
 ```bash
-tdx wf run <project_name>.dashboard-workflow-launch
+tdx wf run <project_name>.<project_slug>_launch
 ```
 
 Monitor until complete:
 ```bash
-tdx wf timeline <project_name>.dashboard-workflow-launch --follow
+tdx wf timeline <project_name>.<project_slug>_launch --follow
 ```
 
 **Validate the incremental run:**

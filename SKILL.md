@@ -33,7 +33,6 @@ Build custom dashboards from Treasure Data databases using a **self-serve 5-phas
 Once you confirm this is a **new engagement**, **re-read these files immediately** (in this order):
 1. **`./references/guardrails-lite.md`** — Cross-phase guardrails (293 lines)
 2. **`./references/treasure-data-theme.md`** — Brand colors, fonts, component styles (396 lines)
-3. **`./STATE-CHECKPOINT-SYSTEM.md`** — Runtime validation and recovery (453 lines)
 
 Then follow these 2 steps:
 
@@ -73,7 +72,6 @@ Then follow these 2 steps:
 
 Once you confirm this is **resuming an existing project**, **re-read these files immediately** (in this order):
 1. **`./references/guardrails-lite.md`** — Cross-phase guardrails (293 lines)
-2. **`./STATE-CHECKPOINT-SYSTEM.md`** — Runtime validation and recovery (453 lines)
 
 Then follow these 3 steps:
 

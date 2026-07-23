@@ -28,7 +28,7 @@ Before handing off to Phase 3, verify all items:
 ### Workflow Execution Tests
 - [ ] Workflow pushed/uploaded successfully
 - [ ] First run completed: `tdx wf sessions <project> --status success`
-- [ ] Timeline shows all tasks green: `tdx wf timeline <project>.dashboard-workflow-launch`
+- [ ] Timeline shows all tasks green: `tdx wf timeline <project>.<project_slug>_launch`
 - [ ] No tasks in error state: `tdx wf attempt <id> tasks`
 - [ ] `create_table:` behavior confirmed — replaces on re-run (no duplicates)
 
@@ -107,7 +107,7 @@ tdx query "SELECT MIN(FROM_UNIXTIME(time)) as earliest, MAX(FROM_UNIXTIME(time))
 **Fix:**
 1. Update `start_date` / `end_date` in `input_params.yaml` to match source data range
 2. Re-push workflow
-3. Re-run: `tdx wf run <project_name>.dashboard-workflow-launch`
+3. Re-run: `tdx wf run <project_name>.<project_slug>_launch`
 
 ---
 
@@ -258,7 +258,7 @@ tdx databases --json | python3 -c "import sys,json; data=json.load(sys.stdin); p
    ```
 2. Find the failing task in the timeline:
    ```bash
-   tdx wf timeline <project_name>.dashboard-workflow-launch --attempt-id <attempt_id> --log <task_name>
+   tdx wf timeline <project_name>.<project_slug>_launch --attempt-id <attempt_id> --log <task_name>
    ```
 3. Compare the SQL in `sql/10_*.sql` / `sql/11_*.sql` / `sql/12_*.sql` against the `tdx describe` output — look for column name differences (e.g., `state` vs `state_code`)
 4. Update the SQL file with the EXACT column name from `tdx describe`
@@ -359,14 +359,19 @@ Error: Permission denied creating database dashboard_db
 
 Reference for optimizing workflow queries and SINK table design. Goal: SINK tables small enough that Phase 3 dashboard queries run < 1 second. Use `sql-skills:trino-optimizer` for deeper optimization help.
 
-### Output Cardinality Targets
+### Output Cardinality Targets (Soft Limits)
 
-| Metric | Target | Action if Exceeded |
-|--------|--------|--------------------|
-| Rows per SINK table | < 100K | Coarsen grain or split tables |
-| Compression ratio (raw → SINK) | > 100:1 | Add more aggregation dimensions |
-| Workflow daily run time | < 2 min | Check `td_time_range()` applied; reduce window |
-| Phase 3 dashboard query time | < 1 sec | Check partition pruning; add indexes |
+| Metric | Optimal | Acceptable | Needs Review |
+|--------|---------|-----------|--------------|
+| **Rows per SINK table** | < 100K | 100K-500K | > 500K (requires user approval + testing) |
+| **Compression ratio** (raw → SINK) | > 100:1 | > 50:1 | < 50:1 (add aggregation) |
+| **Workflow daily run time** | < 2 min | 2-5 min | > 5 min (optimize queries) |
+| **Phase 3 dashboard query time** | < 1 sec | 1-3 sec | > 3 sec (split table or coarsen) |
+
+**100K Soft Limit Explanation:**
+- If SINK table exceeds 100K rows: Show user BEFORE/AFTER summary (Step 2 Cardinality Audit)
+- If user approves 100K-500K: Test Phase 3 query performance in Phase 3
+- If > 500K: Requires explicit user approval on performance trade-offs before deployment
 
 ### Partition Pruning — Must Be First in WHERE
 
@@ -397,13 +402,40 @@ COUNT(DISTINCT user_id)            -- Exact, but slow on high-cardinality cols
 
 ### Cardinality Fix Patterns
 
-**Problem:** Output table > 100K rows → Phase 3 queries slow.
+**Problem:** Output table > 100K rows (soft limit exceeded).
 
-| Cause | Fix |
-|-------|-----|
-| Too many grain dimensions | Drop lowest-value dimension from `GROUP BY` |
-| Date range too long | Reduce `start_date` window (e.g., 365d → 90d rolling) |
-| One huge table | Split into per-use-case tables (daily summary + dimension breakdown) |
+**Pattern: Show User BEFORE/AFTER + Reasoning**
+
+When proposing cardinality optimizations, always show the user:
+
+```
+SINK Table: daily_sales_metrics
+
+BEFORE (original grain):
+  Dimensions: [date, region, store_id, product_id]
+  Estimated rows: 365 × 10 × 500 × 5,000 = 9.125B rows ❌
+  Query time: Timeout (table too large)
+
+AFTER (optimized grain):
+  Dimensions: [date, region, store_id, product_category]
+  Estimated rows: 365 × 10 × 500 × 50 = 912.5K rows ✓
+  Query time: ~2-3 seconds (acceptable with testing)
+
+WHY: product_id has 5,000 values (excessive cardinality).
+     Aggregated to product_category (50 values).
+     Dashboard can filter by category, not individual product.
+
+USER DECISION REQUIRED:
+  ☐ Approve aggregation (lose product-level filtering)
+  ☐ Keep product-level (accept slower queries, test in Phase 3)
+  ☐ Alternative: Split into separate SINK tables
+```
+
+| Cause | Fix | User Approval Needed |
+|-------|-----|--------|
+| Too many grain dimensions | Aggregate high-cardinality dim → lower cardinality category | YES — confirm filtering scope change |
+| Date range too long | Reduce `start_date` window (e.g., 365d → 90d rolling) | Confirm if shorter history is acceptable |
+| One huge table | Split into per-use-case tables (daily summary + dimension breakdown) | Confirm additional complexity |
 
 ```yaml
 # BEFORE: Over-grained — 500K+ rows
@@ -441,10 +473,14 @@ tdx wf attempt <project_name> <session_id>
 Before handing off to Phase 3:
 
 - [ ] Workflow daily run time < 2 min
-- [ ] All SINK table row counts < 100K (or justified with reasoning)
+- [ ] Cardinality audit completed with user approval (document BEFORE/AFTER analysis in state.md)
+  - [ ] If SINK table ≤ 100K rows: proceed ✓
+  - [ ] If SINK table 100K-500K rows: user approved performance trade-offs
+  - [ ] If SINK table > 500K rows: explicit user approval + planned Phase 3 testing
+- [ ] Any grain aggregations vs original requirements documented + approved
 - [ ] `td_time_range()` present in every aggregation SQL file
 - [ ] `APPROX_DISTINCT` used for all high-cardinality distinct counts
-- [ ] Phase 3 query time spot-checked < 1 second on SINK tables
+- [ ] Phase 3 query time spot-checked < 1 second on SINK tables (or 1-3s if > 100K rows)
 - [ ] No full-table-scan warnings in `EXPLAIN` output
 
 ---

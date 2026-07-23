@@ -1,20 +1,25 @@
--- Data Preparation: Clean and validate source data
+-- Data Preparation: Clean and validate source data into a staging table
 -- Skill: sql-skills:trino | sql-skills:time-filtering
 --
--- FULL MODE (refresh_mode='full'):
+-- STAGING TABLE — this task uses create_table: at the .dig level (see SLUG_data_prep.dig),
+-- not INSERT INTO. events_prep only ever needs to hold the CURRENT run's window (the full
+-- historical window on a 'full' run, or just the incremental lookback window on an
+-- 'incremental' run) — downstream tasks (10/11/12) consume it within the same run and
+-- do not need it to accumulate history itself. Using create_table: here means:
+--   - First run ever: no "table doesn't exist" crash (a bare INSERT INTO would fail —
+--     TD's engine does not auto-create the target table; verified: throws TABLE_NOT_FOUND).
+--   - No duplicate-row risk from re-inserting the same days on every incremental run.
+--
+-- FULL MODE (refresh_mode='full', session_vars.data_window='full'):
 --   Loads the complete start_date → end_date historical window.
 --   Run this on first deploy and after schema changes.
---   data_start = TD_TIME_PARSE(start_date), data_end = TD_TIME_PARSE(end_date)
 --
--- INCREMENTAL MODE (refresh_mode='incremental'):
---   Appends only the last incremental_look_back_days to cover late-arriving data.
---   data_start = TD_TIME_ADD(TD_SCHEDULED_TIME(), '-Nd', 'UTC')
---   data_end   = TD_SCHEDULED_TIME()
+-- INCREMENTAL MODE (refresh_mode='incremental', session_vars.data_window='incremental'):
+--   Loads only the last incremental_look_back_days to cover late-arriving/corrected data.
 --
 -- td_time_range() prunes partitions at the storage layer — always faster
 -- than a WHERE on a cast date column. Never remove it for production runs.
 
-INSERT INTO ${sink_database}.${project_prefix}_events_prep
 SELECT
   CAST(td_time_string(TD_TIME_PARSE(timestamp, 'UTC'), 'yyyy-MM-dd HH:mm:ss', 'UTC') AS TIMESTAMP) AS event_time,
   td_canonical_id                                                        AS user_id,

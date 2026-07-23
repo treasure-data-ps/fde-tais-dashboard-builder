@@ -19,60 +19,40 @@ sink_database: dashboard_db          # database where all output tables are writ
 source_database: source_db           # e.g., acme_prod, sales_db
 source_table: events                 # e.g., orders, sessions, events
 
-main_id_key: td_canonical_id         # canonical user identifier column
+main_id_key: td_canonical_id         # canonical user identifier column — only relevant if
+                                      # you add a dimension-table JOIN (see comment in
+                                      # sql/10_create_aggregates_full.sql); not read by any
+                                      # template SQL as shipped
 api_endpoint: 'https://api.treasuredata.com'  # US: api.treasuredata.com | EU: api.eu01.treasuredata.com
 
 # Execution flags — control which sub-workflows run
 cleanup_temp_tables: 'no'           # 'yes' ONLY if temp tables are actually created by your SQL
 
 # Refresh mode — controls whether SQL loads the full historical window or appends incrementally
-# 'full'        → uses start_date → end_date; run this on first deploy and after schema changes
-# 'incremental' → appends the last incremental_look_back_days only; use for daily scheduled runs
+# 'full'        → uses start_date → end_date; run this on first deploy and after schema changes.
+#                 Every SINK aggregate table task uses create_table: (atomic full replace).
+# 'incremental' → appends the last incremental_look_back_days only; use for daily scheduled runs.
+#                 Every SINK aggregate table task DELETEs the affected date range, then
+#                 insert_into:s the fresh window — see SLUG_data_prep.dig Section 2.
+#                 NEVER use create_table: for the incremental branch of a SINK table — it
+#                 replaces the whole table and silently deletes all history outside the
+#                 lookback window (see phase-2/references/incremental_update_patterns.md).
+#
+# ⚠️ Before switching a LIVE project from 'full' to 'incremental', run the Pre-Incremental
+# Safety Gate in phase-2/references/workflow-deployment-validate.md Step 2h — record row
+# counts + date ranges for every SINK table, run the incremental workflow once, and diff
+# the results before trusting it on a schedule.
 refresh_mode: 'full'
 incremental_look_back_days: 2       # days to look back on incremental runs (covers late-arriving data)
+table_filter: ""                    # WHERE clause for exclusion rules, e.g. "status != 'cancelled'" — used by sql/01_data_prep.sql
 
-# Time window — used by td_time_range() in all SQL queries
-apply_time_filter: 'yes'            # 'yes' to restrict data to start_date–end_date window
+# Time window — used by td_time_range() in 01_data_prep.sql on 'full' runs
 start_date: '2024-01-01'            # historical start; first run loads this full window
 end_date: '2024-12-31'              # rolling end — update to current date or leave for workflow to resolve
-filter_regex:                       # optional regex filter applied to source rows
 
 td:
   database: dashboard_db            # must match sink_database above
 
-# Temporary tables cleaned up by dashboard-workflow-cleaner.dig
+# Temporary tables cleaned up by SLUG_cleaner.dig
 # Leave empty if your SQL does not create temp tables
 temporary_tables: []
-
-##########################################################################
-# AGGREGATE METRICS TABLES
-# Define one entry per output table you want to produce.
-# Each entry maps a source table → a set of KPI metrics → one output table.
-# Add entries from your confirmed metrics (Stage A/B).
-#
-# ⚠️  SQL FILE RULE: Use plain SELECT (or SELECT + UNION ALL).
-# Never use INSERT INTO — the td> operator with create_table: handles writing.
-# Multiple breakdown types in one table → use UNION ALL in the SQL file.
-##########################################################################
-aggregate_metrics_tables:
-  - src_table: source_db.events_table  # confirmed source: <database>.<table>
-    output_table: events_kpis          # output table name written to sink_database
-    unixtime_col: timestamp            # UNIX timestamp column used for td_time_range() filtering
-    join_key: td_canonical_id          # customer identifier for joining to dimension tables
-    apply_time_filter: 'yes'           # 'yes' to apply start_date/end_date to this table
-    table_filter: ""                   # WHERE clause for exclusion rules
-                                       # e.g., "status != 'cancelled' AND account_type = 'paid'"
-    query_type:                        # leave blank for standard aggregation; 'cross_join' for JOIN queries
-
-    metrics:
-      # Add one entry per confirmed metric
-      # agg options: count | sum | avg | approx_distinct | max | min
-      - metric_name: total_events      # display name used in output table column
-        agg: count
-        agg_col_name: '1'             # column to aggregate (use '1' for COUNT(*))
-        filter:                        # optional row-level filter for this metric only
-
-      - metric_name: unique_users
-        agg: approx_distinct
-        agg_col_name: user_id
-        filter:

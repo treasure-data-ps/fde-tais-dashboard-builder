@@ -10,14 +10,19 @@
 
 ---
 
-## Data Limits & Breaking Points
+## Data Limits & Performance Tiers
 
-| Metric | Safe | Warning | Breaking |
-|--------|------|---------|----------|
-| **HTML File Size** | < 10 MB | 10-50 MB | > 50 MB (likely breaks) |
-| **Total Data Rows** | < 100K | 100K-500K | > 500K (breaks on load) |
+| Metric | Optimal | Acceptable | Problematic |
+|--------|---------|-----------|-------------|
+| **HTML File Size** | < 10 MB | 10-50 MB | > 50 MB (breaks on load) |
+| **Total Data Rows (soft limit)** | < 100K | 100K-500K | > 500K (test required) |
 | **Datasets per Dashboard** | < 5 | 5-10 | > 10 (slows significantly) |
 | **Load Time** | < 2s | 2-5s | > 5s (UX failure) |
+
+**Note on 100K soft limit:**
+- **< 100K rows** → Dashboard loads in < 2s, filters respond instantly (optimal)
+- **100K-500K rows** → Dashboard loads in 2-5s, filters respond in 1-2s (acceptable, requires Phase 3 testing)
+- **> 500K rows** → Risk of load failure, requires explicit user approval + performance testing in Phase 3
 
 ---
 
