@@ -46,10 +46,10 @@ Build a single portable `dashboard.html` file that:
 
 **Quality Gate (Before Approval)**
 - [ ] **Dashboard completeness validated** (all tabs/filters/widgets from Phase 1 plan present) ← GATE 1
-- [ ] **Filter scope & binding tested** (ALL affected widgets update when each filter applied) ← GATE 2 (NEW)
+- [ ] **Filter granularity validated** (filter options match Phase 1 plan: month not day, 6 regions not 50...) ← GATE 2a (NEW)
+- [ ] **Filter scope & binding tested** (tab filters apply to ALL widgets on tab + global filters work in combination) ← GATE 2b (NEW)
 - [ ] **Spot-checks passed** (3+ KPIs verified ±0.1% accuracy) ← GATE 3
 - [ ] All metrics match Phase 1/2 confirmed values
-- [ ] Filters applied at SQL layer, tested independently
 - [ ] Performance acceptable (queries < 5s, load < 5s)
 - [ ] No console errors (F12 → Console)
 - [ ] Responsive design tested (if required)
@@ -619,6 +619,223 @@ Common causes + fixes:
 **Why:** Filters that don't update data destroy dashboard trust. User applies Region filter, sees old numbers, assumes dashboard is broken. Catch this BEFORE user approval.
 
 **Past incident:** Region filter present but didn't update Revenue trend chart. Chart showed global revenue regardless of filter selection. User discovered during first use. Dashboard credibility lost.
+
+---
+
+### Rule P3-6d: Filter Granularity & Tab-Scoped Filter Application (ENFORCEMENT)
+
+**⚠️ CRITICAL: (1) Filter options must match Phase 1 plan granularity, (2) Tab-level filters must apply to ALL widgets on that tab**
+
+**Part A: Filter Granularity Must Match Plan**
+
+**Example mismatch:**
+```
+Phase 1 Plan: Date filter = Monthly (12 options: Jan, Feb, Mar...)
+Dashboard rendered: Date filter = Daily (365 options: Jan 1, Jan 2...)
+❌ MISMATCH: Plan said MONTH, dashboard shows DAY
+```
+
+**Validation: Verify filter options match Phase 1 granularity**
+
+```yaml
+### Filter Granularity Check
+
+Filter: Date Range
+  Planned: Month (12 options)
+  Dashboard: ✅ Month (Jan 2026, Feb 2026, Mar 2026...)
+  Status: ✅ PASS
+
+Filter: Region
+  Planned: 6 regions (US, EU, APAC, LATAM, EMEA, Internal)
+  Dashboard: ✅ 6 regions exactly
+  Status: ✅ PASS
+
+Filter: Category
+  Planned: 8 product categories
+  Dashboard: ✅ 8 categories exactly
+  Status: ✅ PASS
+
+Filter: Traffic Source (on Tab 2)
+  Planned: 5 sources (Organic, Paid Search, Social, Email, Direct)
+  Dashboard: ❌ 50 sources (too granular, not grouped)
+  Status: ❌ FAIL — aggregation is wrong
+```
+
+**If granularity doesn't match (❌ FAIL):**
+- STOP — do not proceed
+- Fix: Update SQL aggregation
+  ```sql
+  -- WRONG: Too granular
+  SELECT traffic_source, SUM(revenue) FROM events GROUP BY traffic_source
+  -- Shows 50 individual sources
+  
+  -- RIGHT: Match plan
+  SELECT CASE traffic_source 
+    WHEN 'google' THEN 'Organic'
+    WHEN 'facebook_ad' THEN 'Social'
+    ... 
+  END as traffic_source, SUM(revenue) FROM events GROUP BY traffic_source
+  -- Shows 5 grouped sources
+  ```
+- Re-render dashboard
+- Re-validate granularity matches
+
+---
+
+**Part B: Tab-Level Filters MUST Apply to ALL Tab Widgets**
+
+**The problem:** Tab filter (Category, Campaign, Loyalty Tier) only affects SOME widgets on the tab, not others.
+
+**Example:**
+```
+Tab 2: Campaign Analysis
+  Filters: Campaign (dropdown), Traffic Source (dropdown)
+  Widgets:
+    - Campaign Revenue chart
+    - Campaign ROI chart
+    - Campaign Performance table
+
+❌ BUG: Campaign filter only updates Campaign Revenue chart
+  - Campaign filter applied: Campaign = "Email Campaign 1"
+  - Campaign Revenue chart: Updated to $500K ✓
+  - Campaign ROI chart: Still shows all campaigns, $4.5M ❌
+  - Campaign Performance table: Still shows 45 campaigns ❌
+
+✅ CORRECT: Campaign filter should update ALL widgets
+  - Campaign filter applied: Campaign = "Email Campaign 1"
+  - Campaign Revenue chart: $500K ✓
+  - Campaign ROI chart: $500K (only Email Campaign 1) ✓
+  - Campaign Performance table: Only Email Campaign 1 rows ✓
+```
+
+**Validation: Test tab filters on all tab widgets**
+
+**Test matrix for Tab 2 (Campaign Analysis):**
+
+```
+Baseline (no tab filters):
+  - Campaign Revenue: $4.5M (all campaigns) ✓
+  - Campaign ROI: 2.1% (avg across all) ✓
+  - Campaign Performance table: 45 rows ✓
+
+Apply: Campaign = "Email Campaign 1"
+  - Revenue chart: $500K ✓ UPDATED
+  - ROI chart: 3.2% ✓ UPDATED
+  - Table: 1 row (Email Campaign 1 only) ✓ UPDATED
+  Status: ✅ PASS (all 3 widgets filtered)
+
+Apply: Campaign + Traffic Source = "Organic"
+  - Revenue: $125K ✓ (Email Campaign 1 + Organic)
+  - ROI: 4.1% ✓ (Email Campaign 1 + Organic)
+  - Table: 1 row ✓ (intersection)
+  Status: ✅ PASS (combined tab filters work)
+
+Apply: Campaign + Traffic Source + Global Date = "Last 7 Days"
+  - Revenue: $50K ✓ (Email + Organic + Last 7d)
+  - ROI: 4.5% ✓ (Email + Organic + Last 7d)
+  - Table: Filtered ✓ (3-way intersection)
+  Status: ✅ PASS (tab + global filters work together)
+```
+
+**If tab filter doesn't apply to all tab widgets (❌ FAIL):**
+
+```
+Example failure:
+  Apply: Campaign = "Email Campaign 1"
+  - Revenue chart: $500K ✓ (updated)
+  - ROI chart: $4.5M ❌ (NOT updated)
+  - Table: 45 rows ❌ (NOT updated)
+  
+  Root cause: Campaign filter only bound to revenue query, not ROI or table
+
+Fix: Ensure EVERY tab widget query includes the tab filter:
+
+  1. Campaign Revenue query:
+     SELECT ... WHERE campaign_id = ${campaignId}
+
+  2. Campaign ROI query (was missing this):
+     SELECT ... WHERE campaign_id = ${campaignId}  ← ADD THIS
+
+  3. Campaign Performance table query (was missing this):
+     SELECT ... WHERE campaign_id = ${campaignId}  ← ADD THIS
+
+Debug in browser console:
+  - Is campaign_id captured? console.log('Campaign:', campaignId)
+  - Are all 3 queries updated? Check SQL in render function
+  - Does refilter() call all 3 update functions?
+```
+
+**Test matrix for Tab 3 (Loyalty Segments):**
+
+```
+Apply: Loyalty Tier = "VIP"
+  - Revenue by Loyalty chart: $2M (VIP only) ✓
+  - Loyalty Count: 50K (VIP count) ✓
+  - Customer table: Only VIP rows ✓
+  Status: ✅ PASS
+
+Apply: Loyalty Tier + Category = "Electronics"
+  - Revenue: $800K (VIP + Electronics) ✓
+  - Count: 20K (VIP + Electronics) ✓
+  - Table: Intersection rows ✓
+  Status: ✅ PASS (2 tab filters work)
+
+Apply: Loyalty + Category + Global Date + Region
+  - All widgets: ✅ 4-way filter intersection applied
+  Status: ✅ PASS (all filters work together)
+```
+
+**Documentation in state.md:**
+
+```yaml
+### Tab Filter Validation
+
+**Tab 2: Campaign Analysis (Global: Date, Region)**
+
+Tab filters: Campaign, Traffic Source
+
+Test 1: Campaign filter alone
+  - Campaign Revenue: ✅ Filtered to selected
+  - Campaign ROI: ✅ Filtered to selected
+  - Performance table: ✅ Filtered to selected
+  Status: ✅ PASS (all 3 widgets updated)
+
+Test 2: Campaign + Traffic Source
+  - Revenue: ✅ Intersection
+  - ROI: ✅ Intersection
+  - Table: ✅ Intersection
+  Status: ✅ PASS
+
+Test 3: Campaign + Traffic Source + Global Date + Region
+  - All: ✅ 4-way filter works
+  Status: ✅ PASS
+
+**Tab 3: Loyalty Segments (Global: Date, Region)**
+
+Tab filters: Loyalty Tier, Category
+
+Test 1: Loyalty Tier = "VIP"
+  - Revenue by Loyalty: ✅ Updated
+  - Loyalty Count: ✅ Updated
+  - Customer table: ✅ Updated
+  Status: ✅ PASS
+
+Test 2: Loyalty Tier + Category
+  - All: ✅ 2-way intersection
+  Status: ✅ PASS
+
+Test 3: Loyalty + Category + Global filters
+  - All: ✅ 4-way intersection
+  Status: ✅ PASS
+```
+
+**Why Part A (Granularity mismatch):** Plan says "month", dashboard shows "day" → user confusion, performance issues, doesn't match what was agreed
+
+**Why Part B (Tab filter scope):** Tab filter affects 1 widget but not others → inconsistent behavior, wrong data interpretation, dashboard appears broken
+
+**Past incidents:**
+1. Plan: "Category filter (8 options)" → Dashboard: "365 daily options" → User confused
+2. Tab 2 Campaign filter only updated Revenue chart, not ROI chart or table → Dashboard seemed broken → User lost trust
 
 ---
 
