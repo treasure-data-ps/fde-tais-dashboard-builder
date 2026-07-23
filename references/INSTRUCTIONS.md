@@ -13,6 +13,53 @@ These rules apply **across all phases** and must never be violated. Every rule h
 
 ---
 
+## 0. Phase Auto-Advance (READ THIS FIRST BEFORE EVERY PHASE TRANSITION)
+
+**⚠️ CRITICAL: NEVER stop at phase completion. IMMEDIATELY auto-advance or ask the next step.**
+
+**Root cause of past stalls:** Phase completion sections said "read phase-N INSTRUCTIONS.md next" but didn't tell the skill **what to say or when to say it**. Result: engagements paused waiting for user to ask "what's next?"
+
+**Fix: Explicit scripts at each phase completion**
+
+### Phase 1 Completion → Auto-Route
+```
+Score 0-2: "Phase 3 is optimal for you. Starting Phase 3..."
+Score 3: "Your project could go either way. Phase 2 (workflow) or Phase 3 (direct)?"
+        [ONE immediate yes/no question, no "let me know"]
+Score 4-6: "Phase 2 (workflow) is recommended. Proceeding to Phase 2..."
+```
+
+### Phase 2 Completion → Auto-Advance
+```
+"Phase 2 complete. Now building the dashboard (Phase 3)..."
+[Start Phase 3 immediately, no approval needed]
+```
+
+### Phase 3 Completion → Present Phase 4
+```
+"Dashboard approved. What's next?
+
+Track A: Extract this as a reusable skill (1 hour)
+Track B: Deploy conversational agent (1.5 hours)
+Track C: Close engagement
+
+→ Which? (A/B/C)"
+[Only ask once, get immediate answer]
+```
+
+### Phase 4 Completion → Present Phase 5
+```
+"[Track A/B] complete. Final step: documentation & handoff?
+
+Phase 5: Create runbooks, access guides, handoff docs (1 hour)
+Or: Close engagement
+
+→ Phase 5? (YES/NO)"
+[Only ask once]
+```
+
+---
+
 ## 1. Data Integrity — NO Exceptions
 
 ### Never use synthetic, mock, or hardcoded data

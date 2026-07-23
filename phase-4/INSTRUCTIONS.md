@@ -775,30 +775,51 @@ END Phase 4
 
 ---
 
-## After Phase 4 Completes
+## After Phase 4 Completes (Rule 0: Phase Auto-Advance)
 
-**If Track A created:**
+**If Track A or B completes (IMMEDIATE OFFER, ONE QUESTION):**
+
+**Say this (EXACT SCRIPT):**
 ```
-✓ Reusable skill ready
-  - Can be shared with other teams
-  - Speeds up future similar dashboards
-  - Documented with parameters
+✅ Phase 4 Complete — [Track A: Skill extracted / Track B: Agent deployed]
+
+### Summary
+[Track details: skill name/version or agent deployed with access]
+
+### Next: Final Step?
+
+**Option A (Recommended):** Phase 5 — Documentation & Handoff
+→ Create: Architecture diagram, Usage guide, Runbook, Access guide, Troubleshooting
+→ Time: 1 hour
+→ Benefit: Support team + CS can self-serve, no escalations
+
+**Option B:** Close engagement
+→ [Track A/B] is production-ready and complete
+
+**→ Phase 5 docs? (YES/NO)**
 ```
 
-**If Track B created:**
+**Then wait for ONE answer and proceed immediately:**
+- User says YES → Start Phase 5
+- User says NO → "Engagement complete. [Track A/B] is ready."
+
+**If both Track A + B completed:**
 ```
-✓ Foundry agent deployed
-  - Users can ask questions in natural language
-  - Agent queries live or precomputed data
-  - All queries logged for audit
+✅ Phase 4 Complete — Both skill extracted and agent deployed
+
+### Summary
+- Skill: [name] (ready for reuse)
+- Agent: [name] (deployed and tested)
+
+### Next: Final Step?
+
+Ready for Phase 5 (documentation)?
+→ This completes the full engagement with complete handoff docs
+
+**→ Phase 5? (YES/NO)**
 ```
 
-**Both or neither:**
-```
-✓ Phase 4 complete (or skipped)
-  Optional: Phase 5 (handoff documentation)
-  Or: Project complete and production-ready
-```
+**Why:** Phase 4 is the last automation step. Must offer Phase 5 immediately, not wait for user to ask.
 
 ---
 

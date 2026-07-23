@@ -580,36 +580,59 @@ END Phase 3
 
 ---
 
-## After Phase 3 Completes
+## After Phase 3 Completes (Rule 0: Phase Auto-Advance)
 
-**If dashboard is approved:**
-```
-✓ Phase 3 Complete → Dashboard Ready for Use
+**If dashboard is approved (IMMEDIATE OFFER, ONE QUESTION):**
 
-Optional next steps:
-  Phase 4: Automation + Agents (../phase-4/INSTRUCTIONS.md)
-    - Track A: Extract a reusable skill
-    - Track B: Deploy a Foundry agent for conversational access
-  
-  Phase 5: Handoff Docs (../phase-5/INSTRUCTIONS.md)
-    - Create Architecture, Usage Guide, Runbook, Access guide
-  
-  Or: Go live and iterate based on user feedback
+**Say this (EXACT SCRIPT):**
 ```
+✅ Phase 3 Complete — Dashboard approved and ready
+
+### Summary
+[tabs] | [metrics] | [filters] | [data size] | [load time]
+All spot-checks passed (±0.1% accuracy)
+
+### Next: What's next?
+
+**Option A (Recommended):** Phase 4A — Extract a Reusable Skill
+→ Turn this dashboard into a Claude skill for future projects
+→ Time: 1 hour
+→ Benefit: Next similar dashboard builds 10× faster
+
+**Option B:** Phase 4B — Deploy Conversational Agent
+→ Create a Foundry agent for natural language queries
+→ Time: 1.5 hours
+→ Benefit: Users ask "Revenue by region?" instead of opening filters
+
+**Option C:** Phase 5 — Documentation & Handoff
+→ Create runbooks, access guides, and architecture docs
+→ Time: 1 hour
+→ Benefit: Support team can troubleshoot without escalating
+
+**Option D:** Close engagement
+→ Dashboard is ready to share as-is
+
+**→ Which? (A/B/C/D)**
+```
+
+**Then wait for ONE answer and proceed immediately (no second approval):**
+- User says A → Start Phase 4 Track A
+- User says B → Start Phase 4 Track B
+- User says C → Start Phase 5
+- User says D → "Dashboard is ready. Closing engagement."
 
 **If dashboard needs rework:**
 ```
 ✗ Phase 3 Not Approved → Gather Feedback
 
-User feedback:
+What needs to change?
   - [requested change 1]
   - [requested change 2]
 
-Next steps:
-  1. Adjust queries and/or templates
-  2. Re-test and re-spot-check
-  3. Re-present to user
+Adjusting and re-testing...
 ```
+
+**Why:** Phase 3 is optional→required junction. Must present Phase 4 immediately after approval, not wait for "what's next?"
 
 ---
 

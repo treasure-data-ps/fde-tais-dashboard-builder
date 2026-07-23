@@ -568,11 +568,18 @@ After calculating promotion score and recommending a path:
 
 **If Score 3 (User choice):**
 - Ask directly: "Which path? Phase 2 (Workflow) or Phase 3 (Non-Workflow)?"
-- Proceed per user's selection
+- User answers: →  **Immediately proceed** (no second approval needed)
+- If Phase 2 chosen: "Starting Phase 2 now..."
+- If Phase 3 chosen: "Starting Phase 3 now..."
+
+**CRITICAL: Auto-start after confirmation (Rule 0: Phase Auto-Advance)**
+- Score 0-2 confirmed → "Starting Phase 3 now..."
+- Score 4-6 confirmed → "Starting Phase 2 now..."
+- User choice confirmed → Start chosen phase immediately
 
 **See:** `./references/stage-b-path-routing.md` → "Approval Gates" section for full templates
 
-**Why:** Path decisions have real cost/time/complexity implications. User must explicitly confirm they understand the tradeoffs.
+**Why:** Path decisions have real cost/time/complexity implications. User must explicitly confirm they understand the tradeoffs. But once confirmed, start immediately (don't wait).
 
 ---
 
