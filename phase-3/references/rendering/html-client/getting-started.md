@@ -12,7 +12,7 @@ HTML Client = one `.html` file with data embedded at generation time. No server,
 
 ```
 ./templates/                    ← embedded locally in this skill
-  dashboard.template.html       ← layout + rendering code (no data)
+  dashboard-template.html       ← layout + rendering code (no data)
   generate-data.js               ← queries TD → injects data into HTML
 ./<project-slug>/dashboards/
   dashboard.html                 ← generated output (template + data merged)
@@ -37,7 +37,7 @@ Templates are embedded locally in this skill — no external repo needed. Copy t
 
 ```bash
 mkdir -p ./<project-slug>/dashboards
-cp templates/kpi-dashboard.html ./<project-slug>/dashboards/dashboard.template.html
+cp templates/kpi-dashboard.html ./<project-slug>/dashboards/dashboard-template.html
 ```
 
 The template contains a `<!-- DATA_PLACEHOLDER -->` comment where `generate-data.js` will inject the data block. Leave this comment in place.
@@ -89,7 +89,7 @@ async function main() {
   const data = { overview, by_segment };
   const dataBlock = `<script>var RAW = ${JSON.stringify(data)};<\/script>`;
 
-  const template = fs.readFileSync('dashboard.template.html', 'utf8');
+  const template = fs.readFileSync('dashboard-template.html', 'utf8');
   const html = template.replace('<!-- DATA_PLACEHOLDER -->', dataBlock);
   fs.writeFileSync('dashboard.html', html);
 
@@ -163,7 +163,7 @@ For Pattern B (data.json separate): zip `dashboard.html` + `data.json` together 
 | KPIs show NaN / $0 | String numbers from TD | Apply `num()` to all numeric fields |
 | `dashboard.html` not updated | Forgot to re-run `generate-data.js` | Run `node generate-data.js` again |
 | File > 2MB | Too many rows inlined | Switch to Pattern B or pre-aggregate |
-| Charts blank but no error | Missing key in `RAW` | Check `dashboard.template.html` for expected key names |
+| Charts blank but no error | Missing key in `RAW` | Check `dashboard-template.html` for expected key names |
 | `tdx: command not found` | tdx CLI not in PATH | Ensure tdx is installed and authenticated |
 
 ---

@@ -210,13 +210,26 @@ function main() {
   console.log('Payload size: ' + (sizeBytes / 1024).toFixed(1) + ' KB');
 
   if (sizeBytes > 2 * 1024 * 1024) {
-    // ── Pattern B: write separate data.json ──────────────────────────────────
-    // dashboard.html must fetch('data.json') instead of reading inline RAW.
-    // Zip dashboard.html + data.json together before delivering.
-    console.log('> 2 MB — writing Pattern B: data.json');
-    fs.writeFileSync(DATA_PATH, json, 'utf8');
-    console.log('Written: ' + DATA_PATH);
-    console.log('NOTE: deliver dashboard.html + data.json together (zip both files)');
+    var sizeKB = (sizeBytes / 1024).toFixed(0);
+    console.error('');
+    console.error('❌ Payload too large: ' + sizeKB + ' KB (limit: 2,000 KB)');
+    console.error('dashboard.html cannot be self-contained at this size.');
+    console.error('Reduce the payload before re-running:');
+    console.error('');
+    console.error('  1. Pre-aggregate by filter dimensions:');
+    console.error('     GROUP BY region, channel, date_month');
+    console.error('     → Reduces 10,000 rows to 100-200 rows (95% reduction)');
+    console.error('');
+    console.error('  2. Narrow the time window:');
+    console.error('     WHERE date >= CURRENT_DATE - 90  (not all-time)');
+    console.error('');
+    console.error('  3. Drop unused columns:');
+    console.error('     SELECT only columns the dashboard renders');
+    console.error('');
+    console.error('  4. Coerce numeric strings to numbers in generate-data.js:');
+    console.error('     num(row.revenue)  instead of  row.revenue');
+    console.error('');
+    process.exit(1);
   } else {
     // ── Pattern A: inject inline into template ────────────────────────────────
     var template = fs.readFileSync(TEMPLATE_PATH, 'utf8');

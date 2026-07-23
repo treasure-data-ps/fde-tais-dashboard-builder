@@ -93,7 +93,7 @@ After compact JSON: 0.9MB (61% total reduction)
 // generate-data.js (excerpt)
 const data = await runQueries();
 const dataBlock = `<script>var RAW = ${JSON.stringify(data, null, 0)};<\/script>`;
-const html = fs.readFileSync('dashboard.template.html', 'utf8')
+const html = fs.readFileSync('dashboard-template.html', 'utf8')
                .replace('<!-- DATA_PLACEHOLDER -->', dataBlock);
 fs.writeFileSync('dashboard.html', html);
 ```

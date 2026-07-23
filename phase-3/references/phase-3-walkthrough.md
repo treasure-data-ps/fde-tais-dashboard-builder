@@ -60,24 +60,19 @@ Final: User Approval (Step 4i)
 
 **Template source (embedded locally, no external repo needed):** `references/rendering/html-client/templates/`
 
-Copy the template that best matches the Phase 1 layout into the project's working folder:
+Copy the standard template into your project:
 
 ```bash
 mkdir -p ./<project-slug>/dashboards
 
-# Pick ONE template that matches the Phase 1 layout:
-#   kpi-dashboard.html           -> 4 KPI cards + summary section
-#   table-dashboard.html         -> Sortable/searchable table + summary KPIs
-#   multi-chart-dashboard.html   -> Line + Bar + Doughnut charts, KPI row
-
-cp references/rendering/html-client/templates/kpi-dashboard.html \
-   ./<project-slug>/dashboards/dashboard.template.html
+cp references/rendering/html-client/templates/dashboard.template.html \
+   ./<project-slug>/dashboards/dashboard-template.html
 
 cp references/rendering/html-client/templates/generate-data.js \
    ./<project-slug>/dashboards/generate-data.js
 ```
 
-Then customize `generate-data.js` with the confirmed tables/columns from Phase 1/2, and update the `<h1>` title in `dashboard.template.html`. See `references/rendering/html-client/template-customization.md` for the full walkthrough.
+Then customize `generate-data.js` with the confirmed tables/columns from Phase 1/2, and update the `<h1>` title in `dashboard-template.html`. See `references/rendering/html-client/template-customization.md` for the full walkthrough.
 
 **All templates include Chart.js inline — no external dependencies, works offline.**
 
@@ -488,7 +483,7 @@ SINK_DB.fact_deduped (rows without duplicates)
 ```
 < 500KB total   → inline directly (fast load, shareable) — IDEAL
 500KB – 2MB     → acceptable (modern browsers handle)
-> 2MB           → consider alternatives (Pattern B: separate data.json, server-side)
+> 2MB           → ❌ HARD STOP — requires SQL optimization, not a fallback path
 ```
 
 **Most dashboards are already optimized.** If your dashboard is slow or the HTML file is outside the ideal tier, work through the checklist below.

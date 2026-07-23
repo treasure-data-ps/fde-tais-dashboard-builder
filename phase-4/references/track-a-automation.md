@@ -102,21 +102,21 @@ If either file below is missing, go back to Phase 3 and confirm the dashboard wa
 | File | Created in | Copy from | Copy to |
 |---|---|---|---|
 | `dashboard.html` | Phase 3 | `./<project-slug>/dashboards/dashboard.html` | `./<project-slug>/skills/dashboard.html` |
-| `dashboard.template.html` | Phase 3 | `./<project-slug>/dashboards/dashboard.template.html` | `./<project-slug>/skills/dashboard.template.html` |
+| `dashboard-template.html` | Phase 3 | `./<project-slug>/dashboards/dashboard-template.html` | `./<project-slug>/skills/dashboard-template.html` |
 | `generate-data.js` | Phase 3 | `./<project-slug>/dashboards/generate-data.js` | `./<project-slug>/skills/generate-data.js` |
 
 ```bash
 mkdir -p ./<project-slug>/skills
 cp ./<project-slug>/dashboards/dashboard.html           ./<project-slug>/skills/dashboard.html
-cp ./<project-slug>/dashboards/dashboard.template.html  ./<project-slug>/skills/dashboard.template.html
+cp ./<project-slug>/dashboards/dashboard-template.html  ./<project-slug>/skills/dashboard-template.html
 cp ./<project-slug>/dashboards/generate-data.js        ./<project-slug>/skills/generate-data.js
 ```
 
-**`dashboard.html`, `dashboard.template.html`, and `generate-data.js` are the static artifacts** — they never change between runs. Only the env vars passed to `generate-data.js` (`SOURCE_DB`/`SINK_DB`) change per database. Never recreate them in Phase 4; always copy from the approved Phase 3 output. The template file is required because `generate-data.js` references it via `__dirname` when rebuilding the dashboard.
+**`dashboard.html`, `dashboard-template.html`, and `generate-data.js` are the static artifacts** — they never change between runs. Only the env vars passed to `generate-data.js` (`SOURCE_DB`/`SINK_DB`) change per database. Never recreate them in Phase 4; always copy from the approved Phase 3 output. The template file is required because `generate-data.js` references it via `__dirname` when rebuilding the dashboard.
 
 The skill's execution flow must:
 1. Check if SINK tables exist → fall back to source tables if Phase 2 was skipped
-2. Run `node generate-data.js` (with `SOURCE_DB`/`SINK_DB` env vars pointing at the target database) — this regenerates `data.json`
+2. Run `node generate-data.js` (with `SOURCE_DB`/`SINK_DB` env vars pointing at the target database) — this inlines data into `dashboard.html`
 3. Open `dashboard.html` in a browser (`npx serve .` or `preview_document`)
 
 **Create skill definition:**
@@ -142,10 +142,10 @@ description: |
 ## Execution Flow
 
 1. Check if SINK tables exist → fall back to source tables if not
-2. Run `SOURCE_DB=<db> SINK_DB=<db> node generate-data.js` — writes `data.json`
+2. Run `SOURCE_DB=<db> SINK_DB=<db> node generate-data.js` — inlines data into `dashboard.html` (single self-contained file)
 3. Open `dashboard.html` in a browser (`npx serve .` or `preview_document`)
 
-**Never rewrite `dashboard.html` from scratch. Always use the template as-is.**
+**Never rewrite `dashboard.html` from scratch. The template injects data directly.**
 
 ## Deeper Questions
 
@@ -171,7 +171,7 @@ If the user asks anything beyond "show me the dashboard" — metric definitions,
 
 **What to do:**
 - Extract the Phase 3 queries as a reusable script (`generate-data.js`, already copied in Step 4a-i)
-- **[NEW] Refactor for caching: external `data.json` + CLI flags** (see below)
+- **Inline data directly into `dashboard.html`** (Phase 4 enforces inline-only, no separate data.json)
 - Validate column names against the actual schema
 - Ensure all queries run in parallel
 - Select only the columns the template actually reads
@@ -179,39 +179,26 @@ If the user asks anything beyond "show me the dashboard" — metric definitions,
 
 ---
 
-### 🚀 NEW: Adopt the Caching Strategy (Reference Implementation)
+### Inline-Only Policy: No External Data Files
 
-**Goal:** Enable local caching, instant re-renders, and visible data freshness.
+**Phase 4 dashboards are self-contained.** All data is inlined directly into `dashboard.html`:
 
-**What changes:**
-- ✅ External `data.json` file (instead of inlining data into HTML)
-- ✅ `_meta` object with `generated_at` timestamp
-- ✅ CLI flags: `--refresh`, `--html-only`, `--data-only`
-- ✅ Cache check logic (skip queries if recent)
-- ✅ Display data age in dashboard UI
+**What this means:**
+- ✅ Single `dashboard.html` file with embedded data
+- ✅ No separate `data.json` dependency
+- ✅ Total file size < 2 MB (enforced by Phase 3 hard stop)
+- ✅ Shareable as a single email attachment
+- ✅ Works offline, no fetch() calls needed
 
-**Benefits:**
-| Scenario | Time | Impact |
-|---|---|---|
-| First build | ~60s | Standard |
-| Re-open dashboard | ~0.1s | **600× faster** (read JSON) |
-| Iterate HTML | ~0.1s | **No queries** (--html-only) |
-| Refresh data | ~60s + 0.1s | Atomic, no stale state |
-
-**Reference implementation:**
-→ See `../references/data-caching-strategy.md` for full details
+**If you see references to `data-caching-strategy.md` or external JSON:**
+These are deprecated. All Phase 4 dashboards now use inline embedding. The Phase 3 `generate-data.js` already enforces this.
 
 **Checklist:**
-- [ ] Copy updated `generate-data.js` from `data-caching-strategy.md` (or use the template as-is if already caching-enabled)
-- [ ] `generate-data.js` includes cache-check logic at startup
-- [ ] `data.json` is written with `_meta: { generated_at, source_db, sink_db, skill, version }`
-- [ ] CLI flags work: `--refresh`, `--html-only`, `--data-only`
-- [ ] Dashboard template reads `data.json` (not inline data)
-- [ ] Dashboard displays "Data as of: [timestamp] ([age] ago)" via `_meta.generated_at`
-- [ ] First run: ~60s (queries); second run: ~0.1s (cache)
-
-**Why adopt this:**
-The dashboard skill becomes **instantly reusable** — no re-query overhead. Share `skills/` folder; recipients unzip and run; instant dashboard loads.
+- [ ] `generate-data.js` inlines data directly (no `data.json` file written)
+- [ ] Total `dashboard.html` size < 2 MB
+- [ ] If > 2 MB: `generate-data.js` exits with error message, directing you to optimize queries
+- [ ] All queries optimized (pre-aggregate, narrow time window, drop unused columns)
+- [ ] Template reads inline `RAW` variable (no `fetch()` needed)
 
 ---
 
@@ -499,21 +486,22 @@ SOURCE_DB=<source_db> SINK_DB=<sink_db> node generate-data.js
 Expected output:
 ```
 Querying <sink_db>...
-✅ data.json written — N rows across M queries
+✅ dashboard.html written — N rows across M queries (inline data)
 ```
 
 **If it errors:** check env var names match what `generate-data.js` reads (`process.env.SOURCE_DB`, `process.env.SINK_DB`). Fix the script — never hardcode values.
 
-### Sub-step 2: Spot-check data.json against Phase 1/3 confirmed samples
+### Sub-step 2: Verify inline data against Phase 1/3 confirmed samples
 
-```bash
-node -e "
-const d = require('./data.json');
-Object.keys(d).forEach(k => {
-  const val = Array.isArray(d[k]) ? d[k].length + ' rows' : d[k];
-  console.log(' ', k, '→', val);
+Open the generated `dashboard.html` in a browser and verify:
+
+1. Visually inspect the dashboard: Do the KPI cards, charts, and tables show expected data?
+2. Browser console check: Open DevTools (F12 → Console) and run:
+```javascript
+Object.keys(window.RAW).forEach(k => {
+  const val = Array.isArray(window.RAW[k]) ? window.RAW[k].length + ' rows' : window.RAW[k];
+  console.log(k, '→', val);
 });
-"
 ```
 
 **Checklist:**
@@ -542,16 +530,14 @@ SOURCE_DB=<another_or_same_db> SINK_DB=<sink_db> node generate-data.js
 
 **Pass criteria (all must be green before Step 4a-vi):**
 - ✅ `generate-data.js` runs without errors against the target database
-- ✅ `data.json` written with `_meta` fields: `generated_at`, `source_db`, `sink_db`, `skill`, `version`
-- ✅ `data.json` keys and values match confirmed samples (±5%)
+- ✅ `dashboard.html` created with inline data (single self-contained file)
+- ✅ Total file size < 2 MB (Phase 3/4 hard limit enforced)
+- ✅ Inline data keys and values match confirmed samples (±5%)
 - ✅ `dashboard.html` renders and visually matches the Phase 3 approval
 - ✅ No hardcoded database names in `generate-data.js` — only env vars
 - ✅ Dashboard reproduces correctly after a clean re-run
 - ✅ Reuse test passes — changing the database env var re-renders cleanly without editing any file
-- ✅ Cache test passes — run twice: first time ~60s (queries), second time ~0.1s (cache hit)
-- ✅ Refresh test passes — `node generate-data.js --refresh` re-queries and updates `data.json`
-- ✅ HTML-only test passes — `node generate-data.js --html-only` rebuilds HTML from existing `data.json` without queries
-- ✅ Dashboard displays data freshness — "Data as of: [timestamp] ([age] ago)"
+- ✅ `dashboard.html` works offline (no external fetch() calls or network dependencies)
 - ✅ No browser console errors (F12 → Console)
 
 ---
@@ -664,8 +650,8 @@ Branch to the appropriate section below based on the user's choice.
 <skill-name>/
 ├── SKILL.md
 ├── dashboard.html
-├── dashboard.template.html        ← includes Chart.js inline (self-contained)
-├── generate-data.js               ← do NOT include data.json — regenerated at runtime
+├── dashboard-template.html        ← includes Chart.js inline (self-contained)
+├── generate-data.js               ← embeds data directly into dashboard.html (no separate data.json)
 ├── config-templates.yaml
 ├── deployment-checklist.md
 └── knowledge/
@@ -711,8 +697,8 @@ cd ./<project-slug>
 # 1. Copy the skill folder, rename to the skill name
 cp -r skills <skill-name>
 
-# 2. Remove data.json if present (regenerated at runtime — do not distribute)
-rm -f <skill-name>/data.json
+# 2. Verify no data.json exists (data is inlined into dashboard.html)
+ls -la <skill-name>/ | grep data.json || echo "✅ No data.json found (correct)"
 
 # 3. Zip it — exclude macOS artifacts
 zip -r <skill-name>.zip <skill-name>/ \
@@ -738,7 +724,7 @@ ls -lh ./<project-slug>/<skill-name>.zip
 <skill-name>/
 <skill-name>/SKILL.md
 <skill-name>/dashboard.html
-<skill-name>/dashboard.template.html
+<skill-name>/dashboard-template.html
 <skill-name>/generate-data.js
 <skill-name>/config-templates.yaml
 <skill-name>/deployment-checklist.md
@@ -821,7 +807,7 @@ I have uploaded a dashboard skill zip to this project. Please do the following:
 3. Run the dashboard.
    - From inside <skill-name>/, run:
        SINK_DB=<sink-database> node generate-data.js
-     This writes data.json next to it. No other flags or arguments.
+     This inlines data into dashboard.html (single self-contained file). No other flags or arguments.
 
 4. Open the dashboard.
    - Use preview_document on <skill-name>/dashboard.html, or open it directly in a browser.

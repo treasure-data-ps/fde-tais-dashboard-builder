@@ -242,7 +242,7 @@ LIMIT 5000
 - Embed results as JSON, inlined directly into `dashboard.html`
 - Wire filter state in the page's JS to switch between pre-fetched data sets
 
-> ⚠️ **Critical rule: data is NEVER typed directly into `dashboard.html` or `dashboard.template.html`.** `generate-data.js` is the only sanctioned source of data — it queries TD via `tdx --json query` and injects the results inline, replacing `<!-- DATA_PLACEHOLDER -->` in the template.
+> ⚠️ **Critical rule: data is NEVER typed directly into `dashboard.html` or `dashboard-template.html`.** `generate-data.js` is the only sanctioned source of data — it queries TD via `tdx --json query` and injects the results inline, replacing `<!-- DATA_PLACEHOLDER -->` in the template.
 
 > ⚠️ **Filters must apply at the SQL WHERE clause — never client-side re-aggregation.**
 > Post-filtering client-side requires loading the entire fact table into the browser.
@@ -291,7 +291,7 @@ async function main() {
   const data = { overview, by_segment, dest_by_loyalty_tier };
   const dataBlock = `<script>var RAW = ${JSON.stringify(data)};<\/script>`;
 
-  const template = fs.readFileSync('dashboard.template.html', 'utf8');
+  const template = fs.readFileSync('dashboard-template.html', 'utf8');
   const html = template.replace('<!-- DATA_PLACEHOLDER -->', dataBlock);
   fs.writeFileSync('dashboard.html', html);
   console.log(`✅ dashboard.html written (${Buffer.byteLength(html, 'utf8')} bytes)`);
@@ -305,7 +305,7 @@ SOURCE_DB=<source_db> SINK_DB=<sink_db> node generate-data.js
 # ✅ dashboard.html written (142847 bytes)
 ```
 
-**Step 3 — Switch on filter state in the page's plain JS (embedded in `dashboard.template.html`):**
+**Step 3 — Switch on filter state in the page's plain JS (embedded in `dashboard-template.html`):**
 ```javascript
 // ✅ CORRECT — all data pre-fetched by generate-data.js, embedded as RAW constants
 function renderDestinations(filterValue) {

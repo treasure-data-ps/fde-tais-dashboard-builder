@@ -25,15 +25,15 @@ mkdir -p ./<project-slug>/dashboards
 #   multi-chart-dashboard.html   → Line + Bar + Doughnut charts, KPI row
 
 cp templates/kpi-dashboard.html \
-   ./<project-slug>/dashboards/dashboard.template.html
+   ./<project-slug>/dashboards/dashboard-template.html
 ```
 
-Rename it `dashboard.template.html`. The generated output will be `dashboard.html` — keep them separate so `generate-data.js` can always re-inject fresh data without overwriting the template.
+Rename it `dashboard-template.html`. The generated output will be `dashboard.html` — keep them separate so `generate-data.js` can always re-inject fresh data without overwriting the template.
 
 Verify the template has the injection point before proceeding:
 
 ```bash
-grep 'DATA_PLACEHOLDER' dashboard.template.html
+grep 'DATA_PLACEHOLDER' dashboard-template.html
 # must print:  <!-- DATA_PLACEHOLDER -->
 ```
 
@@ -143,7 +143,7 @@ If you see a tdx error — the SQL has wrong table or column names. Fix and re-r
 `generate-data.js` writes the data directly into `dashboard.html` via the `<!-- DATA_PLACEHOLDER -->` injection point:
 
 ```
-dashboard.template.html + <script>var RAW = {...};</script>  →  dashboard.html
+dashboard-template.html + <script>var RAW = {...};</script>  →  dashboard.html
 ```
 
 The delivered `dashboard.html` is fully self-contained. Recipients double-click to open — no server needed. This is the only sanctioned pattern in the lite skill.
@@ -184,7 +184,7 @@ Common causes of flat zeros / NaN:
 
 ## Step 6: Update the Dashboard Title
 
-The only line that should be edited directly in `dashboard.template.html` between engagements is the title:
+The only line that should be edited directly in `dashboard-template.html` between engagements is the title:
 
 ```html
 <!-- BEFORE -->
@@ -217,7 +217,7 @@ The generated `dashboard.html` is fully self-contained. Delivery options:
 |---------|-------|-----|
 | KPIs show `$0` or `NaN` | `num()` missing on numeric field | Wrap every numeric TD column with `num()` |
 | `<!-- DATA_PLACEHOLDER -->` not replaced | Forgot to re-run `generate-data.js` after editing template | Run `node generate-data.js` again |
-| `ERROR: dashboard.template.html missing <!-- DATA_PLACEHOLDER -->` | Template renamed or placeholder removed | Check template filename matches `TEMPLATE_PATH` in generate-data.js |
+| `ERROR: dashboard-template.html missing <!-- DATA_PLACEHOLDER -->` | Template renamed or placeholder removed | Check template filename matches `TEMPLATE_PATH` in generate-data.js |
 | `tdx: command not found` | tdx not in PATH for Node child_process | Use full path in query(): `execSync('/usr/local/bin/tdx ...')` |
 | Query returns 0 rows | Wrong table or database name | Run `tdx describe <db>.<table>` — confirm names |
 | File approaching 2MB | Too many rows in RAW | Pre-aggregate in SQL (GROUP BY instead of row-level) |
