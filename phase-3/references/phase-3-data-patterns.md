@@ -4,6 +4,40 @@ Synthesized from production implementation. These patterns prevent silent failur
 
 ---
 
+## 0. Data Grain Must Match Phase 1 Filter Definition (CRITICAL)
+
+**Rule:** `generate-data.js` queries must fetch data at the **exact grain level of the filters approved in Phase 1**, or KPIs will not display correctly.
+
+### Why This Matters
+
+Phase 1 approves:
+- Which dimensions the dashboard filters on (e.g., Region, Product Category, Customer Segment)
+- Which KPIs are calculated (e.g., Total Revenue, Unit Count, Average Order Value)
+- Date range scope (e.g., last 90 days)
+
+Phase 3 must query at that **same grain**, or:
+- ❌ KPIs show incorrect aggregates (over-counted or under-counted)
+- ❌ Filters don't affect all widgets correctly
+- ❌ Users see different numbers in the dashboard vs Phase 1 analysis
+
+### Examples
+
+| Phase 1 Approval | Required Query Grain | Wrong Grain (Fails) |
+|---|---|---|
+| Filters: `[Region, Product]` | Query must include `GROUP BY region, product` | Querying only `GROUP BY region` → Product KPI missing |
+| Filters: `[Date, Region]` | Query must group by `SUBSTRING(date, 1, 7), region` at minimum | Querying daily grain only → Region filter breaks KPI |
+| Filters: `[Customer Segment]` | Query must include `segment` column in every KPI row | Dropping segment → KPI shows total instead of segment total |
+
+### How to Validate
+
+Before writing `generate-data.js`:
+1. **Read Phase 1 `state.md`** → extract confirmed filters
+2. **List every dimension** — e.g., `[region, product_category, customer_segment]`
+3. **Every query result must include those dimensions** (at minimum)
+4. **Spot-check:** Pick 1 KPI, 1 filter value, manually verify SQL result matches dashboard number
+
+---
+
 ## 1. Two-Tier Filter Architecture (REQUIRED)
 
 All Phase 3 dashboards implement **two distinct filtering tiers**:

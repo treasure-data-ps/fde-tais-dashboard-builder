@@ -49,8 +49,14 @@ JOIN (
 
 Past incident: revenue inflated from $4.32M to $6.86M due to undetected fan-out on a 1-to-many orders join.
 
-### ALWAYS use GROUP BY on only the dimensions the dashboard actually filters on
-Source tables are often built at a finer grain than the dashboard needs. Identify which dimensions the filters use, then GROUP BY only those. Past incident: 7-dimension table caused 60% row inflation when only 4 dimensions were filtered.
+### ALWAYS use GROUP BY on exactly the dimensions approved in Phase 1
+**CRITICAL:** Every query in `generate-data.js` must GROUP BY the EXACT dimensions listed in Phase 1 `state.md` filters, or KPIs will display incorrectly. Read Phase 1 state → extract confirmed filter dimensions → GROUP BY those and ONLY those.
+
+Source tables are often built at a finer grain than the dashboard needs. Identify which dimensions Phase 1 approved for filtering, then GROUP BY only those. 
+
+**Common failure pattern:** Phase 1 approves `[Region, Product]` filters, but Phase 3 queries only `GROUP BY Region` → Product KPI shows totals, not per-product. Spot-check one KPI manually: if numbers don't match Phase 1 analysis, grain is wrong.
+
+Past incident: 7-dimension table caused 60% row inflation when only 4 dimensions were filtered.
 
 ---
 
