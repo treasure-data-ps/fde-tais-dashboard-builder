@@ -28,7 +28,7 @@ description: |
 
 ## 🔑 Append-Only Pattern (Critical for All Phases)
 
-→ **state.md is append-only:** Each phase appends a new dated section at the bottom. See `./references/append-only-pattern.md` for details.
+→ **state.md is append-only:** Each phase appends a new dated section at the bottom. See `../references/architecture-and-state.md` (The `state.md` Append-Only Pattern section) for details.
 
 ---
 
