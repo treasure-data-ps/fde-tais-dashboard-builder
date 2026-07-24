@@ -4,37 +4,52 @@ Synthesized from production implementation. These patterns prevent silent failur
 
 ---
 
-## 0. Data Grain Must Match Phase 1 Filter Definition (CRITICAL)
+## 0. Data Grain Must Match Phase 1 Filter Definitions (CRITICAL)
 
-**Rule:** `generate-data.js` queries must fetch data at the **exact grain level of the filters approved in Phase 1**, or KPIs will not display correctly.
+**Rule:** `generate-data.js` queries must fetch data at the **exact grain level of the filters approved in Phase 1**, and **all widgets must update consistently when ANY filter combination is applied**.
+
+### Filter Placement: Dashboard-Level, Tab-Level, or Both
+
+Filters can be configured three ways — **the choice depends on data and dashboard plan**, but the constraint is the same:
+
+| Filter Config | Definition | Query Grain | Widget Behavior |
+|---|---|---|---|
+| **Dashboard-level only** | Single filter applies globally to ALL tabs/widgets | Must GROUP BY that dimension on ALL queries | Every widget filters by that dimension |
+| **Tab-level only** | Each tab has independent filters; other tabs unaffected | Must GROUP BY per-tab dimensions on EACH tab's queries | Only widgets on active tab filter |
+| **Both (mixed)** | Some filters global, some per-tab | Must GROUP BY both global + tab dimensions | Global filters affect all tabs; tab filters affect only active tab |
+
+**Critical:** Whatever filter config is chosen, when filters are applied, ALL affected widgets must show the **same combination of values** — not partial data or cache misses.
 
 ### Why This Matters
 
 Phase 1 approves:
 - Which dimensions the dashboard filters on (e.g., Region, Product Category, Customer Segment)
+- Where each filter lives (dashboard-level, tab-level, or both)
 - Which KPIs are calculated (e.g., Total Revenue, Unit Count, Average Order Value)
-- Date range scope (e.g., last 90 days)
 
 Phase 3 must query at that **same grain**, or:
 - ❌ KPIs show incorrect aggregates (over-counted or under-counted)
-- ❌ Filters don't affect all widgets correctly
-- ❌ Users see different numbers in the dashboard vs Phase 1 analysis
+- ❌ Filters don't affect all widgets consistently
+- ❌ Users see different numbers across widgets for the same filter selection
+- ❌ Dashboard vs Phase 1 analysis numbers diverge
 
 ### Examples
 
-| Phase 1 Approval | Required Query Grain | Wrong Grain (Fails) |
-|---|---|---|
-| Filters: `[Region, Product]` | Query must include `GROUP BY region, product` | Querying only `GROUP BY region` → Product KPI missing |
-| Filters: `[Date, Region]` | Query must group by `SUBSTRING(date, 1, 7), region` at minimum | Querying daily grain only → Region filter breaks KPI |
-| Filters: `[Customer Segment]` | Query must include `segment` column in every KPI row | Dropping segment → KPI shows total instead of segment total |
+| Phase 1 Approval | Required Query Grain | Widget Behavior When Filtered | Wrong Grain (Fails) |
+|---|---|---|---|
+| Dashboard-level: `[Region]` | `GROUP BY region` on ALL queries | All widgets show only selected region data | Querying without region → widgets show total across regions |
+| Tab-level: `[Tab1: Region, Product]` | Tab1 queries: `GROUP BY region, product`; Tab2 unchanged | Tab1 filters by region AND product; Tab2 independent | Tab1 queries only `GROUP BY region` → Product filter changes nothing |
+| Both: Dashboard `[Date]` + Tab `[Region]` | All: `GROUP BY DATE`; Tab1: also `GROUP BY region` | All tabs filter by date; Tab1 also filters by region | Missing date from Tab1 query → date filter doesn't work on Tab1 |
 
 ### How to Validate
 
 Before writing `generate-data.js`:
-1. **Read Phase 1 `state.md`** → extract confirmed filters
-2. **List every dimension** — e.g., `[region, product_category, customer_segment]`
-3. **Every query result must include those dimensions** (at minimum)
-4. **Spot-check:** Pick 1 KPI, 1 filter value, manually verify SQL result matches dashboard number
+1. **Read Phase 1 `state.md`** → extract confirmed filters and their placement (dashboard/tab/both)
+2. **List every dimension** per location — e.g., dashboard: `[date]`, Tab1: `[region, product]`, Tab2: `[customer_segment]`
+3. **Every query result must include those dimensions at minimum**
+4. **Spot-check filter combinations:** 
+   - Apply Region=West + Product=A, manually verify **ALL affected widgets** show the same row subset
+   - If one widget shows West+A total and another shows a different total for the same filter, grain is wrong
 
 ---
 

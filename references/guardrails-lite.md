@@ -49,14 +49,25 @@ JOIN (
 
 Past incident: revenue inflated from $4.32M to $6.86M due to undetected fan-out on a 1-to-many orders join.
 
-### ALWAYS use GROUP BY on exactly the dimensions approved in Phase 1
-**CRITICAL:** Every query in `generate-data.js` must GROUP BY the EXACT dimensions listed in Phase 1 `state.md` filters, or KPIs will display incorrectly. Read Phase 1 state → extract confirmed filter dimensions → GROUP BY those and ONLY those.
+### ALWAYS use GROUP BY on exactly the dimensions approved in Phase 1, and ensure consistent filter behavior across all widgets
+**CRITICAL:** Every query in `generate-data.js` must GROUP BY the EXACT dimensions listed in Phase 1 `state.md` filters, configured as dashboard-level, tab-level, or both per the plan. When filters are applied, ALL affected widgets must show the same data combination — no partial updates or cache misses.
 
-Source tables are often built at a finer grain than the dashboard needs. Identify which dimensions Phase 1 approved for filtering, then GROUP BY only those. 
+**How it works:**
+1. Read Phase 1 `state.md` → extract filter dimensions + placement (dashboard-level/tab-level/both)
+2. Configure query grain per placement:
+   - Dashboard-level filters: `GROUP BY` on ALL queries (global scope)
+   - Tab-level filters: `GROUP BY` per-tab queries only (tab scope)
+   - Both: `GROUP BY` dashboard dims on all + tab dims on respective tabs
+3. Validate: Apply filter combo (e.g., Region=West, Product=A), verify **every widget on affected tabs** shows the same subset
 
-**Common failure pattern:** Phase 1 approves `[Region, Product]` filters, but Phase 3 queries only `GROUP BY Region` → Product KPI shows totals, not per-product. Spot-check one KPI manually: if numbers don't match Phase 1 analysis, grain is wrong.
+**Common failure patterns:**
+- Phase 1 approves `[Region, Product]` filters, but Phase 3 queries only `GROUP BY Region` → Product filter changes nothing
+- Dashboard has Region (global) + Tab1 has Product (per-tab), but Tab1 query missing Product column → tab filter ignored
+- Two widgets on same tab show different numbers when Region filter applied (grain mismatch)
 
-Past incident: 7-dimension table caused 60% row inflation when only 4 dimensions were filtered.
+Spot-check: Pick 1 filter value, verify every affected widget shows consistent results. If one widget shows different total, grain is wrong.
+
+Past incident: 7-dimension table caused 60% row inflation when only 4 dimensions were filtered; separate incident: mixed queries (one with Region, one without) caused widgets to show unfiltered vs filtered data simultaneously.
 
 ---
 
