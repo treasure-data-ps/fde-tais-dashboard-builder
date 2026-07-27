@@ -138,25 +138,68 @@ const tab1Data = baseData.filter(...);  // No category filter
 const tab3Data = baseData.filter(...);  // No category filter
 ```
 
-### Level 3: Widget Filters (Apply to ONLY That Single Widget)
+### Level 3: Widget Filters (Apply to ONLY That Single Widget — EMBEDDED, NOT EXPOSED)
 
 - **Scope:** Only that one widget
-- **Examples:** One KPI card: "exclude cancelled orders" | One chart: "only revenue > $100"
+- **CRITICAL: Embedded in widget config, NOT shown as separate interactive controls**
+- **Examples:** 
+  - KPI card: "exclude cancelled orders" (embedded rule)
+  - Chart: "only show revenue > $100" (embedded rule)
+  - Table: "hide test accounts" (embedded rule)
+- **NOT exposed to users as:** Dropdown filters, checkboxes, or date pickers
 - **Query impact:** Added to WHERE clause only for that widget's query
 - **Other widgets:** Completely unaffected by this widget's filter
-- **When to use:** Widget-specific business rules or exclusions
+- **When to use:** Widget-specific business rules or exclusions (not user-selectable options)
+- **Why embedded?** Prevents confusion — users only see global + tab filters in the UI. Widget rules are configuration, not interactive filters.
 
 ```javascript
 // Global + Tab + Widget filters (all three levels)
+// But widget filters are EMBEDDED in generate-data.js, not exposed as UI controls
+
+// Widget 1: KPI card (embedded rule: exclude cancelled)
 const widget1Data = tab2Data.filter(r =>
-  r.amount > widget1MinAmount  // Widget-level filter (only for this widget)
+  r.status !== 'cancelled'  // Widget-level filter (EMBEDDED, not shown to user)
 );
 
-// Widget 2 on same tab uses different widget filter
+// Widget 2: Chart (embedded rule: only high-value transactions)
 const widget2Data = tab2Data.filter(r =>
-  r.status !== 'cancelled'  // Different widget-level filter
+  r.amount > 1000  // Widget-level filter (EMBEDDED, not shown to user)
 );
+
+// Widget 3: Table (no widget filter — uses all tab data)
+const widget3Data = tab2Data;
 ```
+
+**What users see in the UI:**
+```
+┌─────────────────────────────────────────────┐
+│  🌍 Global Filters (visible, interactive)   │
+│  [ Date: Jul 2026 ] [ Region: US ]          │
+└─────────────────────────────────────────────┘
+│
+│  Tab 1 | Tab 2 [✓] | Tab 3
+│
+│  ┌──────────────────────────────────────────┐
+│  │ Tab 2 Filters (visible, interactive)     │
+│  │ [ Category: Electronics ]                 │
+│  └──────────────────────────────────────────┘
+│
+│  ┌──────────────────┐  ┌──────────────────┐
+│  │ Widget 1: KPI    │  │ Widget 2: Chart  │
+│  │ (hidden rule:    │  │ (hidden rule:    │
+│  │  no cancelled)   │  │  amount > $1000) │
+│  └──────────────────┘  └──────────────────┘
+│
+│  ┌──────────────────────────────────────────┐
+│  │ Widget 3: Table (no special rules)       │
+│  └──────────────────────────────────────────┘
+```
+
+**What's NOT in the UI:**
+- ❌ No "Widget Status" dropdown
+- ❌ No "Widget Amount" slider
+- ❌ Widget rules are configuration, not interactive controls
+- ✅ Users only interact with Global + Tab filters
 
 ### Filter Stacking: Combining All Three Levels
 

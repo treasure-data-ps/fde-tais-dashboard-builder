@@ -176,11 +176,14 @@ During Step 1c (Dimensions, Filters, Layout), capture:
    - Query impact: Added to WHERE clause only for tab's queries
    - Note: Other tabs are unaffected by tab-level filters
    
-   **Level 3: Widget Filters** (apply to ONLY that single widget)
-   - Examples: One KPI card has "exclude cancelled orders" filter
+   **Level 3: Widget Filters** (apply to ONLY that single widget — EMBEDDED, NOT UI CONTROLS)
+   - Examples: One KPI card has "exclude cancelled orders" filter, Chart shows "only revenue > $100"
+   - **CRITICAL: These are NOT interactive controls users see**
+   - **Instead: Embedded as widget configuration/business logic**
    - Affects: Only that one widget
    - Query impact: Added to WHERE clause only for that widget's query
    - Note: Other widgets on same tab unaffected
+   - User sees: Only global and tab filters in the UI; widget rules are invisible configuration
    
    **Filter Stacking (IMPORTANT):**
    - Users can apply filters at ALL THREE LEVELS simultaneously
@@ -222,9 +225,10 @@ During Step 1c (Dimensions, Filters, Layout), capture:
   - Tab 2 - [filter name]: [type, cardinality]
   - Tab 3 - None (or list filters)
 
-**Level 3: Widget-Specific Filters** (apply to ONLY that widget)
+**Level 3: Widget-Specific Filters** (EMBEDDED CONFIGURATION, NOT UI CONTROLS)
   - [Tab Name] - [Widget Name]:
-    Widget Filter: [e.g., "Status != 'cancelled'", "Amount > 100"]
+    Widget Rule (embedded, not shown in UI): [e.g., "Status != 'cancelled'", "Amount > 100"]
+    Note: This rule is in generate-data.js code, NOT a visible filter control
 
 **Widgets:**
   - [Tab Name] - [Widget Name]
@@ -232,10 +236,12 @@ During Step 1c (Dimensions, Filters, Layout), capture:
     Metric: [metric name]
     Calculation: [formula]
     Dimensions: [sliced by]
-    Affected by Filters: [Global + Tab + Widget: e.g., "Global Date/Region + Tab Category + Widget Status"]
+    Interactive Filters Applied: [Global + Tab only: e.g., "Global Date/Region + Tab Category"]
+    Embedded Rules (hidden from UI): [e.g., "exclude cancelled"]
     Definition: [business meaning]
 
-**Filter Stacking Rule:** All filters combine via AND logic and can be applied simultaneously
+**Filter UI Rule:** Users only see Global + Tab filters. Widget rules are embedded configuration.
+**Filter Stacking Rule:** All filters (visible + embedded) combine via AND logic and can be applied simultaneously
 ```
 
 **Why:** This prevents rework in Phase 3. Users approve the complete design in Phase 1, so Phase 3 is execution, not design iteration.
