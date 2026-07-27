@@ -1273,6 +1273,41 @@ Adjusting and re-testing...
 
 ---
 
+## After Phase 3: What's Next?
+
+**Phase 3 COMPLETE → Dashboard Ready**
+
+You now have a working, user-approved dashboard. What happens next depends on what the user needs:
+
+### Option A: Phase 4 Track A — Extract Reusable Skill ✅ (Recommended)
+- Turn this dashboard into a Claude skill for future projects
+- Next dashboard builds 10× faster (reusable templates, patterns, queries)
+- Time: ~1 hour
+- → Read `./phase-4/SKILL.md`
+
+### Option B: Phase 4 Track B — Deploy Conversational Agent ✅
+- Add a Foundry AI agent that answers questions about the dashboard data
+- Users can ask: "What's driving revenue? Which regions perform best?"
+- Agent handles natural language → SQL translation
+- Time: ~1-2 hours
+- → Read `./phase-4/SKILL.md`
+
+### Option C: Phase 5 — Handoff Documentation ✅
+- Create 4 markdown files (Architecture, Usage Guide, Runbook, Access/Ownership)
+- Enables team to maintain dashboard independently
+- Time: ~30-60 minutes
+- → Read `./phase-5/SKILL.md`
+
+### Option D: Close Engagement ✅
+- Dashboard is ready and deployed
+- No additional automation or documentation needed
+- User can share `dashboard.html` directly with stakeholders
+- Project complete
+
+**Next step:** Ask the user: "A, B, C, or D?" — then proceed immediately to the selected phase.
+
+---
+
 **Version:** 1.0.0
-**Last Updated:** 23 July 2026
+**Last Updated:** 27 July 2026
 **Load Order:** 1.3 (read after Phase 1-2 INSTRUCTIONS.md)
