@@ -161,9 +161,32 @@ During Step 1c (Dimensions, Filters, Layout), capture:
    - What is each tab called?
    - Which metrics go on each tab?
 
-2. **Global vs Tab Filters:**
-   - Which filters apply to ALL tabs? (date, region, etc.)
-   - Which filters apply to specific tabs only?
+2. **Three-Level Filter Hierarchy (ALL STACKABLE):**
+   
+   Define filters at three levels (users can apply any/all simultaneously):
+   
+   **Level 1: Global Filters** (apply to ALL widgets across ALL tabs)
+   - Examples: Date Range, Region, Company
+   - Affects: Every widget on every tab
+   - Query impact: Added to WHERE clause on all queries
+   
+   **Level 2: Tab Filters** (apply to ALL widgets within that specific tab ONLY)
+   - Examples: Tab 1 (Category), Tab 2 (Customer Segment), Tab 3 (Product Type)
+   - Affects: Only widgets on that tab
+   - Query impact: Added to WHERE clause only for tab's queries
+   - Note: Other tabs are unaffected by tab-level filters
+   
+   **Level 3: Widget Filters** (apply to ONLY that single widget)
+   - Examples: One KPI card has "exclude cancelled orders" filter
+   - Affects: Only that one widget
+   - Query impact: Added to WHERE clause only for that widget's query
+   - Note: Other widgets on same tab unaffected
+   
+   **Filter Stacking (IMPORTANT):**
+   - Users can apply filters at ALL THREE LEVELS simultaneously
+   - Filters combine via AND logic (all conditions must be met)
+   - Example: Global Date Range AND Tab Category AND Widget Status = combined WHERE clause
+   - Ask customer: "Can filters be applied together?" (always answer YES unless explicitly stated otherwise)
 
 3. **Visualization Type per Metric:**
    - KPI card? Line chart? Bar chart? Pie chart? Table?
@@ -190,9 +213,18 @@ During Step 1c (Dimensions, Filters, Layout), capture:
 
 **Tabs:** [number and names]
 
-**Global Filters:**
-  - [filter 1]: [type]
-  - [filter 2]: [type]
+**Level 1: Global Filters** (apply to ALL tabs/widgets)
+  - [filter name]: [type, cardinality, e.g., "Date Range (date picker)" or "Region (6 values)"]
+  - [filter name]: [type, cardinality]
+
+**Level 2: Tab-Specific Filters** (apply to widgets WITHIN that tab only)
+  - Tab 1 - [filter name]: [type, cardinality]
+  - Tab 2 - [filter name]: [type, cardinality]
+  - Tab 3 - None (or list filters)
+
+**Level 3: Widget-Specific Filters** (apply to ONLY that widget)
+  - [Tab Name] - [Widget Name]:
+    Widget Filter: [e.g., "Status != 'cancelled'", "Amount > 100"]
 
 **Widgets:**
   - [Tab Name] - [Widget Name]
@@ -200,7 +232,10 @@ During Step 1c (Dimensions, Filters, Layout), capture:
     Metric: [metric name]
     Calculation: [formula]
     Dimensions: [sliced by]
+    Affected by Filters: [Global + Tab + Widget: e.g., "Global Date/Region + Tab Category + Widget Status"]
     Definition: [business meaning]
+
+**Filter Stacking Rule:** All filters combine via AND logic and can be applied simultaneously
 ```
 
 **Why:** This prevents rework in Phase 3. Users approve the complete design in Phase 1, so Phase 3 is execution, not design iteration.

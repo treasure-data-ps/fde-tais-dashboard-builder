@@ -89,6 +89,110 @@ WHERE status = 'Pending' AND channel = 'Web'
 
 ---
 
+## Three-Level Filter Hierarchy (ALL STACKABLE)
+
+Dashboard filters operate at three levels, all of which can be applied simultaneously and stacked via AND logic.
+
+### Level 1: Global Filters (Apply to ALL Widgets Across ALL Tabs)
+
+- **Scope:** Every widget on every tab
+- **Examples:** Date Range, Region, Company
+- **Query impact:** Added to WHERE clause on all queries
+- **When to use:** Filters users want to apply universally (time, organization, status)
+
+```javascript
+// Global filter applied to all data
+const baseData = RAW.detail.filter(r =>
+  r.date >= globalDateStart && r.date <= globalDateEnd &&
+  (globalRegion === 'all' || r.region === globalRegion)
+);
+
+// Both widgets on Tab 1 use baseData
+const tab1Widget1 = baseData.filter(...tab filters...).filter(...widget filters...);
+const tab1Widget2 = baseData.filter(...tab filters...).filter(...widget filters...);
+
+// Both widgets on Tab 2 use same baseData
+const tab2Widget1 = baseData.filter(...tab filters...).filter(...widget filters...);
+```
+
+### Level 2: Tab Filters (Apply to ALL Widgets WITHIN That Tab ONLY)
+
+- **Scope:** Only widgets on that specific tab
+- **Examples:** Tab 1: Category | Tab 2: Customer Segment | Tab 3: Product Type
+- **Query impact:** Added to WHERE clause only for that tab's queries
+- **Other tabs:** Completely unaffected by this tab's filters
+- **When to use:** Filters specific to a tab's analysis domain
+
+```javascript
+// Global filter + Tab filter (only for Tab 2)
+const tab2Data = baseData.filter(r =>
+  r.category === tab2SelectedCategory  // Tab-level filter
+);
+
+// All Tab 2 widgets use tab2Data
+const tab2Widget1 = tab2Data.filter(...widget1 filters...);
+const tab2Widget2 = tab2Data.filter(...widget2 filters...);
+
+// Tab 1 & Tab 3 unaffected by tab2SelectedCategory
+const tab1Data = baseData.filter(...);  // No category filter
+const tab3Data = baseData.filter(...);  // No category filter
+```
+
+### Level 3: Widget Filters (Apply to ONLY That Single Widget)
+
+- **Scope:** Only that one widget
+- **Examples:** One KPI card: "exclude cancelled orders" | One chart: "only revenue > $100"
+- **Query impact:** Added to WHERE clause only for that widget's query
+- **Other widgets:** Completely unaffected by this widget's filter
+- **When to use:** Widget-specific business rules or exclusions
+
+```javascript
+// Global + Tab + Widget filters (all three levels)
+const widget1Data = tab2Data.filter(r =>
+  r.amount > widget1MinAmount  // Widget-level filter (only for this widget)
+);
+
+// Widget 2 on same tab uses different widget filter
+const widget2Data = tab2Data.filter(r =>
+  r.status !== 'cancelled'  // Different widget-level filter
+);
+```
+
+### Filter Stacking: Combining All Three Levels
+
+All three levels stack via AND logic — users can apply filters at any/all levels simultaneously.
+
+**Example: Complex Filter Stack**
+```javascript
+const filteredData = RAW.detail
+  // Level 1: Global filters (Date + Region)
+  .filter(r => r.date >= globalDateStart && r.date <= globalDateEnd && r.region === globalRegion)
+  // Level 2: Tab filter (Category)
+  .filter(r => r.category === tab2SelectedCategory)
+  // Level 3: Widget filter (Status exclusion)
+  .filter(r => r.status !== 'cancelled');
+
+// Result: Show revenue for selected date, region, AND category, AND exclude cancelled
+```
+
+**Query impact:** WHERE clause becomes:
+```sql
+WHERE date >= '2026-07-01' 
+  AND date <= '2026-07-31' 
+  AND region = 'US' 
+  AND category = 'Electronics' 
+  AND status != 'cancelled'
+```
+
+### Design Principle: Always Ask "Can These Be Stacked?"
+
+During Phase 1 Step 1c (Filter Design):
+- Always assume filters CAN be applied simultaneously
+- Verify filter combinations in database (don't assume they exist)
+- Document which combinations are meaningful vs rare
+
+---
+
 ## CRITICAL: Data Architecture for Filters — Row-Level vs Pre-Aggregated
 
 ⚠️ **The single most important decision before building a filtered dashboard is whether `generate-data.js` embeds row-level detail data or pre-aggregated constants.**
