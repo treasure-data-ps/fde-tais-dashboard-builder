@@ -1279,9 +1279,10 @@ Adjusting and re-testing...
 
 You now have a working, user-approved dashboard. What happens next depends on what the user needs:
 
-### Option A: Phase 4 Track A — Extract Reusable Skill ✅ (Recommended)
-- Turn this dashboard into a Claude skill for future projects
-- Next dashboard builds 10× faster (reusable templates, patterns, queries)
+### Option A: Phase 4 Track A — Create Reusable Skill ✅ (Recommended)
+- Package this dashboard as a skill in `~/.claude/skills/` (available across all sessions)
+- Next similar dashboard builds 10× faster (reusable templates, queries, patterns)
+- Optional: zip and share with team
 - Time: ~1 hour
 - → Read `./phase-4/SKILL.md`
 

@@ -12,10 +12,10 @@ description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Track 
 > 4. `./references/phase-4-walkthrough.md` (step-by-step walkthrough)
 > 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
 
-**Phase Goal:** Optionally turn the approved dashboard into a reusable asset — Track A extracts it as a parameterized skill, Track B deploys a companion Foundry agent for conversational analysis. Both are entirely optional; skip this phase to go straight to Phase 5 (Handoff) or close the engagement.
+**Phase Goal:** Optionally turn the approved dashboard into a reusable asset — Track A packages it as a skill for `~/.claude/skills/` (cross-session reuse), Track B deploys a companion Foundry agent for conversational analysis. Both are entirely optional; skip this phase to go straight to Phase 5 (Handoff) or close the engagement.
 
-**Deliverable (Track A):** `./<project-slug>/skills/` — a self-contained, reusable dashboard skill (HTML Client only)
-**Deliverable (Track B):** `./<project-slug>/agents/` — a deployed Foundry agent with knowledge bases
+**Deliverable (Track A):** Skill installed to `~/.claude/skills/<skill-name>/` — a self-contained, reusable dashboard skill (HTML Client only) available across all Claude Code sessions + optional zip file for sharing
+**Deliverable (Track B):** Foundry agent deployed with knowledge bases
 
 ---
 

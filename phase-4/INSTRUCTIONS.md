@@ -27,8 +27,8 @@ Extend the dashboard with two optional automation tracks:
 - Agent queries data on-the-fly or uses precomputed tables
 
 **Deliverable:**
-- Track A: A reusable skill (SKILL.md + references/)
-- Track B: A Foundry agent project (agent.yml + knowledge base)
+- Track A: A reusable skill installed to `~/.claude/skills/<skill-name>/` — available across all Claude Code sessions (plus optional zip file for sharing with team)
+- Track B: A Foundry agent project deployed with knowledge bases
 - state.md appended with Phase 4 results
 
 ---

@@ -17,7 +17,9 @@ Before building the render skill, assemble the knowledge files that let the skil
 **Why this matters:**
 The render skill answers "show me the dashboard." The knowledge package answers everything beyond that.
 
-**Knowledge package location:** `./<project-slug>/skills/knowledge/`
+**Knowledge package location (working directory):** `./<project-slug>/skills/knowledge/`
+
+*(This will be deployed to `~/.claude/skills/<skill-name>/knowledge/` in Step 4a-vi)*
 
 ```
 ./<project-slug>/skills/knowledge/
@@ -90,8 +92,12 @@ Then fill every `[PLACEHOLDER]` field. Writing from scratch risks inconsistency 
 
 ## Step 4a-i: Extract Dashboard Skill Definition (10 min)
 
+**Assembly workflow:** 
+- Steps 4a-0 through 4a-v: Work in `./<project-slug>/skills/` (project working directory)
+- Step 4a-vi: Copy to `~/.claude/skills/<skill-name>/` (final deployed location for cross-session use)
+
 **What to do:**
-- Create a `skills/` folder inside `./<project-slug>/`
+- Create a `skills/` folder inside `./<project-slug>/` (working directory)
 - `skills/SKILL.md` is the entry point — describes the execution flow and points to `knowledge/` for deeper questions
 - The skill is HTML Client only — no engine choice, no per-engine sub-folders
 
@@ -621,71 +627,45 @@ Lock in the confirmed `<skill-name>` before proceeding.
 
 | Scope | Location | Visibility | How to use | Best for |
 |-------|----------|---|---|---|
-| **Project-local** (Recommended) | `./<project-slug>/skills/` in TAIS | This project's Develop tab | TAIS: Develop tab → Trigger skill directly; Treasure Work: N/A | Current project, easy iteration, internal dashboards |
-| **Personal workspace** | `~/.claude/skills/<skill-name>/` | All your TAIS + Treasure Work sessions (you only) | TAIS: Develop tab (auto-loaded); Treasure Work: `/plugin install <skill-name>` | Recurring builds, personal tools, cross-project reuse |
-| **Zip distribution** | `./<project-slug>/<skill-name>.zip` | Manual transfer between systems | TAIS: unzip → copy to project; Treasure Work: `/plugin install <skill-name>-skill.zip` | Cross-team sharing, offline distribution, non-TAIS systems |
+| **Personal workspace (Recommended)** | `~/.claude/skills/<skill-name>/` | All your Claude Code sessions (you only) | Auto-loaded in all sessions + Treasure Work via `/plugin install` | Cross-project reuse, recurring builds, available everywhere |
+| **Zip distribution** | `./<project-slug>/<skill-name>.zip` | Manual transfer between systems | Unzip and place in `~/.claude/skills/` on recipient's machine; or upload to share | Cross-team sharing, offline distribution, collaboration |
 
 ```
 AskUserQuestion:
-  header: "Skill scope & distribution"
-  question: "Where should this skill live and how will it be used?"
+  header: "Skill distribution"
+  question: "Where should this skill live?"
   options:
-    - label: "Project-local (Recommended)"
-      description: "Keep in ./<project-slug>/skills/ → visible in this project's TAIS Develop tab only. Easy to iterate; others must copy the folder to use."
-    - label: "Personal workspace"
-      description: "Copy to ~/.claude/skills/ → available in all your TAIS sessions + Treasure Work via /plugin install. You can use it across all projects."
+    - label: "Personal workspace (Recommended)"
+      description: "Copy to ~/.claude/skills/ → available in all your Claude Code sessions. You can use it across all projects."
     - label: "Package as Zip"
-      description: "Create <skill-name>.zip for manual distribution to teammates or other TAIS/Treasure Work instances."
+      description: "Create <skill-name>.zip for sharing with teammates. They unzip and place in their ~/.claude/skills/ to use."
 ```
 
 Branch to the appropriate section below based on the user's choice.
 
 ---
 
-## ➜ If Selected: PROJECT-LOCAL (Recommended)
+## ➜ If Selected: PERSONAL WORKSPACE (Recommended)
 
-**Action: Copy skill to project folder**
+**Action: Copy skill to personal workspace for cross-session use**
 
-After Step 4a-v passes (generate-data.js validated), run these commands from `./<project-slug>/`:
-
-```bash
-cd ./<project-slug>
-
-# 1. Create skills directory if it doesn't exist
-mkdir -p skills
-
-# 2. Copy extracted skill to project skills folder
-cp -r ../phase-4/skill-extraction/<skill-name> ./skills/<skill-name>
-
-# 3. Verify the skill is in place
-ls -la ./skills/<skill-name>/
-
-# 4. Verify no data.json (data should be inlined in dashboard.html)
-ls -la ./skills/<skill-name>/ | grep data.json || echo "✅ No data.json found (correct)"
-```
-
-**Result:** Skill now lives at `./<project-slug>/skills/<skill-name>/` and is **immediately available in TAIS Develop tab**.
-
-**Next step:** Update `state.md` with skill location and proceed to Step 4a-vii (INSTALL.md).
-
----
-
-## ➜ If Selected: PERSONAL WORKSPACE
-
-**Action: Copy skill to personal workspace**
+After Step 4a-v passes (generate-data.js validated), run these commands:
 
 ```bash
 # 1. Create personal skills directory if needed
 mkdir -p ~/.claude/skills
 
 # 2. Copy extracted skill to personal workspace
-cp -r ../phase-4/skill-extraction/<skill-name> ~/.claude/skills/<skill-name>
+cp -r ./<project-slug>/skills/<skill-name> ~/.claude/skills/<skill-name>
 
 # 3. Verify installation
 ls -la ~/.claude/skills/<skill-name>/
+
+# 4. Verify no data.json (data should be inlined in dashboard.html)
+ls -la ~/.claude/skills/<skill-name>/ | grep data.json || echo "✅ No data.json found (correct)"
 ```
 
-**Result:** Skill now available in all TAIS sessions and Treasure Work via `/plugin install <skill-name>`.
+**Result:** Skill now available in all Claude Code sessions. Auto-loads whenever you reference the skill name.
 
 **Next step:** Update `state.md` with skill location and proceed to Step 4a-vii (INSTALL.md).
 
@@ -793,54 +773,35 @@ No `__MACOSX/` entries. No `.DS_Store` entries. No loose files outside `<skill-n
 
 ---
 
-**How would you like to share this skill?**
-
-```
-AskUserQuestion:
-  header: "Sharing method"
-  question: "How will you share this skill?"
-  options:
-    - label: "(Recommended for team workspaces) Copy directly to workspace"
-      description: "cp -r skills/ ~/.claude/skills/<skill-name>/ — simple, fast, no zip needed if team already shares workspace"
-    - label: "Create a zip file to share with others"
-      description: "fde-dashboard-travel-analytics.zip — portable across teams, easier to archive"
-```
-
-**If Workspace Copy:**
-```bash
-cp -r ./<project-slug>/skills/ ~/.claude/skills/<skill-name>/
-```
-No zip needed — the recipient immediately sees the skill in their Treasure Work sidebar.
-
-**If Zip Distribution:**
+**Optional: Create a zip file to share with teammates**
 
 ```
 AskUserQuestion:
   header: "Share skill"
-  question: "Your skill zip is ready. Where will the recipient install it?"
+  question: "Would you like to create a zip file to share this skill with teammates?"
   options:
-    - label: "A personal skills folder"
-      description: "Recipient unzips into their own skills directory (Claude Code ~/.claude/skills/ or equivalent) — available across their projects."
-    - label: "This project only"
-      description: "Recipient unzips into their current project directory — no registration needed."
-    - label: "Not sure — show both"
-      description: "Show setup instructions for both."
+    - label: "Yes, create a zip"
+      description: "Create <skill-name>.zip for sharing. Recipients unzip and place in ~/.claude/skills/ to use."
+    - label: "No, I'm done"
+      description: "Skill is already in ~/.claude/skills/ and ready to use. You can share the zip manually later if needed."
 ```
 
-**Personal skills folder install:**
+**If creating a zip for sharing:**
 
 Send the recipient `<skill-name>.zip` plus these instructions:
 
 ```
 1. Unzip: unzip <skill-name>.zip
 2. Move into your personal skills folder: mv <skill-name>/ ~/.claude/skills/
-3. Restart your session (or run /refresh if supported)
-4. Test: type the trigger phrase from <skill-name>/SKILL.md
+3. Restart your Claude Code session
+4. The skill is now available in all your sessions — type the trigger phrase from <skill-name>/SKILL.md
 ```
 
-**Project-folder install:**
+---
 
-Send the recipient `<skill-name>.zip` plus this ready-to-use prompt (fill in `<skill-name>` and `<sink-database>` from `state.md` before sending — use real values, not placeholder tokens):
+**OLD: Project-folder install (deprecated — skills should not live in projects):**
+
+~~Send the recipient `<skill-name>.zip` plus this ready-to-use prompt (fill in `<skill-name>` and `<sink-database>` from `state.md` before sending — use real values, not placeholder tokens)~~
 
 ```
 I have uploaded a dashboard skill zip to this project. Please do the following:
@@ -917,22 +878,19 @@ After packaging and before sharing, create `skills/INSTALL.md` with platform-spe
 
 ## Installation
 
-### Option 1: TAIS (Project-local)
-1. Unzip `<skill-name>.zip` into your TAIS project directory
-2. Navigate to **Develop** tab → find `<skill-name>` in the list
-3. Click to load the skill
-
-### Option 2: TAIS (Workspace)
+### Claude Code (Recommended)
 1. Unzip `<skill-name>.zip`
 2. Copy the `<skill-name>` folder to `~/.claude/skills/`
-3. Restart TAIS or refresh the Develop tab
-4. Skill appears in Develop tab across all projects
+3. Restart Claude Code or refresh
+4. Skill appears in all your sessions
 
-### Option 3: Treasure Work
+### Treasure Work
 ```bash
+# Option A: Copy to personal skills
+unzip <skill-name>.zip && mv <skill-name>/ ~/.claude/skills/
+
+# Option B: Install via plugin command
 /plugin install <skill-name>-skill.zip
-# Or if published to marketplace:
-/plugin install <skill-name>@fde-skills
 ```
 
 ## Running the Skill

@@ -10,7 +10,8 @@
 
 - ✅ Phase 3 complete: `dashboard.html` + `generate-data.js` approved by the user
 - ✅ `state.md` accessible — read it for `project_slug`, confirmed metrics/formulas, SINK or source database names, and the Phase 1 compliance flag (if any)
-- ✅ Phase 4 artifacts will live under `./<project-slug>/skills/` (Track A) and `./<project-slug>/agents/` (Track B)
+- ✅ Phase 4 Track A skill will be deployed to `~/.claude/skills/` (personal workspace for cross-session reuse)
+- ✅ Phase 4 Track B agent will be deployed to Foundry
 
 This phase is entirely optional. If the user doesn't need a reusable skill or a conversational agent, skip straight to Phase 5 (Handoff Documentation) or close the engagement.
 
@@ -84,8 +85,8 @@ AskUserQuestion:
 
 | Track | What it produces | Best for |
 |---|---|---|
-| **A — Reusable Skill** | `./<project-slug>/skills/` — self-contained skill anyone can trigger to rebuild this dashboard against a different database | Recurring dashboard builds, team standardization |
-| **B — Companion Agent** | `./<project-slug>/agents/` — deployed Foundry agent with knowledge bases | Conversational NL queries, anomaly detection, scheduled reports |
+| **A — Reusable Skill** | `~/.claude/skills/<skill-name>/` — self-contained, parameterized skill available across all your Claude sessions + optional zip for sharing with team | Recurring dashboard builds, cross-project reuse, team standardization |
+| **B — Companion Agent** | Foundry agent deployed with knowledge bases — conversational NL queries on dashboard data | Conversational NL queries, anomaly detection, scheduled reports |
 
 ---
 
@@ -99,7 +100,7 @@ AskUserQuestion:
 | 4a-iii | Create configuration templates | `references/track-a-automation.md` § Step 4a-iii |
 | 4a-iv | Document deployment & replication checklist | `references/track-a-automation.md` § Step 4a-iv |
 | 4a-v | Validate the extracted skill end-to-end | `references/track-a-automation.md` § Step 4a-v |
-| 4a-vi | Package & share the skill | `references/track-a-automation.md` § Step 4a-vi |
+| 4a-vi | Deploy skill to `~/.claude/skills/` (cross-session) + optional zip | `references/track-a-automation.md` § Step 4a-vi |
 | 4a-vii | Generate Installation Guide (`INSTALL.md`) | `references/track-a-automation.md` § Step 4a-vii |
 
 ## Track B: Quick Reference
