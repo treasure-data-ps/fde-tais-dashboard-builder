@@ -9,7 +9,7 @@
 ```
 2f-1  Summarize Stage B findings (present to user)
 2f-2  Check for Stage A vs Stage B conflicts
-2f-3  Retrieve Stage A promotion score
+2f-3  Retrieve Stage A Dashboard Complexity Score
 2f-4  ★ UPDATE state.md locally (Stage B data discovery)   ← MANDATORY before path question
 2f-5  Evaluate path routing logic (score + data source)
 2f-8  ★ AskUserQuestion: confirm path (Phase 2 or Phase 3)
@@ -68,9 +68,9 @@ Any Stage A ↔ Stage B conflicts? No ✅
 
 ---
 
-## Step 2f-3: Retrieve Stage A Promotion Score
+## Step 2f-3: Retrieve Stage A Dashboard Complexity Score
 
-- Read **`state.md`** for the promotion score (Step 1p):
+- Read **`state.md`** for the Dashboard Complexity Score (Step 1p):
   - Q1: Viewing frequency (0-2 pts)
   - Q2: Historical data needs (0-2 pts)
   - Q3: Audience scope (0-2 pts)
@@ -149,7 +149,7 @@ Any Stage A ↔ Stage B conflicts? No ✅
 
 ## Stage B Path Decision
 
-- Promotion Score: 5/6
+- Dashboard Complexity Score: 5/6
 - Rendering: HTML Client
 - Recommended Path: Phase 2 (Workflow)
 - Rationale: High business need + raw source data requires pre-aggregation
@@ -171,24 +171,24 @@ If unchecked: complete it first. Do NOT skip to routing.
 
 ---
 
-**Use promotion score + `skip_workflow` flag (from `state.md`) to decide the path:**
+**Use Dashboard Complexity Score + `skip_workflow` flag (from `state.md`) to decide the path:**
 
 ```
 IF skip_workflow == true (data source is pre-aggregated):
   → Skip Phase 2 (Workflow) regardless of score — no workflow needed
   → Route to PHASE 3 (Build Dashboard) immediately
 
-IF promotion_score >= 4:
+IF complexity_score >= 4:
   → ⚠️ RECOMMEND Workflow path (scheduled refresh, production-ready)
   → WAIT FOR USER CONFIRMATION (see approval gate below)
   → If confirmed: Route to PHASE 2 (Workflow), then PHASE 3
   → If declined: Route to PHASE 3 (Non-Workflow) instead
 
-IF promotion_score == 3:
+IF complexity_score == 3:
   → Ask user: "Quick build now (Phase 3, same session) or set up scheduled refresh first (Phase 2, ~15-30 min)?"
   → Proceed per user's choice
 
-IF promotion_score <= 2:
+IF complexity_score <= 2:
   → ⚠️ RECOMMEND Non-Workflow path (low business need)
   → WAIT FOR USER CONFIRMATION (see approval gate below)
   → If confirmed: Route to PHASE 3 (Build Dashboard) immediately
@@ -209,7 +209,7 @@ IF promotion_score <= 2:
 📋 Recommended: Workflow Path (Phase 2 → Phase 3)
 
 Based on your data:
-  • Promotion Score: 5/6 (Score criteria met for Workflow)
+  • Dashboard Complexity Score: 5/6 (Score criteria met for Workflow)
   • Business Need: High (frequent refresh, production dashboard)
   • Data Complexity: Complex (multiple tables, joins required)
   • Recommendation: Set up scheduled Workflow to pre-aggregate metrics
@@ -246,7 +246,7 @@ NO, SKIP WORKFLOW AND BUILD NOW (Phase 3 only)
 📋 Recommended: Non-Workflow Path (Phase 3 only)
 
 Based on your data:
-  • Promotion Score: 2/6 (Low business complexity)
+  • Dashboard Complexity Score: 2/6 (Low business complexity)
   • Business Need: Low (infrequent refresh, exploratory)
   • Data Source: Simple (few tables, light queries)
   • Recommendation: Build dashboard directly without scheduled workflow
@@ -307,7 +307,7 @@ Dimensions confirmed:
 Date range:        <default_range> | picker: <yes | no>
 Data freshness:    <last updated>
 Rendering:         HTML Client
-Promotion score:   <n>/6
+Dashboard Complexity Score:   <n>/6
 
 Stage A vs Stage B conflicts:  <None | list conflicts>
 ```

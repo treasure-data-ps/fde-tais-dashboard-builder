@@ -40,7 +40,7 @@ fde-tais-dashboard-builder/
 │   ├── INSTRUCTIONS.md (load_order: 1.1)
 │   │   ├── 9 Phase 1 specific rules
 │   │   ├── Requirements validation patterns
-│   │   ├── Promotion score calculation
+│   │   ├── Dashboard Complexity Score calculation
 │   │   ├── Phase 1 decision tree
 │   │   ├── Common blocks + solutions
 │   │   └── After Phase 1 completes section
@@ -59,7 +59,7 @@ fde-tais-dashboard-builder/
 │   │   ├── Pre-Phase 1 checklist
 │   │   ├── Stage A (requirements)
 │   │   ├── Stage B (data discovery)
-│   │   ├── Promotion score calculation
+│   │   ├── Dashboard Complexity Score calculation
 │   │   ├── Phase routing decision
 │   │   └── state.md creation
 │   │
@@ -275,7 +275,7 @@ Gather Requirements (Stage A)
   ↓
 Validate Against Data (Stage B)
   ↓
-Calculate Promotion Score (0-6)
+Calculate Dashboard Complexity Score (0-6)
   ↓
 Route: Phase 1 → [Phase 2 or Phase 3]
 ```
@@ -374,7 +374,7 @@ Each phase has a **Quality Gate** checklist before proceeding to the next phase:
 
 | Phase | Before Proceeding | Gate |
 |-------|------------------|------|
-| **Phase 1** | Phase 2 or Phase 3 | All Stage A + B questions answered? Promotion score calculated? state.md created? |
+| **Phase 1** | Phase 2 or Phase 3 | All Stage A + B questions answered? Dashboard Complexity Score calculated? state.md created? |
 | **Phase 2** | Phase 3 | SINK tables created? Workflow tested? First run successful? |
 | **Phase 3** | Phase 4 (optional) | Dashboard approved? Spot-checks passed? Filters work? |
 | **Phase 4** | Phase 5 (optional) | Skill/agent tested? KB accurate? End-to-end tests pass? |

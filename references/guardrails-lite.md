@@ -217,7 +217,7 @@ These rules prevent phase-specific failures. Violating any causes rework or data
 **Why:** state.md is the single source of truth for phase continuity. Loss of state.md = complete project restart.
 
 ### Phase Sequencing Enforcement (Routing critical)
-**RULE:** Follow promotion score routing strictly. Do NOT allow users to skip phases arbitrarily.
+**RULE:** Follow Dashboard Complexity Score routing strictly. Do NOT allow users to skip phases arbitrarily.
 
 **Check at end of Phase 1:**
 - Score 0-2 → Phase 1 → Phase 3 (skip Phase 2) ✓
@@ -340,7 +340,7 @@ Before starting any dashboarding session, verify:
 - [ ] I will validate time columns before Phase 2
 - [ ] I will validate join keys before Phase 2
 - [ ] I will preserve state.md between all phases
-- [ ] I will enforce promotion score routing strictly
+- [ ] I will enforce Dashboard Complexity Score routing strictly
 - [ ] I will NOT mix special case paths (.dash / API) with normal Phase 1 flow
 - [ ] I will verify TD account access before Phase 2
 - [ ] I will use correct SINK table naming convention

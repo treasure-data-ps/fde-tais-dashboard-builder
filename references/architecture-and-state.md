@@ -28,7 +28,7 @@ Phase 1: Requirements + Data Discovery
 
 | Phase | Mandatory? | When | Output |
 |-------|-----------|------|--------|
-| **1** | ✅ Always | First | Promotion score (0-6) + path decision + `state.md` created |
+| **1** | ✅ Always | First | Dashboard Complexity Score (0-6) + path decision + `state.md` created |
 | **2** | 🟡 Optional | If score 4-6 AND `skip_workflow ≠ true` | Pre-aggregated SINK tables + workflow schedule |
 | **3** | ✅ Always | After 1 or 2 | Approved interactive `dashboard.html` + `generate-data.js` |
 | **4** | 🟡 Optional | After 3 if user wants automation | Reusable skill (Track A) or Foundry agent (Track B) |
@@ -70,7 +70,7 @@ This file is the **single source of truth** for cross-phase context. It is **app
    - Confirmed dimensions: [list]
    - Data Quality Gate: PASS (all 12 checks)
 
-   ## Phase 1 — Promotion Score & Path
+   ## Phase 1 — Dashboard Complexity Score & Path
    - Q1 (Frequency): 2
    - Q2 (History): 2  
    - Q3 (Audience): 2
@@ -132,7 +132,7 @@ If `./<project-slug>/state.md` exists:
 
 Example: If `state.md` shows:
 ```
-## Phase 1 — Promotion Score & Path
+## Phase 1 — Dashboard Complexity Score & Path
 ...
 Path: Workflow (recommended)
 

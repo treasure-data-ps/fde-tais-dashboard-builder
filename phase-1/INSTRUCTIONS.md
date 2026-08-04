@@ -13,9 +13,9 @@ load_order: 1.1
 
 ## Phase 1 Goal
 
-Gather business requirements (Stage A), validate them against real data (Stage B), calculate promotion score (0-6), decide Workflow vs Non-Workflow path, and get user approval — **all in one session**.
+Gather business requirements (Stage A), validate them against real data (Stage B), calculate Dashboard Complexity Score (0-6), decide Workflow vs Non-Workflow path, and get user approval — **all in one session**.
 
-**Deliverable:** `./<project-slug>/state.md` containing approved requirements, confirmed data findings, promotion score, and path decision.
+**Deliverable:** `./<project-slug>/state.md` containing approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
 
 ---
 
@@ -72,7 +72,7 @@ If starting fresh:
 - [ ] **HTML Client data size validated** (total rows, estimated file size, feasibility check)
 
 **Scoring & Path Decision**
-- [ ] Promotion score calculated (Q1 + Q2 + Q3 = ___ / 6)
+- [ ] Dashboard Complexity Score calculated (Q1 + Q2 + Q3 = ___ / 6)
 - [ ] Path decision made (Score 0-2 → Phase 3, Score 3 → user chooses, Score 4-6 → Phase 2 then Phase 3)
 
 **Completion**
@@ -127,7 +127,7 @@ SELECT DISTINCT country FROM sales_table LIMIT 10;
 
 ---
 
-### Rule P1-2: Promotion Score Calculation Is Deterministic
+### Rule P1-2: Dashboard Complexity Score Calculation Is Deterministic
 
 **Score formula (0-6):**
 - **0-2 (Low complexity):** Simple metrics, few tables, no joins, daily or less frequent refresh
@@ -818,7 +818,7 @@ At end of Phase 1, create `state.md` with this structure:
 - All joins tested: ✓
 - Time column present: ✓
 
-### Promotion Score
+### Dashboard Complexity Score
 
 **Final Score:** [X/6]
 
@@ -904,7 +904,7 @@ At end of Phase 1, create `state.md` with this structure:
 
 **⚠️ CRITICAL: CANNOT proceed to Phase 2 or Phase 3 without explicit user confirmation of the path.**
 
-After calculating promotion score and recommending a path:
+After calculating Dashboard Complexity Score and recommending a path:
 
 **If Score 0-2 (Non-Workflow recommended):**
 - Present: "Recommended: Non-Workflow Path (Phase 3 only)"
@@ -962,7 +962,7 @@ Dimensions confirmed:
 Date range:        <default_range>
 Data freshness:    <last updated>
 Rendering:         HTML Client (standalone, portable)
-Promotion score:   <X>/6
+Dashboard Complexity Score:   <X>/6
 
 Conflicts detected: <None | list conflicts>
 ```
@@ -1081,7 +1081,7 @@ Tables:
   • customers (156K rows, updated 1d ago) — DIMENSION
   • regions (6 rows, static) — DIMENSION
 
-Promotion Score:   5/6
+Dashboard Complexity Score:   5/6
 Date Range:        Last 90 days
 Data Freshness:    Updated 2 hours ago
 Rendering:         HTML Client (standalone, portable)
@@ -1179,7 +1179,7 @@ For each source table:
     - Verify columns exist (exact spelling)
     - Test joins with sample queries
     ↓
-Calculate Promotion Score (0-6)
+Calculate Dashboard Complexity Score (0-6)
     ↓
 DECISION POINT:
     Score 0-2?  → Route to Phase 3 (skip Phase 2)
@@ -1222,7 +1222,7 @@ END Phase 1
 - [ ] All Stage A questions answered (1a-1o)
 - [ ] All Stage B data validations complete (tables confirmed, columns verified, joins tested)
 - [ ] **HTML Client data size validated** (all widgets checked, feasibility confirmed)
-- [ ] Promotion Score calculated (0-6, with breakdown)
+- [ ] Dashboard Complexity Score calculated (0-6, with breakdown)
 - [ ] Dashboard Plan Summary displayed to user (Rule P1-12) — includes data validation
 - [ ] User reviewed and approved the plan (including data feasibility)
 - [ ] Path Confirmation obtained (Rule P1-11)
@@ -1231,7 +1231,7 @@ END Phase 1
   - Data findings documented
   - Time column identified
   - Join keys validated
-  - Promotion score and justification
+  - Dashboard Complexity Score and justification
   - Dashboard plan summary captured
   - Path decision (Phase 2 or Phase 3) with user approval
   - "Next Action" pointer
@@ -1244,7 +1244,7 @@ END Phase 1
 **Only after all items verified:**
 - Append "Phase 1 COMPLETE" to state.md with timestamp
 - Record: "Dashboard plan reviewed and approved by user"
-- Move to next phase based on promotion score and user confirmation
+- Move to next phase based on Dashboard Complexity Score and user confirmation
 
 ---
 

@@ -130,7 +130,7 @@ AskUserQuestion:
 
 | Answer | Phase 2 flag | Recommended Path | Notes |
 |--------|-------------|------------------|-------|
-| Raw / Transactional | `skip_workflow = false` | Use promotion score normally | Complex joins + volume → Phase 2 usually beneficial |
+| Raw / Transactional | `skip_workflow = false` | Use Dashboard Complexity Score normally | Complex joins + volume → Phase 2 usually beneficial |
 | Pre-aggregated | `skip_workflow = true` | Skip Phase 2 regardless of score | Data already optimized — no workflow needed |
 | Mix | `skip_workflow = partial` | Decide per-metric during data discovery | Some metrics may skip, others may need Phase 2 |
 | Not sure | `skip_workflow = tbd` | Resolve during data discovery | Determined by actual table structure |
@@ -338,7 +338,7 @@ IF migration_goal == "Replicate":
 IF migration_goal == "Replicate + improve" OR "Modernize":
   → Run closer to the normal Stage A/B flow, but pre-filled with the .dash-derived answers above as defaults
   → User confirms/edits each pre-filled value rather than answering from a blank slate
-  → Promotion scoring (1p) still runs normally to decide Phase 2 vs Phase 3
+  → Dashboard Complexity Scoring (1p) still runs normally to decide Phase 2 vs Phase 3
   → Phase 3 may still start from the converter output as a base, then layer on requested changes
 ```
 
@@ -508,12 +508,12 @@ AskUserQuestion:
 ```
 IF migration_goal == "Replicate":
   → Fast-track: skip live Stage A/B interviews entirely (all prefilled from API)
-  → Phase 2 (Workflow): per promotion score normally
+  → Phase 2 (Workflow): per Dashboard Complexity Score normally
   → Phase 3 (Build Dashboard): starts fresh (no pre-rendered template)
 
 IF migration_goal == "Replicate + improve" OR "Modernize":
   → Run Stage A/B with user edits to prefilled values
-  → Promotion scoring (1p) still runs normally
+  → Dashboard Complexity Scoring (1p) still runs normally
   → Phase 3: builds fresh dashboard with approved metrics/dimensions
 ```
 
@@ -619,11 +619,11 @@ IF workflow selected + existing workflow confirmed:
   → Then Phase 3
 
 IF workflow selected + no existing workflow:
-  → Phase 2: create new workflow per promotion score
+  → Phase 2: create new workflow per Dashboard Complexity Score
   → Then Phase 3
 
 IF no workflow selected:
-  → Use migration goal + promotion score to decide Phase 2 vs skip
+  → Use migration goal + Dashboard Complexity Score to decide Phase 2 vs skip
 ```
 
 **Step G: Write state.md**

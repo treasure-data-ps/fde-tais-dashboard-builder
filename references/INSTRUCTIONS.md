@@ -329,7 +329,7 @@ SELECT * FROM events WHERE DATE(time) >= '2026-01-01'
 - ✅ Ask for business requirements (Stage A)
 - ✅ Validate against real data (Stage B: `tdx describe`, sample queries)
 - ✅ Never accept "I assume the data exists" — verify it exists
-- ✅ Calculate promotion score (0-6) based on data complexity + refresh frequency
+- ✅ Calculate Dashboard Complexity Score (0-6) based on data complexity + refresh frequency
 
 ---
 
@@ -487,7 +487,7 @@ Ready for Phase [N+1]? Here's what we'll do:
 ### Summary
 - 4 KPIs identified: Revenue, Customers, Order Value, Churn
 - 3 source tables confirmed: sales_events, customers, returns
-- Promotion Score: 5 (workflow recommended)
+- Dashboard Complexity Score: 5 (workflow recommended)
 
 ### Next Step
 Ready for Phase 2? Here's what we'll do:

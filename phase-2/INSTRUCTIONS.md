@@ -35,7 +35,7 @@ From `state.md` Phase 1 section, verify:
 - ✅ Phase 1 marked ✅ Complete
 - ✅ Time column documented (is it still non-nullable?)
 - ✅ Join keys tested (cardinality check documented)
-- ✅ Promotion score ≥ 4 (or user override recorded)
+- ✅ Dashboard Complexity Score ≥ 4 (or user override recorded)
 - ✅ User approved Workflow path (approval recorded)
 
 **Runtime validation before proceeding:**
@@ -58,7 +58,7 @@ tdx databases | grep <SINK_DB>
 
 **Pre-Phase-2 Gate**
 - [ ] Phase 1 complete (state.md saved with Stage A/B)
-- [ ] Promotion score 4-6 OR user chose Workflow at score 3
+- [ ] Dashboard Complexity Score 4-6 OR user chose Workflow at score 3
 - [ ] SINK database confirmed
 - [ ] Workflow project name decided
 
@@ -578,7 +578,7 @@ Append Phase 2 results to state.md (created in Phase 1):
 **Before starting Phase 2, verify:**
 
 ### Prerequisites from Phase 1
-- [ ] Promotion Score ≥ 4 (or Score 3 and user chose Phase 2)
+- [ ] Dashboard Complexity Score ≥ 4 (or Score 3 and user chose Phase 2)
 - [ ] state.md exists from Phase 1
 - [ ] All Phase 1 requirements + data findings documented in state.md
 
@@ -604,7 +604,7 @@ Append Phase 2 results to state.md (created in Phase 1):
 ```
 START Phase 2: Workflow Deployment
     ↓
-Is Promotion Score ≥ 4 (or user approved override)?
+Is Dashboard Complexity Score ≥ 4 (or user approved override)?
     YES ↓  → Continue
     NO  ↓  → ERROR: Should not be in Phase 2
     ↓
@@ -661,8 +661,8 @@ END Phase 2 → Jump to Phase 3
 
 **⚠️ CRITICAL: Before proceeding to Phase 3, verify:**
 
-- [ ] Phase 1 marked COMPLETE in state.md (promotion score documented)
-- [ ] Promotion score is 4-6 (or user explicitly chose Phase 2)
+- [ ] Phase 1 marked COMPLETE in state.md (Dashboard Complexity Score documented)
+- [ ] Dashboard Complexity Score is 4-6 (or user explicitly chose Phase 2)
 - [ ] All SINK tables created (listed in state.md)
 - [ ] Workflow deployed and first run completed successfully
 - [ ] Workflow runs without errors (check logs)

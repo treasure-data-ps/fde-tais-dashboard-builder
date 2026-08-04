@@ -47,7 +47,7 @@ Load Order 1.1-1.5: ./phase-N/INSTRUCTIONS.md (phase-specific, includes checkpoi
 ### Auto-Advance Rules by Phase Type:
 
 **Required Phases (auto-start, no approval needed):**
-- Phase 1 → Phase 2 or 3 (based on promotion score)
+- Phase 1 → Phase 2 or 3 (based on Dashboard Complexity Score)
 - Phase 2 → Phase 3 (automatic, no stop)
 - Phase 3 → Phase 4 (automatic offer)
 

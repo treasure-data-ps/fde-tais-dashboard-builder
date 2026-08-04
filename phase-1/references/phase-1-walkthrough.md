@@ -18,7 +18,7 @@ Should list your databases. If it fails with 401/403/not found, see [`references
 ---
 
 
-**Deliverable:** `./<project-slug>/state.md` with approved requirements, confirmed data findings, Promotion Score (0-6), and path decision
+**Deliverable:** `./<project-slug>/state.md` with approved requirements, confirmed data findings, Dashboard Complexity Score (0-6), and path decision
 **Location:** Single merged phase — runs before Phase 2 (Workflow, optional) and Phase 3 (Build Dashboard)
 
 ---
@@ -56,7 +56,7 @@ Should list your databases. If it fails with 401/403/not found, see [`references
 | 2e | (Rendering engine is fixed to HTML Client in lite — no decision needed here) | — | — |
 | Data Quality Gate | Checks 1–12 before finalizing | ✅ Always | See [`validation-queries.md`](references/validation-queries.md) |
 | **Scoring & Path Decision** | | ✅ Always | See [`steps-1p-1t.md`](references/steps-1p-1t.md), [`stage-b-path-routing.md`](references/stage-b-path-routing.md) |
-| 1p | Promotion Scoring (0-6 model) | ✅ Always | 3 questions → path logic (score + data source) → Workflow vs Non-Workflow |
+| 1p | Dashboard Complexity Scoring (0-6 model) | ✅ Always | 3 questions → path logic (score + data source) → Workflow vs Non-Workflow |
 | 1q | Workflow Configuration | 🔧 If score 4-6 | SINK DB, project name, run schedule — used by Phase 2 |
 | 1r | Agent/Skill Configuration | 🔧 Optional | Only if Phase 4 Track A/B is anticipated |
 | **Finalization** | Validate & get approval, write `state.md` | ✅ Always | See [`step-1u-finalization.md`](references/step-1u-finalization.md) |
@@ -109,7 +109,7 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 | Mark recommended option with `(Recommended)` | Assume defaults (databases, schedules, etc.) |
 | Batch up to 4 questions per call | Batch more than 4 questions per call |
 | Include a 1-line description for each option | Use vague labels ("Yes/No", "Option 1/2") |
-| Ask promotion scoring Q1–Q3 BEFORE building the dashboard | Wait until after delivery to ask scoring |
+| Ask Dashboard Complexity Scoring Q1–Q3 BEFORE building the dashboard | Wait until after delivery to ask scoring |
 
 **Recommended batch structure (aim for ~5-6 total AskUserQuestion calls across all of Phase 1):**
 
@@ -119,7 +119,7 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 | **Batch 2** | Core requirements | Metrics, dimensions, filters, layout | Related discovery; flows naturally |
 | **Batch 3** | Temporal + sharing | Date range, timezone, refresh, sharing/access | Related; timezone often forgotten |
 | **Batch 4** | Data discovery confirmation | Database/table confirmation, time column, metric/dimension validation results | After running discovery queries — confirm what was found |
-| **Batch 5** | Promotion scoring | Q1, Q2, Q3 (can be 1 call with 3 questions) | Drives path decision |
+| **Batch 5** | Dashboard Complexity Scoring | Q1, Q2, Q3 (can be 1 call with 3 questions) | Drives path decision |
 | **Batch 6** | Path confirmation | Workflow vs Non-Workflow (only if score = 3, otherwise this is a statement not a question) | Final gate before writing `state.md` |
 
 ---
@@ -142,7 +142,7 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
   → Batch 4: present findings, confirm any conflicts with Stage A
 
 ## Scoring & Path Decision — steps-1p-1t.md, stage-b-path-routing.md
-  Batch 5: Promotion scoring
+  Batch 5: Dashboard Complexity Scoring
     Q1: How often viewed? (0-2 pts)
     Q2: Need historical trends? (0-2 pts)
     Q3: How many users? (0-2 pts)
@@ -172,14 +172,14 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 | Understand time column discovery, metric/dimension validation | [`stage-b-database-discovery.md`](references/stage-b-database-discovery.md) |
 | Run the Data Quality Gate | [`validation-queries.md`](references/validation-queries.md) |
 | Avoid re-querying the same values in later phases | [`confirmed-values-checkpoint.md`](references/confirmed-values-checkpoint.md) |
-| Understand promotion scoring & path decision | [`steps-1p-1t.md`](references/steps-1p-1t.md), [`stage-b-path-routing.md`](references/stage-b-path-routing.md) |
+| Understand Dashboard Complexity Scoring & path decision | [`steps-1p-1t.md`](references/steps-1p-1t.md), [`stage-b-path-routing.md`](references/stage-b-path-routing.md) |
 | Handle conflicts between Stage A assumptions and Stage B data reality | [`workflow-notes.md`](references/workflow-notes.md) |
 | Write `state.md` and get final approval | [`step-1u-finalization.md`](references/step-1u-finalization.md), [`exit-checklist.md`](references/exit-checklist.md) |
 | See all reference files at once | [`references/INDEX.md`](references/INDEX.md) |
 
 ---
 
-## Promotion Scoring (Quick Summary)
+## Dashboard Complexity Scoring (Quick Summary)
 
 | Metric | Q1: Frequency | Q2: History | Q3: Audience | Score | Path |
 |---|---|---|---|---|---|

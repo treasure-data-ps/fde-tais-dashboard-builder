@@ -27,7 +27,7 @@ Before finalizing, check:
 - ✅ `benchmark_values` captured (metric expected ranges for Phase 2/4 sanity checks)
 - ✅ `dashboard_theme` captured (`td-default` or custom brand colors/logo)
 - ✅ `rendering_engine` recorded as `HTML Client` (fixed, from Step 1r-post)
-- ✅ Promotion score Q1/Q2/Q3 individual values recorded; all 3 validation checks run (Q1 vs 1f, Q2 vs 1g, Q3 vs 1h) — conflicts resolved
+- ✅ Dashboard Complexity Score Q1/Q2/Q3 individual values recorded; all 3 validation checks run (Q1 vs 1f, Q2 vs 1g, Q3 vs 1h) — conflicts resolved
 - ✅ Path confirmed by user (Workflow vs Non-Workflow)
 - ✅ If Workflow AND `skip_workflow ≠ true`: SINK DB, TD Project, Run Schedule captured
 - ✅ Agent YES/NO decision explicitly recorded (not left blank)
@@ -80,7 +80,7 @@ Workflow (if applicable):
 
 Agent:                <yes | no>  →  <agent_name if yes>
 
-Promotion Score:      Q1=<n> Q2=<n> Q3=<n>  Total=<n>/6
+Dashboard Complexity Score:      Q1=<n> Q2=<n> Q3=<n>  Total=<n>/6
 Assumptions to validate in Stage B:
   • <assumption 1>
   • <assumption 2>
@@ -142,7 +142,7 @@ After user approval, write `state.md` locally in `./<project_slug>/`. This file 
 - Benchmark Values: <value>
 - Dashboard Theme: <td-default or custom>
 - Rendering Engine: HTML Client
-- Promotion Score: Q1=<n> Q2=<n> Q3=<n> Total=<n>/6
+- Dashboard Complexity Score: Q1=<n> Q2=<n> Q3=<n> Total=<n>/6
 - Path: <Workflow | Non-Workflow>
 - Workflow Config (if applicable): SINK DB=<..>, TD Project=<..>, Schedule=<..>
 - Agent: <yes/no>, Name=<..>
@@ -202,7 +202,7 @@ Include all fields from the Session Setup block in `steps-1pre.md` plus the busi
 - ✅ All Stage A business requirements gathered and documented (or derived from a `.dash` resource, per the Special Case)
 - ✅ Reference resources read and findings extracted
 - ✅ Rendering engine recorded as HTML Client (no choice needed)
-- ✅ Promotion score calculated (0-6) with path recommendation (Workflow vs Non-Workflow)
+- ✅ Dashboard Complexity Score calculated (0-6) with path recommendation (Workflow vs Non-Workflow)
 - ✅ `state.md` created locally at `./<project_slug>/state.md` with Session Setup block + all requirements
 - ✅ User sign-off on all Stage A requirements
 - ✅ **Ready for Stage B (targeted data discovery)**
@@ -263,7 +263,7 @@ Include all fields from the Session Setup block in `steps-1pre.md` plus the busi
 
 ### Final Deliverables
 
-- [ ] Promotion score calculated: 0-6 (Q1 + Q2 + Q3 values recorded)
+- [ ] Dashboard Complexity Score calculated: 0-6 (Q1 + Q2 + Q3 values recorded)
 - [ ] Path recommendation confirmed (Workflow vs Non-Workflow) + user-approved
 - [ ] All Stage A requirements approved by user
 - [ ] **`state.md` filled — no `<REQUIRED>` fields left blank**

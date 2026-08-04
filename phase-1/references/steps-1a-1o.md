@@ -400,7 +400,7 @@ AskUserQuestion:
 
 **Output:** Historical data retention period + rationale + archival strategy
 
-**VALIDATION NOTE (Step 1-val-B):** This step relates to Q2 (Trends Critical) from promotion scoring (Step 1p).
+**VALIDATION NOTE (Step 1-val-B):** This step relates to Q2 (Trends Critical) from Dashboard Complexity Scoring (Step 1p).
 - If Q2 = "Yes, trends are critical" AND 1g < 12 months → ⚠️ Misalignment
 - **Clarify:** "You said trends are critical but only have 3 months of history. We need at least 12 months for meaningful trend analysis. What's the available data depth?"
 
@@ -424,7 +424,7 @@ AskUserQuestion:
 
 **Output:** Access audience + technical depth + communication style + data sensitivity flag + downstream consumers
 
-**VALIDATION NOTE (Step 1-val-C):** This step relates to Q3 (Audience Scope) from promotion scoring (Step 1p).
+**VALIDATION NOTE (Step 1-val-C):** This step relates to Q3 (Audience Scope) from Dashboard Complexity Scoring (Step 1p).
 - If Q3 = "Just me" BUT 1h mentions internal team or customer stakeholders → ⚠️ Misalignment
 - **Clarify:** "You said just you uses this, but requirements list broader access. Confirm: who actually uses this?"
 

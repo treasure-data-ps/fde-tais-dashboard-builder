@@ -99,7 +99,7 @@
 - [ ] Recommended dimensions + exclusions documented
 - [ ] Data quality gate results documented
 - [ ] Path decision recorded
-- [ ] Promotion score retrieved from Stage A + recorded
+- [ ] Dashboard Complexity Score retrieved from Stage A + recorded
 - [ ] Updated `state.md` with Stage B Data Discovery block appended
 
 ### Stage A ↔ Stage B Alignment Verified
@@ -111,7 +111,7 @@
   - [ ] No blockers carried forward
 
 ### Path Decision Confirmed
-- [ ] Promotion score retrieved from Stage A (0-6)
+- [ ] Dashboard Complexity Score retrieved from Stage A (0-6)
 - [ ] Path routing decision made (Score + `skip_workflow` → Phase 2 or Phase 3)
 - [ ] Path confirmed with user via AskUserQuestion
 - [ ] Path decision recorded in `state.md`
@@ -137,7 +137,7 @@
 
 After all gates pass:
 
-1. **Retrieve Promotion Score** from Stage A (`state.md` Session Setup block)
+1. **Retrieve Dashboard Complexity Score** from Stage A (`state.md` Session Setup block)
    - Score 0–2 → Phase 3 (Non-Workflow) — proceed directly
    - Score 3 → Ask user: "Quick build (Phase 3) or set up scheduled refresh first (Phase 2)?"
    - Score 4–6 → Phase 2 (Workflow) then Phase 3
@@ -176,7 +176,7 @@ If resuming this project in a future session:
 Before marking Stage B complete, verify these are complete:
 
 - [ ] `state.md` updated with Stage B Data Discovery block (all inferred definitions + recommendations)
-- [ ] Promotion score from Stage A documented in `state.md`
+- [ ] Dashboard Complexity Score from Stage A documented in `state.md`
 - [ ] Rendering confirmed as HTML Client (recorded in Stage A)
 - [ ] Path decision (Phase 2 or Phase 3) documented in `state.md`
 - [ ] Data quality gate results documented in `state.md` (query performance baseline, null %, cardinality checks, freshness status)

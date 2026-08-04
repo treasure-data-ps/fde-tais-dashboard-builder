@@ -16,7 +16,7 @@ This directory contains detailed, reusable patterns for Phase 1: Requirements Ga
 | **[treasure-insights-api-integration.md](treasure-insights-api-integration.md)** | Treasure Insights Reporting API reference and extraction logic. Documents regional endpoints, authentication, datamodel endpoints, and how to extract metrics/dimensions/joins from API responses. Used by the Treasure Insights API Special Case. |
 | **[steps-1a-1o.md](steps-1a-1o.md)** | Core requirements steps (1a–1o): metrics, dimensions, filters, date range, sharing, exclusions. Includes AskUserQuestion templates and iterative patterns. |
 | **[steps-1k-1n-optional.md](steps-1k-1n-optional.md)** | Optional steps: mobile, compliance, data complexity, drill-down, CDP activation. |
-| **[steps-1p-1t.md](steps-1p-1t.md)** | Promotion scoring (0-6), workflow config, agent config, Stage A→B bridging. Includes field capture tables and Stage A Quality Checklist. |
+| **[steps-1p-1t.md](steps-1p-1t.md)** | Dashboard Complexity Scoring (0-6), workflow config, agent config, Stage A→B bridging. Includes field capture tables and Stage A Quality Checklist. |
 | **[step-1u-finalization.md](step-1u-finalization.md)** | User approval, quality gates, `state.md` creation (Step 1u — then appended by Stage B and subsequent phases). Includes end-of-Stage-A checklist. |
 
 ### Stage B: Data Discovery & Validation
@@ -92,7 +92,7 @@ This directory contains detailed, reusable patterns for Phase 1: Requirements Ga
 | 1n. Drill-Down (optional) | `steps-1k-1n-optional.md` |
 | 1o-ext. CDP Activation Intent (optional, pre-aggregated sources) | `steps-1k-1n-optional.md` |
 | 1o. Exclusion Rules | `steps-1a-1o.md` |
-| 1p. Promotion Scoring | `steps-1p-1t.md` |
+| 1p. Dashboard Complexity Scoring | `steps-1p-1t.md` |
 | 1q. Workflow Config (if score 4-6 AND skip_workflow ≠ true) | `steps-1p-1t.md` |
 | 1r. Agent Config (optional) | `steps-1p-1t.md` |
 | 1r-post. Rendering (fixed — HTML Client, no question) | `steps-1p-1t.md` |
@@ -115,7 +115,7 @@ This directory contains detailed, reusable patterns for Phase 1: Requirements Ga
 
 - **Session setup is always first** — run `steps-1pre.md` before any business requirements; those 4 answers gate everything downstream
 - **Rendering is fixed** — HTML Client is the only engine in this lite skill; it's recorded automatically, never asked about
-- **Pre-aggregated data skips Phase 2** — `skip_workflow = true` from Setup-D overrides promotion score routing
+- **Pre-aggregated data skips Phase 2** — `skip_workflow = true` from Setup-D overrides Dashboard Complexity Score routing
 - **AskUserQuestion is mandatory** — never ask questions as plain text lists; templates are inline in each step file (see `steps-1pre.md`, `steps-1a-1o.md`, `steps-1p-1t.md`, `stage-b-database-discovery.md`)
 - **Stage A and Stage B are one continuous phase** — Stage A gathers business requirements; Stage B validates against real data, in the same session (see iterative patterns in `steps-1a-1o.md`)
 - **Single session, self-serve** — no engineer confirmation gate, no async customer clarification loop; every open question is resolved directly with the user in-session

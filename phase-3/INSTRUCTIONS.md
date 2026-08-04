@@ -1123,7 +1123,7 @@ Append Phase 3 results to state.md (updated in Phase 2 or created in Phase 1):
 **Before starting Phase 3, verify:**
 
 ### Prerequisites
-- [ ] Promotion Score available from Phase 1
+- [ ] Dashboard Complexity Score available from Phase 1
 - [ ] state.md exists from Phase 1 (+ Phase 2 if applicable)
 - [ ] All requirements + data findings documented
 

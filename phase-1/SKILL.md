@@ -1,7 +1,7 @@
 ---
 name: fde-tais-dashboard-builder-phase-1
 description: |
-  INTERNAL — Phase 1 only. Gather business requirements, validate against real data, score promotion (0-6), and route to Phase 2/3. Produces local state.md with requirements, data findings, and path decision.
+  INTERNAL — Phase 1 only. Gather business requirements, validate against real data, calculate dashboard complexity (0-6), and route to Phase 2/3. Produces local state.md with requirements, data findings, and path decision.
 ---
 
 # Phase 1: Requirements & Data Discovery (FDE TAIS Dashboard Builder)
@@ -13,8 +13,8 @@ description: |
 > 4. `./references/phase-1-walkthrough.md` (step-by-step walkthrough)
 > 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
 
-**Phase Goal:** Gather business requirements (Stage A), validate them against real data (Stage B), calculate the promotion score (0–6), decide Workflow vs Non-Workflow path, and get user approval — all in one session, with no Confluence and no git branching.
-**Deliverable:** A local `state.md` file at `./<project-slug>/state.md` containing the approved requirements, confirmed data findings, promotion score, and path decision.
+**Phase Goal:** Gather business requirements (Stage A), validate them against real data (Stage B), calculate the Dashboard Complexity Score (0–6), decide Workflow vs Non-Workflow path, and get user approval — all in one session, with no Confluence and no git branching.
+**Deliverable:** A local `state.md` file at `./<project-slug>/state.md` containing the approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
 
 ---
 
@@ -71,7 +71,7 @@ Validate Stage A's requirements against real data: confirm the database/tables e
 
 ### Scoring & Path Decision (Steps 1p + 2f)
 
-Combine the promotion score (0–6) with the data-source constraint (pre-aggregated → can skip Phase 2/Workflow) to decide Workflow vs Non-Workflow.
+Combine the Dashboard Complexity Score (0–6) with the data-source constraint (pre-aggregated → can skip Phase 2/Workflow) to decide Workflow vs Non-Workflow.
 
 → **See `./references/steps-1p-1t.md`** for the scoring questions and field-capture tables
 → **See `./references/stage-b-path-routing.md`** for the canonical routing table (single source of truth for path decisions)
@@ -118,7 +118,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
    - Confirmed dimension values: <...>
    - Data Quality Gate: <Pass/Fail summary>
 
-   ## Phase 1 — Promotion Score & Path
+   ## Phase 1 — Dashboard Complexity Score & Path
    - Q1 (frequency): <0-2>
    - Q2 (history): <0-2>
    - Q3 (audience): <0-2>
@@ -133,7 +133,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 3. **Quality gate before approval:**
    - All core requirements (1a–1j, 1o) captured
    - Data Discovery findings don't contradict Stage A requirements (if they do, resolve and note the trade-off in `state.md`)
-   - Promotion score calculated and path decision made
+   - Dashboard Complexity Score calculated and path decision made
    - Data Quality Gate checks pass (or failures are explicitly acknowledged)
 
 4. **Get user approval** via `AskUserQuestion`: "Does this capture your requirements and the confirmed data findings?"
@@ -151,7 +151,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 - ✅ Metrics and dimensions validated against live data
 - ✅ Filter scope classified (dashboard-level / tab-level / widget-level)
 - ✅ Data Quality Gate run (Checks 1–12)
-- ✅ Promotion score calculated (0–6) and path decision made
+- ✅ Dashboard Complexity Score calculated (0–6) and path decision made
 - ✅ `./<project-slug>/state.md` created with all of the above
 - ✅ User approved the plan
 - ✅ Ready for Phase 2 (Workflow, if chosen) or Phase 3 (Build Dashboard)
@@ -164,7 +164,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 |---|---|
 | Session setup + core requirements questions | `./references/steps-1a-1o.md` |
 | Optional requirements (mobile, compliance, drill-down)? | `./references/steps-1k-1n-optional.md` |
-| Promotion scoring + path decision logic | `./references/steps-1p-1t.md`, `./references/stage-b-path-routing.md` |
+| Dashboard Complexity Scoring + path decision logic | `./references/steps-1p-1t.md`, `./references/stage-b-path-routing.md` |
 | Database/table/time-column/metric/dimension discovery | `./references/stage-b-database-discovery.md` |
 | Filter scope classification rules | `./references/stage-b-database-discovery.md` (Step 2d-filter) |
 | Data Quality Gate (12 checks) + SQL patterns | `./references/validation-queries.md` |

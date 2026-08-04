@@ -1,9 +1,9 @@
-# Stage A: Promotion Scoring & Configuration Steps (1p-1t)
+# Stage A: Dashboard Complexity Scoring & Configuration Steps (1p-1t)
 
-## Step 1p: Promotion Scoring + Path Decision (Complete)
+## Step 1p: Dashboard Complexity Scoring + Path Decision (Complete)
 
 This step combines THREE inputs to determine the final path to Stage B / Phase 2:
-1. **Promotion Score** (business need for scheduled workflow vs quick build)
+1. **Dashboard Complexity Score** (business need for scheduled workflow vs quick build)
 2. **Platform** (informative — always renders HTML Client)
 3. **Data Source Constraint** (affects Phase 2 Workflow skip flag)
 
@@ -11,7 +11,7 @@ This step combines THREE inputs to determine the final path to Stage B / Phase 2
 
 ### Step 1-val: Related Requirements Validation (Before Scoring)
 
-**Purpose:** Catch misalignments between promotion questions and related requirement steps BEFORE scoring.
+**Purpose:** Catch misalignments between complexity questions and related requirement steps BEFORE scoring.
 
 **Validation Checks:**
 
@@ -25,7 +25,7 @@ This step combines THREE inputs to determine the final path to Stage B / Phase 2
 
 ---
 
-### Promotion Scoring Questions (Q1-Q3)
+### Dashboard Complexity Scoring Questions (Q1-Q3)
 
 Ask 3 questions to calculate the 0–6 score:
 
@@ -94,7 +94,7 @@ AskUserQuestion:
 - Internal team → **1 pt**
 - Customer-facing / external users → **2 pts**
 
-**Subtotal Promotion Score:** Sum of Q1, Q2, Q3 → **0-6 points**
+**Subtotal Dashboard Complexity Score:** Sum of Q1, Q2, Q3 → **0-6 points**
 
 **Score indicates:** Business need for a scheduled Phase 2 (Workflow) vs a quick direct build in Phase 3
 
@@ -108,7 +108,7 @@ AskUserQuestion:
 
 | Data Source | Phase 2 (Workflow) Can Skip? | Skip Flag |
 |-------------|------------------------------|-----------|
-| **Raw / transactional** | No | `skip_workflow = false` — use promotion score normally |
+| **Raw / transactional** | No | `skip_workflow = false` — use Dashboard Complexity Score normally |
 | **Pre-aggregated** | ✅ YES | `skip_workflow = true` — skip Phase 2 regardless of score |
 | **Mix** | Partial | `skip_workflow = partial` — decide per-metric in Stage B |
 | **Not sure** | TBD | `skip_workflow = tbd` — resolve in Stage B |
@@ -119,7 +119,7 @@ AskUserQuestion:
 
 ### Combined Path Decision
 
-| Promotion Score | Data Source | **Final Path** | **Reason** |
+| Dashboard Complexity Score | Data Source | **Final Path** | **Reason** |
 |-----------------|-------------|---|---|
 | 0-2 | Any | **Non-Workflow** | Low business need; skip Phase 2, go straight to Phase 3 |
 | 3 | Raw/Mix/TBD | **Customer chooses** | Medium need; flexible |
@@ -136,7 +136,7 @@ AskUserQuestion:
 **Present the combined recommendation to the user:**
 
 ```
-Question: "Based on your promotion score and data source:
+Question: "Based on your Dashboard Complexity Score and data source:
 - Score: X/6
 - Data Source: [Raw / Pre-aggregated / Mix]
 
@@ -304,7 +304,7 @@ Record automatically: `rendering_engine = HTML Client` — written to `state.md`
 
 Before moving to Stage B (data discovery), verify:
 
-- ✅ Promotion score calculated (Q1 + Q2 + Q3 values recorded individually)
+- ✅ Dashboard Complexity Score calculated (Q1 + Q2 + Q3 values recorded individually)
 - ✅ **Validation checks run and all conflicts resolved:**
   - Q1 (Viewing Frequency) vs Step 1f (Data Freshness) — no contradiction
   - Q2 (Trends Critical) vs Step 1g (Historical Depth) — no contradiction

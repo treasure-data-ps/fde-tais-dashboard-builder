@@ -13,7 +13,7 @@ Before starting Stage B data discovery, verify:
 
 2. **Verify Stage A Complete**
    - [ ] `state.md` created and approved (Session Setup block written in Stage A)
-   - [ ] Promotion score (0-6) calculated and confirmed
+   - [ ] Dashboard Complexity Score (0-6) calculated and confirmed
    - [ ] `skip_workflow` flag set (`false` / `true` / `partial` / `tbd`) — if missing, go back to Stage A Setup
 
 **If any Stage A deliverable is missing:** Do not start Stage B. Go back and complete Stage A first.
