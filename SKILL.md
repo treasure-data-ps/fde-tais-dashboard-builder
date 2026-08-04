@@ -44,7 +44,7 @@ Then follow these 2 steps:
    ✅ Phase 1: Requirements + Data Discovery
       → Stage A: Understand KPIs, dimensions, filters, audience, success metrics
       → Stage B: Validate tables/columns exist in your database, recommend metrics/dimensions
-      → Output: Promotion Score (0-6) + path decision (Workflow or Non-Workflow) + state.md created
+      → Output: Dashboard Complexity Score (0-6) + path decision (Workflow or Non-Workflow) + state.md created
 
    ✅ Phase 2: Deploy Dashboard Workflow  [Optional, recommended for Score 4-6]
       → Deploy a scheduled workflow, pre-aggregate metrics into SINK tables
@@ -113,7 +113,7 @@ Then follow these 3 steps:
 
 | Phase | Read | Key Output | Condition |
 |-------|------|-----------|-----------|
-| **1: Requirements + Data Discovery** | `./phase-1/SKILL.md` | Promotion Score (0-6) + path decision + **state.md created** | Always |
+| **1: Requirements + Data Discovery** | `./phase-1/SKILL.md` | Dashboard Complexity Score (0-6) + path decision + **state.md created** | Always |
 | **2: Workflow** | `./phase-2/SKILL.md` | Workflow output tables (SINK tables) deployed + validated + **state.md appended** | Optional, recommended Score 4-6 only, user can override |
 | **3: Build Dashboard** | `./phase-3/SKILL.md` | User-approved interactive `dashboard.html` + **state.md appended** | Always (after Phase 1 or Phase 2) |
 | **4: Automate + Agent** | `./phase-4/SKILL.md` | Reusable skill (Track A) + Foundry agent (Track B) | Optional, either/both/neither |

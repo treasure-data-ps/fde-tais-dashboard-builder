@@ -1,6 +1,6 @@
 ---
 name: fde-tais-dashboard-builder-phase-4
-description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Track A) or deploy Foundry agent (Track B).
+description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Option A - Recommended) or deploy Foundry agent (Option B - external API access only).
 ---
 
 # Phase 4: Automate & Deploy (FDE TAIS Dashboard Builder)
@@ -12,10 +12,10 @@ description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Track 
 > 4. `./references/phase-4-walkthrough.md` (step-by-step walkthrough)
 > 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
 
-**Phase Goal:** Optionally turn the approved dashboard into a reusable asset — Track A packages it as a skill for `~/.claude/skills/` (cross-session reuse), Track B deploys a companion Foundry agent for conversational analysis. Both are entirely optional; skip this phase to go straight to Phase 5 (Handoff) or close the engagement.
+**Phase Goal:** Optionally turn the approved dashboard into a reusable asset — Option A packages it as a skill for `~/.claude/skills/` (cross-session reuse, recommended), Option B deploys a companion Foundry agent for external API access. Both are entirely optional; skip this phase to go straight to Phase 5 (Handoff) or close the engagement.
 
-**Deliverable (Track A):** Skill installed to `~/.claude/skills/<skill-name>/` — a self-contained, reusable dashboard skill (HTML Client only) available across all Claude Code sessions + optional zip file for sharing
-**Deliverable (Track B):** Foundry agent deployed with knowledge bases
+**Deliverable (Option A):** Skill installed to `~/.claude/skills/<skill-name>/` — a self-contained, reusable dashboard skill (HTML Client only) available across all Claude Code sessions + optional zip file for sharing
+**Deliverable (Option B):** Foundry agent deployed with knowledge bases (external API access only)
 
 ---
 
@@ -32,18 +32,18 @@ description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Track 
 
 **Quick start:** See Quick Checklist in `./INSTRUCTIONS.md` for a fast gate-check before proceeding.
 
-Ask the user which track(s) to run. Then follow the detailed guides:
+Ask the user which option(s) to run. Then follow the detailed guides:
 
-- **Track A:** [`references/track-a-automation.md`](references/track-a-automation.md) — Steps 4a-0 through 4a-vii (skill extraction)
-- **Track B:** [`references/track-b-ai-agent.md`](references/track-b-ai-agent.md) — Steps 4b-i through 4b-vi (Foundry agent deployment)
+- **Option A (Recommended):** [`references/track-a-automation.md`](references/track-a-automation.md) — Steps 4a-0 through 4a-vii (skill extraction)
+- **Option B:** [`references/track-b-ai-agent.md`](references/track-b-ai-agent.md) — Steps 4b-i through 4b-vi (Foundry agent deployment - external API only)
 
 ---
 
 ## Quality Gates
 
-✅ Track A (if run): skill validated end-to-end against real data, packaged, and the full Step 4a-vi packaging instructions shown to the user (zip commands, install prompt) — never skipped, even if a zip already exists
-✅ Track B (if run): `system_prompt.md` ≤ 9,000 characters, all 5 validation tests passing (or documented exceptions), agent deployed and verified in the Foundry UI
-✅ `state.md` updated (append only) with track(s) run and their outputs
+✅ Option A (if run): skill validated end-to-end against real data, packaged, and the full Step 4a-vi packaging instructions shown to the user (zip commands, install prompt) — never skipped, even if a zip already exists
+✅ Option B (if run): `system_prompt.md` ≤ 9,000 characters, all 5 validation tests passing (or documented exceptions), agent deployed and verified in the Foundry UI
+✅ `state.md` updated (append only) with option(s) run and their outputs
 
 ---
 

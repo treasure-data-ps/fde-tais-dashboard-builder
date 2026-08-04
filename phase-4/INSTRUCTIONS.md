@@ -17,18 +17,21 @@ load_order: 1.4
 
 Extend the dashboard with two optional automation tracks:
 
-**Track A: Extract Reusable Skill**
-- Convert Phase 3 dashboard to a reusable Claude Code skill
-- Enables faster builds of similar dashboards in the future
+**Option A (Recommended): Extract Reusable Skill**
+- Convert Phase 3 dashboard to a reusable Claude Code skill installed to `~/.claude/skills/<skill-name>/` 
+- Enables faster builds of similar dashboards in the future (10× speedup on next build)
+- Users can ask deep-dive natural-language questions like "Which region has the highest growth?" and get live answers
+- Available across all Claude Code sessions (plus optional zip file for sharing with team)
 
-**Track B: Deploy Conversational Agent**
-- Create a Foundry agent with access to dashboard data
-- Users can ask questions in natural language
-- Agent queries data on-the-fly or uses precomputed tables
+**Option B: Deploy Conversational Agent** 
+- Create a Foundry agent with access to dashboard data (external-API-only use case)
+- Only applicable if you need to make this dashboard available to users outside Treasure AI Studio
+- Users can ask questions in natural language from external systems via API
+- Advanced: Agent queries data on-the-fly or uses precomputed tables
 
 **Deliverable:**
-- Track A: A reusable skill installed to `~/.claude/skills/<skill-name>/` — available across all Claude Code sessions (plus optional zip file for sharing with team)
-- Track B: A Foundry agent project deployed with knowledge bases
+- Option A: A reusable skill installed to `~/.claude/skills/<skill-name>/` — available across all Claude Code sessions (plus optional zip file for sharing with team)
+- Option B: A Foundry agent project deployed with knowledge bases
 - state.md appended with Phase 4 results
 
 ---
@@ -72,7 +75,7 @@ SELECT [KPI] FROM [table] WHERE [filter]
 - [ ] state.md updated through Phase 3
 - [ ] User decided: Track A, Track B, both, or neither?
 
-**Track A: Extract Reusable Skill (CORRECT ORDER)**
+**Option A: Extract Reusable Skill (CORRECT ORDER)**
 - [ ] 4a-0: Ask scope questions FIRST (name, install scope, known values) ← GATE 1
 - [ ] 4a-0b: Hardcode all known values in SKILL.md (replace <PLACEHOLDER> with actual values)
 - [ ] 4a-0c: Get approval before packaging
@@ -84,7 +87,7 @@ SELECT [KPI] FROM [table] WHERE [filter]
 - [ ] 4a-vi: Final packaging (Python zipfile, not zip CLI)
 - [ ] 4a-vii: Generate Installation Guide (hardcoded values visible)
 
-**Track B: Deploy Foundry Agent**
+**Option B: Deploy Foundry Agent**
 - [ ] 4b-i/ii: Decide agent + capability
 - [ ] 4b-iii: Pre-flight checks (access, data, compliance)
 - [ ] 4b-iv: Configure knowledge bases (system_prompt.md ≤ 9KB)
@@ -226,13 +229,13 @@ To approve, please type exactly: YES, APPROVE SKILL EXTRACTION FOR [SKILL_NAME]
 **Scope questions to ask (IN THIS ORDER):**
 
 1. **Skill name:** What should this skill be called?
-   - Example: "fde-retail-dashboard", "retail-analytics-builder"
+   - Example: "retail-revenue-dashboard", "retail-analytics-builder"
+   - Use business-friendly names (avoid technical naming conventions)
 
 2. **Installation scope:** Where should this skill be installed?
-   - **Option A:** Project-local (only this project can use it)
-   - **Option B:** Personal workspace (you can reuse it, others can't)
-   - **Option C:** Both (save locally + upload to shared team folder)
-   - **Option D:** Zip only (package without installing)
+   - **Option A (Recommended): Project-local Installation** — Install to `~/.claude/skills/<skill-name>/` for cross-project reuse across all your sessions
+   - **Option B:** Zip distribution — Package as shareable zip for team members to install locally
+   - **Option C:** Both — Save locally for immediate use + create zip for sharing
 
 3. **Known values to hardcode:**
    - SINK database name (if Phase 2 completed)
@@ -932,7 +935,7 @@ Append Phase 4 results to state.md:
 **Date:** [date]
 **Status:** ✅ Complete
 
-### Track A: Reusable Skill
+### Option A: Reusable Skill
 
 - **Skill Name:** [name]
 - **Repository:** [path or URL]
@@ -948,7 +951,7 @@ Append Phase 4 results to state.md:
 
 ---
 
-### Track B: Foundry Agent
+### Option B: Foundry Agent
 
 - **Agent Name:** [name]
 - **Visibility:** [internal / shared / public]
@@ -969,11 +972,11 @@ Append Phase 4 results to state.md:
 
 ### Validation Results
 
-- [ ] Track A: End-to-end skill test passed
-- [ ] Track A: Output matches Phase 3 structure
-- [ ] Track B: KB tables verified against DB schema
-- [ ] Track B: KB spot-checked values confirmed current
-- [ ] Track B: Sample agent queries return expected results
+- [ ] Option A: End-to-end skill test passed
+- [ ] Option A: Output matches Phase 3 structure
+- [ ] Option B: KB tables verified against DB schema
+- [ ] Option B: KB spot-checked values confirmed current
+- [ ] Option B: Sample agent queries return expected results
 
 ---
 
@@ -1048,19 +1051,19 @@ END Phase 4
 
 ## Common Phase 4 Blocks
 
-### Track A: "How do I make this reusable?"
+### Option A: "How do I make this reusable?"
 **Response:**
 > "Parameterize the queries: replace hardcoded values with {{PLACEHOLDER}}. For example, {{SOURCE_TABLE}}, {{START_DATE}}, {{METRICS}}. Then the skill can accept these as inputs for any similar project."
 
-### Track B: "My agent is giving wrong numbers"
+### Option B: "My agent is giving wrong numbers"
 **Response:**
 > "Common causes: (1) KB has stale spot-checked values, (2) KB has wrong table/column names, (3) Sample queries in KB aren't matching actual data. Let me verify KB against current schema and update it."
 
-### Track A: "What if the next project has different columns?"
+### Option A: "What if the next project has different columns?"
 **Response:**
 > "Good question. The skill accepts column names as parameters. So for Project 2 with different columns, you provide a mapping: {original_column} → {project_2_column}. The SKILL.md documents how to do this."
 
-### Track B: "Can the agent write to the database?"
+### Option B: "Can the agent write to the database?"
 **Response:**
 > "No — agent has read-only access (SELECT only). This is a security gate to prevent accidental modifications. If you need write access, that would require separate approval + audit logging."
 
@@ -1074,8 +1077,8 @@ END Phase 4
 - [ ] If Track A chosen: skill extracted and end-to-end tests PASSED
 - [ ] If Track B chosen: agent deployed and sample queries tested
 - [ ] state.md appended with Phase 4 results:
-  - Track A: Skill name, location, test results
-  - Track B: Agent name, KB accuracy, sample queries verified
+  - Option A: Skill name, location, test results
+  - Option B: Agent name, KB accuracy, sample queries verified
   - Both: Completion status
   - "Next Action" pointer (Phase 5 optional or project complete)
 
@@ -1093,49 +1096,78 @@ END Phase 4
 
 ## After Phase 4 Completes (Rule 0: Phase Auto-Advance)
 
-**If Track A or B completes (IMMEDIATE OFFER, ONE QUESTION):**
+**If Option A (Skill) completes (IMMEDIATE OFFER, ONE QUESTION):**
 
 **Say this (EXACT SCRIPT):**
 ```
-✅ Phase 4 Complete — [Track A: Skill extracted / Track B: Agent deployed]
+✅ Phase 4 Complete — Reusable Skill Created
 
 ### Summary
-[Track details: skill name/version or agent deployed with access]
+- Skill: [name] 
+- Location: ~/.claude/skills/[name]/
+- Benefit: Next similar dashboard builds in 10-30 minutes (vs 2-3 hours)
+- Users can ask natural-language questions like "Which brand has the highest growth in GB?" and get live answers
 
 ### Next: Final Step?
 
-**Option A (Recommended):** Phase 5 — Documentation & Handoff
-→ Create: Architecture diagram, Usage guide, Runbook, Access guide, Troubleshooting
+**Option A:** Phase 5 — Documentation & Handoff (Optional)
+→ Create: Architecture diagram, Usage guide, Runbook, Troubleshooting guide
 → Time: 1 hour
 → Benefit: Support team + CS can self-serve, no escalations
 
 **Option B:** Close engagement
-→ [Track A/B] is production-ready and complete
+→ Skill is production-ready and installed
 
-**→ Phase 5 docs? (YES/NO)**
+**→ Continue to Phase 5? (YES/NO)**
+```
+
+**If Option B (Agent) completes (IMMEDIATE OFFER, ONE QUESTION):**
+
+**Say this (EXACT SCRIPT):**
+```
+✅ Phase 4 Complete — Foundry Agent Deployed
+
+### Summary
+- Agent: [name]
+- Access: External API (users outside Treasure AI Studio can query the data)
+- Benefit: Natural-language queries from external systems
+
+### Next: Final Step?
+
+**Option A:** Phase 5 — Documentation & Handoff (Optional)
+→ Create: Architecture diagram, Agent usage guide, Troubleshooting
+→ Time: 1 hour
+
+**Option B:** Close engagement
+→ Agent is deployed and ready
+
+**→ Continue to Phase 5? (YES/NO)**
 ```
 
 **Then wait for ONE answer and proceed immediately:**
 - User says YES → Start Phase 5
-- User says NO → "Engagement complete. [Track A/B] is ready."
+- User says NO → "Engagement complete. [Skill/Agent] is ready."
 
-**If both Track A + B completed:**
+**If both Option A + B completed:**
 ```
-✅ Phase 4 Complete — Both skill extracted and agent deployed
+✅ Phase 4 Complete — Skill Created AND Agent Deployed
 
 ### Summary
-- Skill: [name] (ready for reuse)
-- Agent: [name] (deployed and tested)
+- Skill: [name] (for internal reuse, 10-30 min dashboards)
+- Agent: [name] (for external API access)
 
 ### Next: Final Step?
 
-Ready for Phase 5 (documentation)?
-→ This completes the full engagement with complete handoff docs
+**Option A:** Phase 5 — Documentation & Handoff (Optional)
+→ Complete handoff docs for both skill and agent
 
-**→ Phase 5? (YES/NO)**
+**Option B:** Close engagement
+→ Both are production-ready
+
+**→ Continue to Phase 5? (YES/NO)**
 ```
 
-**Why:** Phase 4 is the last automation step. Must offer Phase 5 immediately, not wait for user to ask.
+**Why:** Phase 4 is the last automation step. Must offer Phase 5 immediately after completion, not wait for user to ask.
 
 ---
 

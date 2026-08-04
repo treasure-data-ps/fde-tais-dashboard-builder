@@ -129,14 +129,14 @@ The skill's execution flow must:
 
 ```yaml
 ---
-name: fde-dashboard-[type]-[optional-customer]
+name: [business-friendly-name]-dashboard
 description: |
-  Parameterized [type] dashboard skill. Reusable across databases with the same schema shape.
-  Inputs: database env vars (SOURCE_DB / SINK_DB), optional date range
-  Outputs: interactive HTML dashboard (single portable file)
+  Reusable [type] dashboard. Builds similar dashboards in 10-30 minutes instead of 2-3 hours.
+  Users can ask natural-language questions like "Which region has the highest growth?"
+  
+  Inputs: database names, optional date range
+  Outputs: interactive HTML dashboard (single portable file, works offline)
 
-  Use this when: [revenue tracking, churn analysis, user retention, etc.]
-  Estimated build time: 10-30 minutes (vs 2-3 hours from scratch)
 ---
 
 # [Type] Dashboard Skill
@@ -610,13 +610,13 @@ description: |
 
 ```
 AskUserQuestion:
-  header: "Confirm skill name"
-  question: "What should the skill be called? (kebab-case, e.g. fde-dashboard-retail-revenue)"
+  header: "Skill name"
+  question: "What should this skill be called?"
   options:
-    - label: "Generate a name from the dashboard's business goal"
-      description: "Suggest a name based on the business_goal recorded in state.md"
-    - label: "I'll type a custom name"
-      description: "Provide a custom kebab-case name"
+    - label: "Generate from the dashboard's business goal"
+      description: "Suggest a name based on the business_goal in state.md (e.g., retail-revenue-dashboard)"
+    - label: "I'll provide a custom name"
+      description: "You'll type a business-friendly name"
 ```
 
 Lock in the confirmed `<skill-name>` before proceeding.

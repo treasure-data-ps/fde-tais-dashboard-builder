@@ -242,7 +242,7 @@ Do you approve? (YES / NO / REVIEW DETAILS)
 **Status:** ✅ Complete
 
 **Findings:**
-- Promotion Score: X/6
+- Dashboard Complexity Score: X/6
 - Path Decision: [Workflow / Non-Workflow]
 - KPIs: [list]
 - Dimensions: [list]

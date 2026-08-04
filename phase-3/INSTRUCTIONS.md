@@ -219,6 +219,23 @@ tdx query --output json --limit 1000 < query.sql | node render.js
 
 **⚠️ CRITICAL: After rendering, validate dashboard matches Phase 1 plan. CANNOT spot-check until structure is complete.**
 
+**Explicit Approval Gate (After rendering):**
+
+Before proceeding to spot-checks, ask the user explicitly:
+
+```
+Does this draft look good? Shall I create the skill?
+
+Dashboard summary:
+  - Tabs: [X] | Filters: [Y] | Widgets: [Z]
+  - Data size: [Xmb] | Load time: [Ys]
+  - All spot-checks ready to run
+
+To proceed, please confirm: "Yes, looks good"
+```
+
+Only after explicit confirmation proceed to completeness checks.
+
 **Step 1: Extract dashboard plan from state.md (Phase 1)**
 
 From `state.md` → "Dashboard Plan Summary" section, list:
