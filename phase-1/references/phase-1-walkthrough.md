@@ -33,6 +33,7 @@ Should list your databases. If it fails with 401/403/not found, see [`references
 | Setup-C | Target platform | ✅ Always | Treasure Work / Treasure AI Studio — gates sharing constraints (rendering is always HTML Client in lite) |
 | Setup-D | Data source type | ✅ Always | Raw/Transactional vs Pre-aggregated vs Snapshot — determines whether Phase 2 (Workflow) can be skipped |
 | Setup-E | Reference resources | ✅ Always | Existing dashboard/spec to replicate? If a `.dash`/Sisense/Treasure Insights export is provided, jump to the `.dash` Special Case in `steps-1pre.md` instead of Stage A |
+| **Setup-F** | **Dashboard structure** | ✅ If "None" in Setup-E | **MANDATORY if no existing resources** — 5 questionnaire batches covering layout, visualizations, filters, drill-down, performance |
 | **Stage A: Core Requirements (1a-1j, 1o — Always Ask)** | | | See [`steps-1a-1o.md`](references/steps-1a-1o.md) |
 | 1a | Purpose, Business Context & Success Criteria | ✅ | Dashboard purpose, prior art, success metric, audience + technical depth |
 | 1b | Metrics + Top Questions + Business Glossary | ✅ | 5-10 KPIs with formulas, top 3-5 analytical questions, glossary |
@@ -111,16 +112,18 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 | Include a 1-line description for each option | Use vague labels ("Yes/No", "Option 1/2") |
 | Ask Dashboard Complexity Scoring Q1–Q3 BEFORE building the dashboard | Wait until after delivery to ask scoring |
 
-**Recommended batch structure (aim for ~5-6 total AskUserQuestion calls across all of Phase 1):**
+**Recommended batch structure (aim for ~6-8 total AskUserQuestion calls across all of Phase 1):**
 
-| Batch | Topic | Questions | Why Grouped |
-|---|---|---|---|
-| **Batch 1** | Session setup | Project slug, business goal, platform, data source type | Gates everything downstream |
-| **Batch 2** | Core requirements | Metrics, dimensions, filters, layout | Related discovery; flows naturally |
-| **Batch 3** | Temporal + sharing | Date range, timezone, refresh, sharing/access | Related; timezone often forgotten |
-| **Batch 4** | Data discovery confirmation | Database/table confirmation, time column, metric/dimension validation results | After running discovery queries — confirm what was found |
-| **Batch 5** | Dashboard Complexity Scoring | Q1, Q2, Q3 (can be 1 call with 3 questions) | Drives path decision |
-| **Batch 6** | Path confirmation | Workflow vs Non-Workflow (only if score = 3, otherwise this is a statement not a question) | Final gate before writing `state.md` |
+| Batch | Topic | Questions | Condition | Why Grouped |
+|---|---|---|---|---|
+| **Batch 1** | Session setup | Project slug, business goal, platform, data source type | ✅ Always | Gates everything downstream |
+| **Batch 1b** | Reference resources | Existing dashboard/mockup/spec? | ✅ Always | Determines fast-track path vs normal flow |
+| **Batch 2** | Dashboard structure | Layout, visualizations, filters, drill-down, performance | ⚠️ If "None" in 1b | **MANDATORY if no existing resources** — 5 questionnaire batches |
+| **Batch 3** | Core requirements | Metrics, dimensions, filters, layout | ✅ Always | Related discovery; flows naturally |
+| **Batch 4** | Temporal + sharing | Date range, timezone, refresh, sharing/access | ✅ Always | Related; timezone often forgotten |
+| **Batch 5** | Data discovery confirmation | Database/table confirmation, time column, metric/dimension validation results | ✅ Always | After running discovery queries — confirm what was found |
+| **Batch 6** | Dashboard Complexity Scoring | Q1, Q2, Q3 (can be 1 call with 3 questions) | ✅ Always | Drives path decision |
+| **Batch 7** | Path confirmation | Workflow vs Non-Workflow (only if score = 3) | ⚠️ If score = 3 | Final gate before writing `state.md` |
 
 ---
 
@@ -130,7 +133,22 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 ## Session Setup — Batch 1
   project slug, business goal, platform, data source type
 
-## Stage A: Core Requirements — Batches 2-3 (steps-1a-1o.md)
+## Reference Resources — Batch 1b
+  Existing dashboard/mockup/spec?
+  
+  IF resources found (.dash, datamodel, specs):
+    → Jump to Special Case path (steps-1pre.md)
+    
+  IF "None — starting fresh":
+    → MANDATORY: Run Dashboard Structure Questionnaire (Setup-F, Batch 2 — see steps-1pre.md)
+      • Layout preferences (single page / 2-3 tabs / 4+ tabs / drill-down)
+      • Visualization types (KPI cards, trends, comparisons, distributions, tables, heatmaps)
+      • Filter & interactivity (static / global / per-section / advanced)
+      • Drill-down depth (summary / one level / multiple / detailed table)
+      • Performance targets (daily / multiple daily / hourly / live)
+    → Record answers in state.md
+
+## Stage A: Core Requirements — Batch 3 (steps-1a-1o.md)
   metrics, dimensions, filters, layout, date range, timezone, sharing, exclusions
 
 ## Stage B: Data Discovery — stage-b-database-discovery.md
@@ -147,6 +165,10 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
     Q2: Need historical trends? (0-2 pts)
     Q3: How many users? (0-2 pts)
     → Subtotal: 0-6 pts
+    
+  Batch 6 (if score = 3): Path confirmation
+    User chooses: Quick build (Phase 3 directly) or Workflow first (Phase 2 then Phase 3)
+  
   Path decision: score 0-2 or pre-aggregated → Non-Workflow (Phase 3 directly)
                  score 3 → Batch 6: ask user to choose
                  score 4-6 → Workflow (Phase 2, then Phase 3)
