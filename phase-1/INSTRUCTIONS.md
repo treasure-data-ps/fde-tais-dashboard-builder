@@ -63,15 +63,15 @@ If starting fresh:
   - [ ] Layout preferences & branding
 - [ ] **⚠️ CRITICAL 1e-1f:** Date range, timezone, refresh/freshness
 - [ ] **1g:** Historical depth
-- [ ] **1h:** Sharing, access, target users (if customer-facing)
-- [ ] **1j:** Alerts/thresholds (if applicable)
+- [ ] **1h:** Sharing, access, target users (⚠️ MANDATORY if ANY customer-facing)
 - [ ] **1o:** Exclusion rules & data quality
 
-**Optional (only if relevant):**
-- [ ] **1k:** Mobile/responsive design
-- [ ] **1l:** Compliance/data sensitivity
-- [ ] **1m:** Data source complexity / canonical ID
-- [ ] **1n:** Drill-down depth
+**Optional (only if relevant — use judgment):**
+- [ ] **1j:** Alerts/thresholds (only if customer mentioned real-time alerts)
+- [ ] **1k:** Mobile/responsive design (only if mobile use case exists)
+- [ ] **1l:** Compliance/data sensitivity (only if sensitive data flagged)
+- [ ] **1m:** Data source complexity / canonical ID (only if multi-database joins likely)
+- [ ] **1n:** Drill-down depth (only if dimensions suggest multi-level drill-down)
 
 **Stage B: Data Discovery & Validation**
 - [ ] Database selected, tables confirmed to exist (`tdx databases`, `tdx describe`)
@@ -105,6 +105,48 @@ These files establish the baseline for all Stage A questions and ensure consiste
 ---
 
 ## Phase 1 Specific Rules (In Addition to Universal Rules)
+
+### Rule P1-0: ALL Mandatory Questionnaires MUST Be Asked (ENFORCEMENT)
+
+**⚠️ CRITICAL: CANNOT skip ANY mandatory questionnaire.**
+
+**MANDATORY questionnaires (always ask, NEVER skip):**
+- ✅ Setup-A: Project slug
+- ✅ Setup-B: Business goal
+- ✅ Setup-C: Target platform
+- ✅ Setup-D: Data source type
+- ✅ Setup-E: Reference resources
+- ✅ 1a: Dashboard purpose & success criteria
+- ✅ 1b: Metrics/KPIs
+- ✅ **1c+1d: Dashboard Structure** (ALL 5 structure batches mandatory)
+  - Tabs/Organization
+  - Visualization types
+  - Filter & Interactivity
+  - Drill-down depth
+  - Performance targets
+- ✅ **1c+1d (continued): Dimensions + Filters + Layout + Branding**
+- ✅ **1e+1f: Date range, Timezone, Refresh/Freshness** (⚠️ timezone is CRITICAL)
+- ✅ 1g: Historical depth
+- ✅ 1h: Sharing, access, target users (if ANY customer-facing element)
+- ✅ 1o: Exclusion rules & data quality
+
+**OPTIONAL questionnaires (only if relevant):**
+- ⚠️ 1j: Alerts/thresholds (only if customer mentioned real-time alerts)
+- ⚠️ 1k: Mobile/responsive design (only if mobile use case exists)
+- ⚠️ 1l: Compliance/data sensitivity (only if sensitive data flagged)
+- ⚠️ 1m: Data source complexity (only if multi-database joins likely)
+- ⚠️ 1n: Drill-down depth (only if dimensions suggest multi-level drill-down)
+
+**Enforcement:**
+- Use AskUserQuestion for EVERY question in mandatory list
+- If customer says "skip this" → **STOP and ask why** → Escalate if truly not applicable
+- Do NOT offer skip-out on mandatory questions
+- Document in `state.md` if customer refuses to answer (with reason)
+
+**If customer refuses a mandatory question:**
+> "I cannot proceed without answering this. This information shapes the entire dashboard design. If [question] isn't applicable, let's clarify why — there might be a misunderstanding about what we're building."
+
+---
 
 ### Rule P1-1: Requirements Must Be Validated Against Real Data
 
