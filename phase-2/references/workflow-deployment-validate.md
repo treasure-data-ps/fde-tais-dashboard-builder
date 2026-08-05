@@ -13,7 +13,7 @@ Before running any validation, show the user the complete workflow file tree and
 
 ```bash
 # Print the full workflow folder tree
-find ./<project_slug>/workflows -type f | sort
+find ./<project_name>/workflows -type f | sort
 ```
 
 Present the output and use `AskUserQuestion`:
@@ -33,7 +33,7 @@ AskUserQuestion:
 If user selects **"Show me the .dig file contents first"**, run:
 ```bash
 # Print each .dig file for review
-for f in ./<project_slug>/workflows/*.dig; do echo "=== $f ==="; cat "$f"; echo; done
+for f in ./<project_name>/workflows/*.dig; do echo "=== $f ==="; cat "$f"; echo; done
 ```
 
 Then re-ask the AskUserQuestion above. Do NOT proceed to dry-run until the user explicitly confirms the structure is correct.
@@ -43,7 +43,7 @@ Then re-ask the AskUserQuestion above. Do NOT proceed to dry-run until the user 
 - [ ] `input_params.yaml` — all variables at TOP LEVEL (no `globals:` nesting)
 - [ ] `cleanup_temp_tables: 'no'` unless temp tables are actually created by SQL
 - [ ] SQL files under `sql/` use plain `SELECT` (or `SELECT + UNION ALL`) — output is written via `create_table:`/`insert_into:` on the `.dig` task, not `INSERT INTO` in the SQL itself
-- [ ] Launch file (`<project_slug>_launch.dig`) runs `+run_data_prep_and_sink` unconditionally, and `+check_if_cleanup_needed` only if `cleanup_temp_tables: 'yes'`
+- [ ] Launch file (`<project_name>_launch.dig`) runs `+run_data_prep_and_sink` unconditionally, and `+check_if_cleanup_needed` only if `cleanup_temp_tables: 'yes'`
 - [ ] Database names correct (`source_database`, `sink_database`)
 - [ ] Table names match Stage B validated schema
 - [ ] Metrics calculations match Stage B requirements
@@ -59,7 +59,7 @@ Then re-ask the AskUserQuestion above. Do NOT proceed to dry-run until the user 
 **Dry-run validation:**
 
 ```bash
-cd ./<project_slug>/workflows
+cd ./<project_name>/workflows
 tdx wf push --dry-run
 
 # Expected output:
@@ -215,7 +215,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 
    If user selects **"Show dry-run output first"**:
    ```bash
-   cd ./<project_slug>/workflows
+   cd ./<project_name>/workflows
    tdx wf push --dry-run
    ```
    Display output, then re-ask the confirmation above. **Do NOT push until user explicitly selects "Yes, deploy now"**.
@@ -223,7 +223,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 6. **First deployment: Create project with `tdx wf upload`** (only after confirmation above)
 
    ```bash
-   cd ./<project_slug>/workflows
+   cd ./<project_name>/workflows
    tdx wf upload --name ${PROJECT_NAME}
 
    # Expected:
@@ -239,7 +239,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 7. **Subsequent deployments: Update with `tdx wf push`** (same confirmation pattern — ask before pushing)
 
    ```bash
-   cd ./<project_slug>/workflows
+   cd ./<project_name>/workflows
    tdx wf push --dry-run
 
    # Expected:
@@ -266,7 +266,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
      question: "Start the first workflow run covering historical data? This will create SINK tables in Treasure Data."
      options:
        - label: "Yes, trigger now"
-         description: "Run: tdx wf run <PROJECT_NAME>.<project_slug>_launch — creates SINK tables"
+         description: "Run: tdx wf run <PROJECT_NAME>.<project_name>_launch — creates SINK tables"
        - label: "No, I'll trigger manually"
          description: "Cancel this run. I'll trigger it manually from the TAS console"
        - label: "No, cancel — review first"
@@ -277,7 +277,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
    ```markdown
    **First Workflow Run Preview:**
    - Project: <PROJECT_NAME>
-   - Workflow: <project_slug>_launch
+   - Workflow: <project_name>_launch
    - Date range: [start_date] to [end_date] (historical full load)
    - SINK tables created: [aggregate_final, path_stats, unique_visitors, etc.]
    - Row count: [N rows expected per SINK table]
@@ -291,7 +291,7 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 9. **Trigger first historical run manually:**
 
    ```bash
-   tdx wf run ${PROJECT_NAME}.<project_slug>_launch
+   tdx wf run ${PROJECT_NAME}.<project_name>_launch
 
    # Expected:
    # ✔ Workflow run started
@@ -303,10 +303,10 @@ If you run `tdx wf push` without a prior `tdx.json`, it fails with "no workflow 
 
    ```bash
    # Visual timeline (updates live)
-   tdx wf timeline ${PROJECT_NAME}.<project_slug>_launch --follow
+   tdx wf timeline ${PROJECT_NAME}.<project_name>_launch --follow
 
    # Or check after a few seconds
-   tdx wf timeline ${PROJECT_NAME}.<project_slug>_launch --attempt-id <attempt_id>
+   tdx wf timeline ${PROJECT_NAME}.<project_name>_launch --attempt-id <attempt_id>
 
    # Expected (all green):
    # +run_data_prep_and_sink
@@ -631,7 +631,7 @@ AskUserQuestion:
 
 ### Step 2h-2 — Set the `refresh_mode` Flag
 
-The embedded template already wires `refresh_mode` in `input_params.yaml` — every task in `<project_slug>_data_prep.dig` branches on it:
+The embedded template already wires `refresh_mode` in `input_params.yaml` — every task in `<project_name>_data_prep.dig` branches on it:
 
 ```yaml
 # Refresh mode — controls whether SQL loads the full historical window or appends incrementally
@@ -642,7 +642,7 @@ incremental_look_back_days: 2       # days to look back on incremental runs (cov
 ```
 
 ```yaml
-# From <project_slug>_data_prep.dig — already wired in the template
+# From <project_name>_data_prep.dig — already wired in the template
 # NOTE: 01_data_prep.sql branches directly on ${refresh_mode} inside its own SQL
 # (refresh_mode is already exported globally from input_params.yaml) — there is
 # no .dig-level if> for this staging task and no "session_vars" parameter.
@@ -800,7 +800,7 @@ Then re-ask the confirmation above. Do NOT push until explicit "Yes".
 
 Only push after explicit "Yes":
 ```bash
-cd ./<project_slug>/workflows
+cd ./<project_name>/workflows
 tdx wf push --yes
 ```
 
@@ -813,12 +813,12 @@ Confirm push succeeded before running the incremental test.
 Trigger a new manual run against the same project:
 
 ```bash
-tdx wf run <project_name>.<project_slug>_launch
+tdx wf run <project_name>.<project_name>_launch
 ```
 
 Monitor until complete:
 ```bash
-tdx wf timeline <project_name>.<project_slug>_launch --follow
+tdx wf timeline <project_name>.<project_name>_launch --follow
 ```
 
 **Validate the incremental run — compare against the Pre-Incremental Safety Gate baseline you recorded, not just "does it look reasonable":**
@@ -892,7 +892,7 @@ If **revert**: switch all `insert_into:` back to `create_table:`, remove delete 
 
 **Recovery steps:**
 
-1. **Fix the workflow SQL** in `./<project_slug>/workflows/sql/`:
+1. **Fix the workflow SQL** in `./<project_name>/workflows/sql/`:
    ```sql
    -- Before (wrong)
    SELECT SUM(revenue) as total FROM sales
@@ -903,7 +903,7 @@ If **revert**: switch all `insert_into:` back to `create_table:`, remove delete 
 
 2. **Re-deploy workflow:**
    ```bash
-   cd ./<project_slug>/workflows
+   cd ./<project_name>/workflows
    tdx wf push
    tdx wf run <workflow-name>
    ```

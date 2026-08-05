@@ -28,7 +28,7 @@ Before handing off to Phase 3, verify all items:
 ### Workflow Execution Tests
 - [ ] Workflow pushed/uploaded successfully
 - [ ] First run completed: `tdx wf sessions <project> --status success`
-- [ ] Timeline shows all tasks green: `tdx wf timeline <project>.<project_slug>_launch`
+- [ ] Timeline shows all tasks green: `tdx wf timeline <project>.<project_name>_launch`
 - [ ] No tasks in error state: `tdx wf attempt <id> tasks`
 - [ ] `create_table:` behavior confirmed — replaces on re-run (no duplicates)
 
@@ -107,7 +107,7 @@ tdx query "SELECT MIN(FROM_UNIXTIME(time)) as earliest, MAX(FROM_UNIXTIME(time))
 **Fix:**
 1. Update `start_date` / `end_date` in `input_params.yaml` to match source data range
 2. Re-push workflow
-3. Re-run: `tdx wf run <project_name>.<project_slug>_launch`
+3. Re-run: `tdx wf run <project_name>.<project_name>_launch`
 
 ---
 
@@ -258,7 +258,7 @@ tdx databases --json | python3 -c "import sys,json; data=json.load(sys.stdin); p
    ```
 2. Find the failing task in the timeline:
    ```bash
-   tdx wf timeline <project_name>.<project_slug>_launch --attempt-id <attempt_id> --log <task_name>
+   tdx wf timeline <project_name>.<project_name>_launch --attempt-id <attempt_id> --log <task_name>
    ```
 3. Compare the SQL in `sql/10_*.sql` / `sql/11_*.sql` / `sql/12_*.sql` against the `tdx describe` output — look for column name differences (e.g., `state` vs `state_code`)
 4. Update the SQL file with the EXACT column name from `tdx describe`

@@ -15,7 +15,7 @@ description: |
 > 6. `../references/guardrails-lite.md` (cross-phase guardrails)
 
 **Phase Goal:** Gather business requirements (Stage A), validate them against real data (Stage B), calculate the Dashboard Complexity Score (0–6), decide Workflow vs Non-Workflow path, and get user approval — all in one session, with no Confluence and no git branching.
-**Deliverable:** A local `state.md` file at `./<project-slug>/state.md` containing the approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
+**Deliverable:** A local `state.md` file at `./<project-name>/state.md` containing the approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
 
 ---
 
@@ -37,9 +37,9 @@ description: |
 
 Before starting, confirm:
 
-- ✅ Engagement type: new project or resuming existing `./<project-slug>/`
+- ✅ Engagement type: new project or resuming existing `./<project-name>/`
 - ✅ TD account accessible for data discovery
-- ✅ If resuming: read `./<project-slug>/state.md` and resume at "Next action" — don't re-ask answered questions
+- ✅ If resuming: read `./<project-name>/state.md` and resume at "Next action" — don't re-ask answered questions
 
 ---
 
@@ -49,7 +49,7 @@ Before starting, confirm:
 
 → **See `./references/phase-1-walkthrough.md`** for the full step reference table and batching plan.
 
-Run the session-setup questions (project slug, business goal, platform, data source type) in one batch, then ask Setup-E (reference resources) as a separate call before gathering core requirements. **Setup-E is now MULTI-SELECT** — use `AskUserQuestion` with these options:
+Run the session-setup questions (project name, business goal, platform, data source type) in one batch, then ask Setup-E (reference resources) as a separate call before gathering core requirements. **Setup-E is now MULTI-SELECT** — use `AskUserQuestion` with these options:
 - `.dash` / Sisense export
 - Treasure Insights datamodel
 - Existing Treasure Data workflow
@@ -98,13 +98,13 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 
 ## Finalization: Write `state.md` and Get Approval
 
-1. **Ask for a project slug** if not already collected (short, kebab-case — e.g. `acme-campaign-perf`). Use `./<project-slug>/` as the working directory for everything this skill produces.
+1. **Ask for a project name** if not already collected (short, lowercase with hyphens — e.g. `acme-campaign-perf`). Use `./<project-name>/` as the working directory for everything this skill produces.
 
 2. **Create the working directory and write `state.md`:**
 
    ```bash
-   mkdir -p ./<project-slug>
-   cat > ./<project-slug>/state.md << 'EOF'
+   mkdir -p ./<project-name>
+   cat > ./<project-name>/state.md << 'EOF'
    # <Project Slug> — Dashboard State
 
    ## Phase 1 — Session Setup (<YYYY-MM-DD>)
@@ -152,7 +152,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 
 ## Phase 1 Deliverables (End of Phase 1)
 
-- ✅ Project slug recorded — used for the working directory `./<project-slug>/`
+- ✅ Project name recorded — used for the working directory `./<project-name>/`
 - ✅ Platform + data source type confirmed
 - ✅ Core requirements gathered (metrics, dimensions, filters, date range, sharing, exclusions)
 - ✅ Database/tables confirmed to exist; time column identified
@@ -160,7 +160,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 - ✅ Filter scope classified (dashboard-level / tab-level / widget-level)
 - ✅ Data Quality Gate run (Checks 1–12)
 - ✅ Dashboard Complexity Score calculated (0–6) and path decision made
-- ✅ `./<project-slug>/state.md` created with all of the above
+- ✅ `./<project-name>/state.md` created with all of the above
 - ✅ User approved the plan
 - ✅ Ready for Phase 2 (Workflow, if chosen) or Phase 3 (Build Dashboard)
 
@@ -192,7 +192,7 @@ If the data source is pre-aggregated (`skip_phase_3` in the old numbering, i.e. 
 **What happens next:**
 - If path decision = Workflow → go to Phase 2 to deploy a scheduled `.dig` workflow, then Phase 3
 - If path decision = Non-Workflow (or pre-aggregated data source) → skip straight to Phase 3
-- Phase 3 reads `./<project-slug>/state.md` for confirmed metrics, dimensions, and data source details — no re-asking needed
+- Phase 3 reads `./<project-name>/state.md` for confirmed metrics, dimensions, and data source details — no re-asking needed
 
 ---
 

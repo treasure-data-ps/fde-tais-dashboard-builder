@@ -55,7 +55,7 @@ The four patterns below describe **capabilities** that can be combined in a sing
 
 This means **one deployed agent, all four behaviors**, triggered by what the user actually asks — no forced choice at deployment time.
 
-**Record the chosen capabilities and intent-routing logic in:** `./<project-slug>/agents/capabilities.md`
+**Record the chosen capabilities and intent-routing logic in:** `./<project-name>/agents/capabilities.md`
 
 ---
 
@@ -69,12 +69,12 @@ This means **one deployed agent, all four behaviors**, triggered by what the use
 ```
 AskUserQuestion:
   header: "Agent name"
-  question: "What should the agent be called? (kebab-case, e.g., dashboard-churn-analyzer, revenue-insights-agent)"
+  question: "What should the agent be called? (lowercase with hyphens, e.g., dashboard-churn-analyzer, revenue-insights-agent)"
   options:
     - label: "Suggest based on dashboard purpose + capabilities"
       description: "e.g., [dashboard-name]-analyzer, [dashboard-name]-insights"
     - label: "I'll type a custom name"
-      description: "Provide a kebab-case name"
+      description: "Provide a lowercase with hyphens name"
 ```
 
 Lock in the confirmed `<agent-name>` before proceeding to pre-flight checks.
@@ -105,7 +105,7 @@ tdx query "SELECT COUNT(*) FROM {sink_database}.{output_table}"
 Before deploying a new agent, check if a Foundry project already exists for this dashboard:
 
 ```bash
-tdx llm project list | grep -i "<project-slug>\|<dashboard-type>"
+tdx llm project list | grep -i "<project-name>\|<dashboard-type>"
 ```
 
 If found, pull to `/tmp/` to avoid leaving debris in the project directory:
@@ -184,7 +184,7 @@ Mitigation for this agent:
 - [ ] Read the Phase 1 Step 1l compliance flag from `state.md`
 - [ ] For each flag, confirm the mitigation is implemented
 - [ ] Document all compliance constraints in `prompt.md` CRITICAL RULES
-- [ ] Record the compliance check result in `./<project-slug>/agents/compliance-gate.md`
+- [ ] Record the compliance check result in `./<project-name>/agents/compliance-gate.md`
 
 ---
 
@@ -217,21 +217,21 @@ agents/
 
 ```bash
 # 1. Create project structure
-mkdir -p ./<project-slug>/agents/<project-name>/knowledge_bases
+mkdir -p ./<project-name>/agents/<project-name>/knowledge_bases
 
 # 2. Copy agent configuration template to agent.yml
 cp references/templates/agent-config-template.yml \
-   ./<project-slug>/agents/<project-name>/agent.yml
+   ./<project-name>/agents/<project-name>/agent.yml
 
 # 3. Fill [agent-name], [DASHBOARD_PURPOSE], [SINK_DATABASE], [TABLE_NAME] in agent.yml
-vi ./<project-slug>/agents/<project-name>/agent.yml
+vi ./<project-name>/agents/<project-name>/agent.yml
 
 # 4. Copy agent prompt template to prompt.md (NOT in knowledge_bases/)
 cp references/templates/agent-prompt-template.md \
-   ./<project-slug>/agents/<project-name>/prompt.md
+   ./<project-name>/agents/<project-name>/prompt.md
 
 # 5. Fill [DOMAIN], [DATABASE], [SINK_TABLES], [CRITICAL_RULES], [KEY_FACTS] in prompt.md
-vi ./<project-slug>/agents/<project-name>/prompt.md
+vi ./<project-name>/agents/<project-name>/prompt.md
 ```
 
 **Why this structure?** `tdx agent push` expects:
@@ -309,7 +309,7 @@ If you're copying `sql_templates.md` from Track A (or creating fresh for Track B
 
 ```bash
 # Check file size before push
-wc -c ./<project-slug>/agents/knowledge_bases/sql_templates.md
+wc -c ./<project-name>/agents/knowledge_bases/sql_templates.md
 # If > 18000: remove workflow SQL section and re-check
 
 # Trim: remove the "## Workflow SQL" section entirely
@@ -337,19 +337,19 @@ Don't include workflow SQL (WF-Q1, WF-Q2, etc.) — remove that section entirely
 
 **Why:** the agent needs the per-table `.yml` files (schema) and `prompt.md` (behavioral rules) to pass Test 1 (connectivity). The other KBs can be stubs — Round 1 test failures reveal exactly what's missing before you spend time writing them.
 
-> **Track A → Track B reuse (avoid re-authoring):** If Track A ran, `./<project-slug>/skills/knowledge/` already has `business_context.md`, `metrics_catalog.md`, and `sql_templates.md`. Copy these directly into `agents/knowledge_bases/` as the starting point — do NOT re-write from scratch. Track B adds the per-table `.yml` files and `prompt.md` on top.
+> **Track A → Track B reuse (avoid re-authoring):** If Track A ran, `./<project-name>/skills/knowledge/` already has `business_context.md`, `metrics_catalog.md`, and `sql_templates.md`. Copy these directly into `agents/knowledge_bases/` as the starting point — do NOT re-write from scratch. Track B adds the per-table `.yml` files and `prompt.md` on top.
 >
 > **Copy commands from Track A to Track B:**
 > ```bash
 > # If Track A skill exists:
-> cp ./<project-slug>/skills/knowledge/business_context.md \
->    ./<project-slug>/agents/<project-name>/knowledge_bases/business_context.md
-> cp ./<project-slug>/skills/knowledge/sql_templates.md \
->    ./<project-slug>/agents/<project-name>/knowledge_bases/sql_templates.md
+> cp ./<project-name>/skills/knowledge/business_context.md \
+>    ./<project-name>/agents/<project-name>/knowledge_bases/business_context.md
+> cp ./<project-name>/skills/knowledge/sql_templates.md \
+>    ./<project-name>/agents/<project-name>/knowledge_bases/sql_templates.md
 > 
 > # Rename metrics_catalog.md → metrics_dictionary.md (Track B naming convention)
-> cp ./<project-slug>/skills/knowledge/metrics_catalog.md \
->    ./<project-slug>/agents/<project-name>/knowledge_bases/metrics_dictionary.md
+> cp ./<project-name>/skills/knowledge/metrics_catalog.md \
+>    ./<project-name>/agents/<project-name>/knowledge_bases/metrics_dictionary.md
 > ```
 >
 > ⚠️ **CRITICAL before copying `sql_templates.md` to agents/:** Remove the entire "## Workflow SQL" section (WF-Q1 through WF-Q8 blocks). The agent queries SINK tables directly and does NOT need source→SINK transformation SQL. Workflow SQL blocks inflate the file to 18,000+ characters, exceeding the Foundry KB text limit (~18K chars). Strip these blocks before copying to `agents/knowledge_bases/`.
@@ -357,7 +357,7 @@ Don't include workflow SQL (WF-Q1, WF-Q2, etc.) — remove that section entirely
 > ```bash
 > # After copying, trim sql_templates.md for agent use:
 > # Open file and delete from "## Workflow SQL" to the end of WF-Q8 block
-> vi ./<project-slug>/agents/<project-name>/knowledge_bases/sql_templates.md
+> vi ./<project-name>/agents/<project-name>/knowledge_bases/sql_templates.md
 > # Keep only: KPI Summary, Trend Query, Breakdown Query sections
 > # Verify char count after: wc -c sql_templates.md  (should be < 18000)
 > ```
@@ -384,7 +384,7 @@ The Foundry agent API enforces a **9,000 character limit** on `prompt.md`. A pro
 
 **Pre-push check:**
 ```bash
-wc -c ./<project-slug>/agents/knowledge_bases/prompt.md
+wc -c ./<project-name>/agents/knowledge_bases/prompt.md
 # If output > 9000: trim using the cut-order above, then re-check with wc -c
 # Push only after confirmed ≤ 9000 chars
 ```
@@ -410,7 +410,7 @@ WRONG:
 **Knowledge base location:**
 
 ```
-./<project-slug>/agents/knowledge_bases/
+./<project-name>/agents/knowledge_bases/
 ├── prompt.md            ← behavioral rules first
 ├── sink_sales_revenue.yml      ← one .yml per SINK table — schema + confirmed totals
 ├── sink_customer_segments.yml  ← one .yml per SINK table
@@ -465,13 +465,13 @@ enable_data_index: false
 
 No cloning is required — this is a self-contained deploy sequence using `tdx` directly.
 
-**Step 1 — Choose a Foundry project name.** Default to the `<project-slug>` unless the user prefers a different name.
+**Step 1 — Choose a Foundry project name.** Default to the `<project-name>` unless the user prefers a different name.
 
 **Step 2 — Create (or confirm) the Foundry project:**
 ```bash
-tdx llm project list | grep -i "<project-slug>"
+tdx llm project list | grep -i "<project-name>"
 # If not found:
-tdx llm project create <project-slug>
+tdx llm project create <project-name>
 ```
 
 **⚠️ Before creating a new Foundry project, get user confirmation:**
@@ -499,21 +499,21 @@ AskUserQuestion:
 
 ```bash
 # 1. Verify prompt.md character count (max 9,000 chars)
-wc -c ./<project-slug>/agents/<project-name>/prompt.md
+wc -c ./<project-name>/agents/<project-name>/prompt.md
 # If > 9000: trim using the cut-order on line 336-341, re-check
 
 # 2. Verify text KB character counts (max ~18,000 chars each)
-wc -c ./<project-slug>/agents/<project-name>/knowledge_bases/business_context.md
-wc -c ./<project-slug>/agents/<project-name>/knowledge_bases/metrics_dictionary.md
-wc -c ./<project-slug>/agents/<project-name>/knowledge_bases/sql_templates.md
+wc -c ./<project-name>/agents/<project-name>/knowledge_bases/business_context.md
+wc -c ./<project-name>/agents/<project-name>/knowledge_bases/metrics_dictionary.md
+wc -c ./<project-name>/agents/<project-name>/knowledge_bases/sql_templates.md
 # If any > 18000: trim by removing examples or condensing descriptions, re-check
 
 # 3. Verify all per-table .yml files exist and have confirmed_totals
-ls ./<project-slug>/agents/<project-name>/knowledge_bases/*.yml
+ls ./<project-name>/agents/<project-name>/knowledge_bases/*.yml
 # Each should have confirmed_totals: field with actual values
 
 # 4. Verify agent.yml exists and model name is in Foundry format
-grep "model:" ./<project-slug>/agents/<project-name>/agent.yml
+grep "model:" ./<project-name>/agents/<project-name>/agent.yml
 # Should show: model: claude-opus-4-6  OR  model: claude-4.5-sonnet
 # NOT Claude API format (claude-opus-4-8, claude-sonnet-4-6)
 ```
@@ -540,7 +540,7 @@ AskUserQuestion:
 **Show this preview to the user:**
 ```markdown
 **Foundry Deployment Preview:**
-- Project name: <project-slug>
+- Project name: <project-name>
 - Agent name: <agent-name>
 - Knowledge bases ready:
   - prompt.md: [file size] chars
@@ -549,7 +549,7 @@ AskUserQuestion:
   - metrics_dictionary.md: [stub|full]
   - sql_templates.md: [stub|full]
 - Deployment round: Round 1 or 2
-- Location: `./<project-slug>/agents/`
+- Location: `./<project-name>/agents/`
 ```
 
 **If user selects "Yes, deploy now":**
@@ -558,13 +558,13 @@ AskUserQuestion:
 ```bash
 # Ensure the Foundry project exists FIRST
 # If skipped, you'll get: LLM_PROJECT_NOT_FOUND error when running tdx agent push
-tdx llm project create <project-slug>
+tdx llm project create <project-name>
 # This is safe to run even if the project already exists (idempotent)
 ```
 
 **Step 5 — Push:**
 ```bash
-cd ./<project-slug>/agents/<project-name>
+cd ./<project-name>/agents/<project-name>
 # CRITICAL: cd into the project folder (contains tdx.json + agent.yml + prompt.md)
 # NOT just the parent agents/ folder
 tdx agent push -y
@@ -616,7 +616,7 @@ Ask before running: *"KBs ready for Round [1/2]? Reply **run** to execute `tdx a
 Run each test as a direct chat prompt to the agent using `tdx chat`:
 
 ```bash
-tdx chat --agent "<project-slug>/<agent-name>" --new "your test question here"
+tdx chat --agent "<project-name>/<agent-name>" --new "your test question here"
 ```
 
 **Example test queries:**
@@ -628,7 +628,7 @@ tdx chat --agent "<project-slug>/<agent-name>" --new "your test question here"
 
 **Or run the full automated validation suite:**
 ```bash
-cd ./<project-slug>/agents
+cd ./<project-name>/agents
 tdx agent test --run all
 ```
 
@@ -748,7 +748,7 @@ If `--reeval` isn't enough:
 
 4. **Validate knowledge base:**
    ```bash
-   ls -lah ./<project-slug>/skills/knowledge/
+   ls -lah ./<project-name>/skills/knowledge/
    # Verify all files exist and aren't empty
    ```
 

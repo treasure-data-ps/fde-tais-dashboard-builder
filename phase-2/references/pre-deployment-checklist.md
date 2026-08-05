@@ -81,7 +81,7 @@ tdx describe -d <source_db> service_history
 
 ## Workflow Structure Verification (MANDATORY)
 
-- [ ] Ran `find ./<project_slug>/workflows -type f | sort` and presented output to the user
+- [ ] Ran `find ./<project_name>/workflows -type f | sort` and presented output to the user
 - [ ] User explicitly confirmed all expected `.dig` files are present
 - [ ] User explicitly confirmed all expected SQL files under `sql/` are present
 - [ ] User confirmed no leftover or unintended template files are in the folder

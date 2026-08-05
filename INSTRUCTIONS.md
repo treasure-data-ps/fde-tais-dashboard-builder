@@ -235,7 +235,7 @@ Do you approve? (YES / NO / REVIEW DETAILS)
 
 **state.md structure:**
 ```yaml
-# Dashboard Project: [project-slug]
+# Dashboard Project: [project-name]
 
 ## Phase 1 — Requirements & Data Discovery
 **Date:** [date]
@@ -342,8 +342,8 @@ JOIN (
 
 ### Rule 9: SINK Table Naming Convention (Phase 2→3 critical)
 
-- [ ] SINK table names MUST follow pattern: `<project_slug>_sink_<metric_group>`
-- [ ] Example: project_slug = "sales-dashboard", metric_groups = ["revenue", "pipeline"]
+- [ ] SINK table names MUST follow pattern: `<project_name>_sink_<metric_group>`
+- [ ] Example: project_name = "sales-dashboard", metric_groups = ["revenue", "pipeline"]
   - → SINK table names: `sales_dashboard_sink_revenue`, `sales_dashboard_sink_pipeline`
 - [ ] Verify Phase 3 dashboard queries reference these exact names
 - [ ] If names don't match, Phase 3 queries will find no data
@@ -384,7 +384,7 @@ JOIN (
 | I need to... | Do this |
 |---|---|
 | Start a new dashboard | 1. Read this file ✓ 2. Read `./phase-1/INSTRUCTIONS.md` 3. Read `./phase-1/SKILL.md` |
-| Resume existing project | 1. Read this file ✓ 2. Read `./<project-slug>/state.md` 3. Jump to "Next Action" |
+| Resume existing project | 1. Read this file ✓ 2. Read `./<project-name>/state.md` 3. Jump to "Next Action" |
 | Context was compacted | 1. **STOP** 2. Re-read this file ✓ 3. Re-read phase-N/INSTRUCTIONS.md 4. Re-read references/guardrails-lite.md 5. Continue |
 | Before Phase 2 deployment | 1. Re-read `./phase-2/INSTRUCTIONS.md` 2. Verify all 9 rules above 3. Get user approval 4. Proceed |
 | Before Phase 4 agent creation | 1. Re-read `./phase-4/INSTRUCTIONS.md` 2. Get user approval 3. Proceed |

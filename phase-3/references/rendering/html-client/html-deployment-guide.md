@@ -774,7 +774,7 @@ app.get('/api/kpis', (req, res) => {
 
 ```bash
 # Enable compression with --compress flag
-npx serve --compress ./<project-slug>/dashboards/
+npx serve --compress ./<project-name>/dashboards/
 
 # Result: dashboard.html transferred as gzip (87% smaller)
 # Browser automatically decompresses on load

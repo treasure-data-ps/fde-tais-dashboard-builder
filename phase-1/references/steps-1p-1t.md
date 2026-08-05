@@ -176,7 +176,7 @@ AskUserQuestion:
       multiSelect: false
       options:
         - label: "New dedicated database (Recommended)"
-          description: "e.g. <project_slug>_dashboard — keeps output isolated and easy to find"
+          description: "e.g. <project_name>_dashboard — keeps output isolated and easy to find"
         - label: "Same as source database"
           description: "Write SINK tables back into the source database"
         - label: "Other"
@@ -186,8 +186,8 @@ AskUserQuestion:
       header: "Workflow project"
       multiSelect: false
       options:
-        - label: "Use project slug (Recommended)"
-          description: "e.g. <project_slug>-dashboard-workflow"
+        - label: "Use project name (Recommended)"
+          description: "e.g. <project_name>-dashboard-workflow"
         - label: "Existing project"
           description: "Use an existing workflow project"
         - label: "Not sure"

@@ -288,7 +288,7 @@ NO, SET UP WORKFLOW INSTEAD (Phase 2 → Phase 3)
 Before asking the path question, present the dashboard plan summary in a code block so the user can review what was discovered:
 
 ```
-📊 Dashboard Plan — <project_slug>
+📊 Dashboard Plan — <project_name>
 
 Source Database:   <database>
 Tables:

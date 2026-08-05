@@ -18,7 +18,7 @@ Should list your databases. If it fails with 401/403/not found, see [`references
 ---
 
 
-**Deliverable:** `./<project-slug>/state.md` with approved requirements, confirmed data findings, Dashboard Complexity Score (0-6), and path decision
+**Deliverable:** `./<project-name>/state.md` with approved requirements, confirmed data findings, Dashboard Complexity Score (0-6), and path decision
 **Location:** Single merged phase — runs before Phase 2 (Workflow, optional) and Phase 3 (Build Dashboard)
 
 ---
@@ -28,7 +28,7 @@ Should list your databases. If it fails with 401/403/not found, see [`references
 | Stage | Topic | Required? | Details |
 |---|---|---|---|
 | **Session Setup** | | | |
-| Setup-A | Project slug | ✅ Always | Short kebab-case name; becomes the working directory `./<project-slug>/` |
+| Setup-A | Project name | ✅ Always | Short lowercase with hyphens name; becomes the working directory `./<project-name>/` |
 | Setup-B | Business goal / dashboard purpose | ✅ Always | One sentence — what decision does this dashboard support? |
 | Setup-C | Target platform | ✅ Always | Treasure Work / Treasure AI Studio — gates sharing constraints (rendering is always HTML Client in lite) |
 | Setup-D | Data source type | ✅ Always | Raw/Transactional vs Pre-aggregated vs Snapshot — determines whether Phase 2 (Workflow) can be skipped |
@@ -92,7 +92,7 @@ Phase 1 has two stages with continuous step numbering:
 
 ### Session Setup (ask before anything else)
 
-Batch project slug, business goal, platform, and data source type into a single `AskUserQuestion` call (Setup-A–D). These four answers gate everything downstream: data source type may skip Phase 2, platform affects sharing guidance.
+Batch project name, business goal, platform, and data source type into a single `AskUserQuestion` call (Setup-A–D). These four answers gate everything downstream: data source type may skip Phase 2, platform affects sharing guidance.
 
 Then ask Setup-E (reference resources) as its own call. If the user provides a `.dash`/Sisense/Treasure Insights export, route to the `.dash` Special Case in `./steps-1pre.md` — it fast-tracks Stage A/B by deriving requirements and data discovery directly from the export.
 
@@ -121,7 +121,7 @@ Before scoring or routing, confirm the three-level filter hierarchy from Rule P1
 
 | Batch | Topic | Questions | Condition | Why Grouped |
 |---|---|---|---|---|
-| **Batch 1** | Session setup | Project slug, business goal, platform, data source type | ✅ Always | Gates everything downstream |
+| **Batch 1** | Session setup | Project name, business goal, platform, data source type | ✅ Always | Gates everything downstream |
 | **Batch 1b** | Reference resources | Existing dashboard/mockup/spec? | ✅ Always | Determines fast-track path vs normal flow |
 | **Batch 2** | Core requirements Phase 1 | Metrics, KPIs (what to measure) | ✅ Always | First core requirement |
 | **Batch 3** | Dashboard structure + dimensions + filters + layout | **Dashboard structure** (tabs, visualizations, filters, drill-down, performance) + Dimensions + Filters + Layout preferences + Branding | ✅ Always | **⚠️ MANDATORY - ALL 5 structure batches required** — Related discovery; structure informs metrics/dimensions alignment |
@@ -136,7 +136,7 @@ Before scoring or routing, confirm the three-level filter hierarchy from Rule P1
 
 ```
 ## Session Setup — Batch 1
-  project slug, business goal, platform, data source type
+  project name, business goal, platform, data source type
 
 ## Reference Resources — Batch 1b
   Existing dashboard/mockup/spec?
@@ -187,7 +187,7 @@ Before scoring or routing, confirm the three-level filter hierarchy from Rule P1
                  score 4-6 → Workflow (Phase 2, then Phase 3)
 
 ## Finalization — step-1u-finalization.md
-  Write ./<project-slug>/state.md
+  Write ./<project-name>/state.md
   User approval → AskUserQuestion: "Does this capture your requirements and confirmed data findings?"
   Proceed to Phase 2 (if Workflow) or Phase 3 (if Non-Workflow)
 ```

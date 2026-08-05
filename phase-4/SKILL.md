@@ -23,7 +23,7 @@ description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Option
 ## Entry Condition
 
 - ✅ Phase 3 complete: `dashboard.html` + `generate-data.js` approved by the user
-- ✅ `state.md` accessible — read it for `project_slug`, confirmed metrics, SINK/source database names, and the Phase 1 compliance flag (if any)
+- ✅ `state.md` accessible — read it for `project_name`, confirmed metrics, SINK/source database names, and the Phase 1 compliance flag (if any)
 
 **If the user doesn't need automation or an agent:** skip this phase entirely — go to Phase 5 (Handoff Documentation, optional) or close the engagement.
 

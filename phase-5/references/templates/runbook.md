@@ -1,6 +1,6 @@
 # [Dashboard Name] — Runbook (Internal)
 
-**Project Slug:** `<project-slug>`  
+**Project Slug:** `<project-name>`  
 **Maintained By:** `<team/owner>`  
 **Last Updated:** `<YYYY-MM-DD>`  
 **Escalation Contact:** `<contact>`
@@ -9,7 +9,7 @@
 
 ## Quick Reference
 
-**Location:** `./<project-slug>/dashboards/dashboard.html`  
+**Location:** `./<project-name>/dashboards/dashboard.html`  
 **Data Source:** `<SOURCE_DB>` / `<SINK_DB>` (if Phase 2)  
 **Update Method:** [Manual / Automatic workflow]  
 **Backup:** Keep copy in `<backup-location>`
@@ -44,7 +44,7 @@
 Use this when data needs immediate update:
 
 ```bash
-cd ./<project-slug>/dashboards
+cd ./<project-name>/dashboards
 
 # Set environment variables
 export SOURCE_DB=<database_name>
@@ -82,7 +82,7 @@ td workflow run logs <run-id>
 ### Manual Trigger (If Needed)
 
 ```bash
-cd ./<project-slug>/workflows
+cd ./<project-name>/workflows
 
 # Run workflow immediately
 td workflow run <workflow-name> --project <project-name>
@@ -141,7 +141,7 @@ WHERE date >= '<date>'
 
 ```bash
 # Regenerate
-cd ./<project-slug>/dashboards
+cd ./<project-name>/dashboards
 SOURCE_DB=<db> SINK_DB=<db> node generate-data.js
 
 # Or restore backup
@@ -213,7 +213,7 @@ Possible causes:
 
 **Non-Workflow (Manual Build):**
 ```bash
-cd ./<project-slug>/dashboards
+cd ./<project-name>/dashboards
 SOURCE_DB=<db> SINK_DB=<db> node generate-data.js
 # New version saved to dashboard.html
 # Backup old version first!
@@ -221,7 +221,7 @@ SOURCE_DB=<db> SINK_DB=<db> node generate-data.js
 
 **Workflow Path:**
 ```bash
-cd ./<project-slug>/workflows
+cd ./<project-name>/workflows
 # Edit workflow SQL or config if needed
 td push  # Deploy updated workflow
 # Workflow will run on next scheduled time
@@ -244,22 +244,22 @@ npm run build
 
 ```bash
 # Add to cron or scheduled task
-cp ./<project-slug>/dashboards/dashboard.html \
-   ./<project-slug>/dashboards/backups/dashboard.$(date +%Y%m%d).html
+cp ./<project-name>/dashboards/dashboard.html \
+   ./<project-name>/dashboards/backups/dashboard.$(date +%Y%m%d).html
 
 # Keep last 30 days of backups
-find ./<project-slug>/dashboards/backups -mtime +30 -delete
+find ./<project-name>/dashboards/backups -mtime +30 -delete
 ```
 
 ### Recovery
 
 ```bash
 # List backups
-ls -la ./<project-slug>/dashboards/backups/
+ls -la ./<project-name>/dashboards/backups/
 
 # Restore specific date
-cp ./<project-slug>/dashboards/backups/dashboard.20260801.html \
-   ./<project-slug>/dashboards/dashboard.html
+cp ./<project-name>/dashboards/backups/dashboard.20260801.html \
+   ./<project-name>/dashboards/dashboard.html
 ```
 
 ---
@@ -282,7 +282,7 @@ cp ./<project-slug>/dashboards/backups/dashboard.20260801.html \
 time (SOURCE_DB=<db> SINK_DB=<db> node generate-data.js)
 
 # Check file size
-ls -lh ./<project-slug>/dashboards/dashboard.html
+ls -lh ./<project-name>/dashboards/dashboard.html
 
 # Check row counts
 # Edit generate-data.js to add console.log statements

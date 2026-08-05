@@ -213,7 +213,7 @@ These rules prevent phase-specific failures. Violating any causes rework or data
 **RULE:** NEVER overwrite, modify, or lose `state.md` between phases.
 
 **Check before each phase:**
-- The file `./<project-slug>/state.md` MUST exist and be readable
+- The file `./<project-name>/state.md` MUST exist and be readable
 - Each phase APPENDS a new section — never replaces old sections
 - The "Next action" pointer MUST be present so users can resume
 - **If state.md is missing or corrupted, STOP and ask user to recover it**
@@ -255,11 +255,11 @@ These rules prevent phase-specific failures. Violating any causes rework or data
 **Why:** Phase 2 creates SINK tables in Treasure Data. Without valid auth, workflow deployment fails and blocks Phase 3.
 
 ### SINK Table Naming Convention (Phase 2→3 critical)
-**RULE:** SINK table names MUST follow pattern: `<project_slug>_sink_<metric_group>` and match dashboard query expectations.
+**RULE:** SINK table names MUST follow pattern: `<project_name>_sink_<metric_group>` and match dashboard query expectations.
 
 **Check before Phase 3:**
-- Generate expected names based on project slug and metric groups (from Phase 1)
-- Example: project_slug = "sales-dashboard", metric_groups = ["revenue", "pipeline"]
+- Generate expected names based on project name and metric groups (from Phase 1)
+- Example: project_name = "sales-dashboard", metric_groups = ["revenue", "pipeline"]
   - → SINK table names: `sales_dashboard_sink_revenue`, `sales_dashboard_sink_pipeline`
 - Verify Phase 3 dashboard queries reference these exact names
 - **If names don't match, Phase 3 queries will find no data**

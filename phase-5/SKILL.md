@@ -30,7 +30,7 @@ description: INTERNAL — Phase 5 only. Optional: create 4 local handoff documen
 All 4 files are populated from prior phase artifacts — no new research required:
 
 **For all files:**
-- Dashboard name and project slug (Phase 1, Stage A)
+- Dashboard name and project name (Phase 1, Stage A)
 - Phase 1 Stage B Step 2a–2d (confirmed database, tables, metrics, dimensions)
 - Rendering is always HTML Client — no engine choice to document (Phase 1 Stage B Step 2e is a no-op)
 - Phase 2 (if Workflow path): SINK database, schedule, workflow project name, `config.json`
@@ -64,12 +64,12 @@ All 4 files are populated from prior phase artifacts — no new research require
 ### File Naming & Visibility
 
 **User-facing files (share with the requesting team/stakeholders):**
-- `./<project-slug>/docs/architecture.md`
-- `./<project-slug>/docs/usage_guide.md`
+- `./<project-name>/docs/architecture.md`
+- `./<project-name>/docs/usage_guide.md`
 
 **Internal/maintainer files (keep with whoever owns upkeep):**
-- `./<project-slug>/docs/runbook.md`
-- `./<project-slug>/docs/access_ownership.md`
+- `./<project-name>/docs/runbook.md`
+- `./<project-name>/docs/access_ownership.md`
 
 **Important:** When sharing (Step 5d), **share only the two user-facing files**. Keep the runbook and access/ownership doc with the maintainer.
 

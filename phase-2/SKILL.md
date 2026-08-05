@@ -23,7 +23,7 @@ description: INTERNAL — Phase 2 only. Deploy a scheduled workflow that pre-agg
 
 ## Pre-Phase-2: Extract Configuration
 
-→ **Before Phase 2:** Read `./<project_slug>/state.md` and extract 5 configuration fields. See `./references/phase-2-entry-requirements.md` for details.
+→ **Before Phase 2:** Read `./<project_name>/state.md` and extract 5 configuration fields. See `./references/phase-2-entry-requirements.md` for details.
 
 ---
 

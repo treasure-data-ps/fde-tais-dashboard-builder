@@ -15,7 +15,7 @@
 > If "Read it now" → read `../../references/guardrails-lite.md` in full before any step.
 >
 > **Single local file for state — no Confluence, no git.**
-> Only update: `state.md`, in `./<project_slug>/`.
+> Only update: `state.md`, in `./<project_name>/`.
 
 ## ⚠ CRITICAL: Schema Inspection BEFORE Any SQL (5 min)
 
@@ -96,7 +96,7 @@ This step ensures Phase 2 has all required configuration from Stage A, without r
 
 ### Required Stage A Artifacts:
 
-Open `./<project_slug>/state.md` (local file) and locate:
+Open `./<project_name>/state.md` (local file) and locate:
 
 | Stage A Step | Field | Location in state.md | Phase 2 Use |
 |---|---|---|---|
@@ -165,27 +165,27 @@ source_db_commerce: commerce_db
 
 **What to do:**
 - Set up workflow project folder using the locally embedded template
-- Rename workflow files with the project slug
+- Rename workflow files with the project name
 
 **Action items:**
 
 1. **Copy the embedded template into your project working directory:**
    ```bash
-   mkdir -p ./<project_slug>/workflows
-   cp -r ../references/workflow-templates/. ./<project_slug>/workflows/
+   mkdir -p ./<project_name>/workflows
+   cp -r ../references/workflow-templates/. ./<project_name>/workflows/
    ```
 
-2. **Rename workflow files with project slug** (REQUIRED):
+2. **Rename workflow files with project name** (REQUIRED):
    ```bash
-   cd ./<project_slug>/workflows
+   cd ./<project_name>/workflows
    
-   # Rename all .dig files to use the project slug
-   mv SLUG_launch.dig <project_slug>_launch.dig
-   mv SLUG_data_prep.dig <project_slug>_data_prep.dig
-   mv SLUG_cleaner.dig <project_slug>_cleaner.dig
+   # Rename all .dig files to use the project name
+   mv SLUG_launch.dig <project_name>_launch.dig
+   mv SLUG_data_prep.dig <project_name>_data_prep.dig
+   mv SLUG_cleaner.dig <project_name>_cleaner.dig
    ```
    
-   **Example:** If `project_slug = "sales_dashboard"`:
+   **Example:** If `project_name = "sales_dashboard"`:
    ```bash
    mv SLUG_launch.dig sales_dashboard_launch.dig
    mv SLUG_data_prep.dig sales_dashboard_data_prep.dig
@@ -194,11 +194,11 @@ source_db_commerce: commerce_db
 
 3. **Verify template structure after renaming:**
    ```
-   ./<project_slug>/workflows/
+   ./<project_name>/workflows/
    ├── input_params.yaml                    ← Customize: metrics, dimensions, schedule
-   ├── <project_slug>_launch.dig            ← Renamed from SLUG_launch.dig
-   ├── <project_slug>_data_prep.dig         ← Renamed from SLUG_data_prep.dig
-   ├── <project_slug>_cleaner.dig           ← Renamed from SLUG_cleaner.dig
+   ├── <project_name>_launch.dig            ← Renamed from SLUG_launch.dig
+   ├── <project_name>_data_prep.dig         ← Renamed from SLUG_data_prep.dig
+   ├── <project_name>_cleaner.dig           ← Renamed from SLUG_cleaner.dig
    └── sql/
        ├── 01_data_prep.sql
        ├── 02_data_validation.sql
@@ -208,7 +208,7 @@ source_db_commerce: commerce_db
        └── 12_create_unique_visitors.sql
    ```
 
-**Output:** Workflow template directory structure verified, files renamed with project slug, ready locally
+**Output:** Workflow template directory structure verified, files renamed with project name, ready locally
 
 ---
 
@@ -298,9 +298,9 @@ tdx query -d sales_db < sql/kpi_daily_optimized.sql
 - Map queries to output tables
 - (If needed) Add additional tasks to the orchestrator
 
-The template already ships with a working `.dig` orchestrator (`<project_slug>_launch.dig` → `<project_slug>_data_prep.dig` → optional `<project_slug>_cleaner.dig`, all driven by `input_params.yaml`). Most of the time you only need to edit `input_params.yaml` and the `sql/*.sql` files — not the `.dig` files themselves.
+The template already ships with a working `.dig` orchestrator (`<project_name>_launch.dig` → `<project_name>_data_prep.dig` → optional `<project_name>_cleaner.dig`, all driven by `input_params.yaml`). Most of the time you only need to edit `input_params.yaml` and the `sql/*.sql` files — not the `.dig` files themselves.
 
-**Note:** `.dig` files were already renamed to `<project_slug>_*.dig` format in Step 2a. If you need to add additional tasks or modify the orchestration, edit the renamed files directly.
+**Note:** `.dig` files were already renamed to `<project_name>_*.dig` format in Step 2a. If you need to add additional tasks or modify the orchestration, edit the renamed files directly.
 
 ⚠️ **CRITICAL: `database:` parameter must be on a separate line**
 
@@ -328,7 +328,7 @@ _export:
 **Advanced: Use Session Variables for Dynamic Dates**
 
 ```yaml
-# <project_slug>_data_prep.dig — all queries live here
+# <project_name>_data_prep.dig — all queries live here
 +kpi_daily:
   td>: sql/10_create_aggregates.sql
   engine: presto
@@ -778,7 +778,7 @@ GROUP BY event_date, country
 
 ## Schedule Configuration (Reference for Step 2c)
 
-Configure the `schedule:` block in `<project_slug>_launch.dig`. Use `workflow-skills:digdag` for full Digdag schedule operator reference.
+Configure the `schedule:` block in `<project_name>_launch.dig`. Use `workflow-skills:digdag` for full Digdag schedule operator reference.
 
 ### Schedule Patterns
 

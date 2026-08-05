@@ -131,12 +131,12 @@ Include in presentation:
 Dry-run shows:
   Task 1: aggregate_revenue.sql
     - Will read from: sales_events
-    - Will write to: project_slug_sink_revenue
+    - Will write to: project_name_sink_revenue
     - Estimated rows: 365 (one per day for 1 year)
   
   Task 2: aggregate_customers.sql
     - Will read from: customers
-    - Will write to: project_slug_sink_customers
+    - Will write to: project_name_sink_customers
     - Estimated rows: 1,200,000
   
   Total cost per run: ~$2.50
@@ -165,9 +165,9 @@ Dry-run shows:
 Database: [database_name]
 
 SINK Tables:
-  • [project_slug]_sink_[metric_group_1]
-  • [project_slug]_sink_[metric_group_2]
-  • [project_slug]_sink_[metric_group_3]
+  • [project_name]_sink_[metric_group_1]
+  • [project_name]_sink_[metric_group_2]
+  • [project_name]_sink_[metric_group_3]
 
 Workflow:
   • Name: [workflow_name]
@@ -260,10 +260,10 @@ scheduling:
 
 SINK table names MUST follow this pattern:
 
-**`<project_slug>_sink_<metric_group>`**
+**`<project_name>_sink_<metric_group>`**
 
 Where:
-- `project_slug` = lowercase, hyphens, derived from project name (e.g., "sales-dashboard" → "sales_dashboard")
+- `project_name` = lowercase, hyphens, derived from project name (e.g., "sales-dashboard" → "sales_dashboard")
 - `metric_group` = lowercase, hyphens, logical grouping (e.g., "revenue", "pipeline", "customers")
 
 **Examples:**
@@ -434,7 +434,7 @@ td:
   td>: queries/aggregate_metrics.sql
   
   # Write to SINK table (full refresh)
-  insert_into: <project_slug>_sink_metrics
+  insert_into: <project_name>_sink_metrics
 ```
 
 #### Phase 2 (Optional): Incrementality Only for Technical Users
@@ -463,7 +463,7 @@ td:
     end_time: ${moment().format('YYYY-MM-DD HH:mm:ss')}
   
   # Append or upsert (not full replace)
-  insert_into: <project_slug>_sink_metrics
+  insert_into: <project_name>_sink_metrics
 ```
 
 **Why:** Full-refresh is simpler, more predictable, easier to debug. Incrementality adds complexity (late-arriving data, corrections, edge cases). Only use when data size forces it.
@@ -541,12 +541,12 @@ Append Phase 2 results to state.md (created in Phase 1):
 
 ### SINK Tables Created
 
-- **Table:** [project_slug]_sink_[group_1]
+- **Table:** [project_name]_sink_[group_1]
   - Rows: [N]
   - Columns: [list]
   - First populated: [timestamp]
   
-- **Table:** [project_slug]_sink_[group_2]
+- **Table:** [project_name]_sink_[group_2]
   - Rows: [N]
   - Columns: [list]
   - First populated: [timestamp]

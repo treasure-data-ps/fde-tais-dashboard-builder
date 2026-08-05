@@ -5,38 +5,38 @@
 
 Ask ALL 4 questions before collecting business requirements. These decisions gate the rest of Phase 1 and all downstream phases. **All 4 are mandatory — do not skip any.** If the user skips or ignores a question, re-ask before proceeding.
 
-- Project slug names the working directory `./<project-slug>/` where everything this skill produces is written
+- Project name names the working directory `./<project-name>/` where everything this skill produces is written
 - Data source type may eliminate Phase 2 (Workflow)
 - Platform affects sharing guidance (rendering itself is always HTML Client)
 
 Batch all 4 into a single AskUserQuestion call (max 4 questions per call):
-- Setup-A (project slug), Setup-B (business goal), Setup-C (target platform), Setup-D (data source type)
+- Setup-A (project name), Setup-B (business goal), Setup-C (target platform), Setup-D (data source type)
 
 **⚠️ GATE: Do not proceed to Stage A (Steps 1a–1o) until this call is complete and all 4 answers are recorded in session.**
 
 ---
 
-## Step Setup-A: Project Slug
+## Step Setup-A: Project Name
 
-**Why first:** Everything this skill produces — `state.md`, workflow files, dashboard HTML, skill/agent artifacts — lives under `./<project-slug>/`. Without it nothing can be written.
+**Why first:** Everything this skill produces — `state.md`, workflow files, dashboard HTML, skill/agent artifacts — lives under `./<project-name>/`. Without it nothing can be written.
 
 **AskUserQuestion:**
 
 ```
 AskUserQuestion:
-  header: "Project slug"
-  question: "What short, kebab-case slug should I use for this project? (e.g., 'acme-campaign-perf', 'sales-pipeline')"
+  header: "Project name"
+  question: "What short, lowercase with hyphens name should I use for this project? (e.g., 'acme-campaign-perf', 'sales-pipeline')"
   multiSelect: false
   options:
-    - label: "I'll provide a custom slug"
-      description: "I'll type the exact slug — becomes the working directory ./<slug>/"
+    - label: "I'll provide a custom project name"
+      description: "I'll type the exact name — becomes the working directory ./<project-name>/"
     - label: "Generate from dashboard purpose"
       description: "I'll suggest one once I know what the dashboard is for"
     - label: "Other — I'll type it now"
-      description: "Provide a custom slug as free text"
+      description: "Provide a custom name as free text"
 ```
 
-**Output:** `project_slug` — the working directory for everything Phase 1-5 produce.
+**Output:** `project_name` — the working directory for everything Phase 1-5 produce.
 
 ---
 
@@ -351,7 +351,7 @@ IF migration_goal == "Replicate + improve" OR "Modernize":
 Present `widget_audit.json`, grouped by tab, one row per widget:
 
 ```
-📋 Widget Audit — <project_slug>
+📋 Widget Audit — <project_name>
 
 Tab: <tab_name>
   • <widget title> — Source: <table> | Metric: <measure> | Filter scope: <applies_global_filters> | Notes: <warnings, or "none">
@@ -475,7 +475,7 @@ Still ask (the API can't answer these): timezone, sharing/access, alerts, busine
 Present the discovered metrics and dimensions in a table:
 
 ```
-📋 Schema Extraction — <project_slug>
+📋 Schema Extraction — <project_name>
 
 Metrics (Measures):
   • Total Amount (SUM) — Source: orders.total_amount | Aggregation: sum
@@ -600,7 +600,7 @@ Skip everything already answered by the two sources. Ask only:
 Present a single audit table combining `.dash` structure + datamodel validation:
 
 ```
-📋 Combined Audit — <project_slug>
+📋 Combined Audit — <project_name>
 
 Tab: <tab_name>
   • <widget title>
@@ -649,8 +649,8 @@ Tag all prefilled values with their sources:
 ```
 AskUserQuestion:
   questions:
-    - header: "Project slug"
-      question: "What short, kebab-case slug should I use for this project?"
+    - header: "Project name"
+      question: "What short, lowercase with hyphens name should I use for this project?"
       options: [see Setup-A above]
 
     - header: "Dashboard purpose"
@@ -669,7 +669,7 @@ AskUserQuestion:
 ---
 
 **⚠️ GATE: Do not proceed to Steps 1a–1o until all of the following are confirmed:**
-- `project_slug` recorded
+- `project_name` recorded
 - `business_goal` recorded
 - `target_platform` recorded
 - `data_source_type` recorded
@@ -683,12 +683,12 @@ AskUserQuestion:
 
 ## Output: What Gets Written to `state.md`
 
-After the Setup-A–D call completes, this becomes the first block of `./<project-slug>/state.md`:
+After the Setup-A–D call completes, this becomes the first block of `./<project-name>/state.md`:
 
 ```markdown
 ## Phase 1 — Session Setup
 
-- **Project Slug:** <slug>
+- **Project Name:** <project-name>
 - **Business Goal:** <one sentence>
 - **Target Platform:** <Treasure Work | Treasure AI Studio | Not sure>
 - **Data Source Type:** <Raw/Transactional | Pre-aggregated | Mix | TBD>
@@ -706,7 +706,7 @@ Then proceed to Setup-E (if not already asked), then Stage A (Steps 1a–1o) —
 Before moving to Stage A (business requirements) or the `.dash` Special Case, verify every item below. **Do not proceed if any item is blank or unanswered.**
 
 - ✅ **`guardrails-lite.md` read** — (`../../references/guardrails-lite.md`) — must be first
-- ✅ `project_slug` recorded
+- ✅ `project_name` recorded
 - ✅ `business_goal` recorded
 - ✅ `target_platform` recorded
 - ✅ `data_source_type` recorded

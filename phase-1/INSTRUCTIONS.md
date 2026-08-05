@@ -15,7 +15,7 @@ load_order: 1.1
 
 Gather business requirements (Stage A), validate them against real data (Stage B), calculate Dashboard Complexity Score (0-6), decide Workflow vs Non-Workflow path, and get user approval — **all in one session**.
 
-**Deliverable:** `./<project-slug>/state.md` containing approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
+**Deliverable:** `./<project-name>/state.md` containing approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
 
 ---
 
@@ -29,7 +29,7 @@ If resuming from a broken session:
 - ✅ Previous progress saved in `state.md`
 
 If starting fresh:
-- ✅ Project slug chosen (kebab-case, no spaces)
+- ✅ Project name chosen (lowercase with hyphens, no spaces)
 - ✅ User can articulate dashboard purpose in 1 sentence
 - ✅ At least one metric/KPI identified
 
@@ -43,7 +43,7 @@ If starting fresh:
 
 **Stage A: Session Setup + Requirements**
 - [ ] **⚠️ Customer briefed on HTML Client constraints** (data inlined, size limits, pre-aggregation via optional Phase 2 Workflow)
-- [ ] Project slug chosen (short, kebab-case)
+- [ ] Project name chosen (short, lowercase with hyphens)
 - [ ] Business goal / dashboard purpose (1 sentence)
 - [ ] Platform target? (Treasure Work / Treasure AI Studio)
 - [ ] Data source type? (Raw/Transactional / Pre-aggregated / Snapshot / Mixed)
@@ -118,7 +118,7 @@ Before asking or recording any Phase 1 question, read `../references/execution-c
 **⚠️ CRITICAL: CANNOT skip ANY mandatory questionnaire.**
 
 **MANDATORY questionnaires (always ask, NEVER skip):**
-- ✅ Setup-A: Project slug
+- ✅ Setup-A: Project name
 - ✅ Setup-B: Business goal
 - ✅ Setup-C: Target platform
 - ✅ Setup-D: Data source type
@@ -816,7 +816,7 @@ For each **KPI/metric** that will have filters applied, specify:
 At end of Phase 1, create `state.md` with this structure:
 
 ```yaml
-# Dashboard Project: [project-slug]
+# Dashboard Project: [project-name]
 
 ## Phase 1 — Requirements & Data Discovery
 **Date:** [date]
@@ -987,7 +987,7 @@ After calculating Dashboard Complexity Score and recommending a path:
 
 **What to show:**
 ```
-📊 Dashboard Plan — <project-slug>
+📊 Dashboard Plan — <project-name>
 
 Source Database:   <database_name>
 Tables:
@@ -1194,7 +1194,7 @@ Conflicts Detected: None
 
 ### Engagement Setup
 - [ ] Engagement type confirmed: new project or resuming existing?
-- [ ] If resuming: project slug confirmed, state.md located
+- [ ] If resuming: project name confirmed, state.md located
 - [ ] User understands Phase 1 goal (1-2 hours, produces state.md)
 
 ### Data Access

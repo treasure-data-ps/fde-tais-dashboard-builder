@@ -8,7 +8,7 @@ description: |
 
 **Entry Point:** After Phase 3 (and optional Phase 4)
 **Prerequisite:** Phase 3 deliverable (validated interactive dashboard)
-**Output:** 4 local markdown files saved in `./<project-slug>/docs/`
+**Output:** 4 local markdown files saved in `./<project-name>/docs/`
 
 ---
 
@@ -44,7 +44,7 @@ Open `state.md` and locate:
 From state.md:
 
 Session Setup:
-  [ ] Project slug: _____
+  [ ] Project name: _____
   [ ] Dashboard solution name: _____
 
 Business Requirements (Phase 1, Stage A):
@@ -85,13 +85,13 @@ Present the plan and wait for explicit confirmation.
 ```
 AskUserQuestion:
   header: "Phase 5 plan"
-  question: "Ready to create 4 documentation files for <project-slug>?
+  question: "Ready to create 4 documentation files for <project-name>?
 
   Files to create locally:
-  - ./<project-slug>/docs/architecture.md     ← share with your team/stakeholders
-  - ./<project-slug>/docs/usage_guide.md      ← share with your team/stakeholders
-  - ./<project-slug>/docs/runbook.md          ← maintainer-only
-  - ./<project-slug>/docs/access_ownership.md ← maintainer-only"
+  - ./<project-name>/docs/architecture.md     ← share with your team/stakeholders
+  - ./<project-name>/docs/usage_guide.md      ← share with your team/stakeholders
+  - ./<project-name>/docs/runbook.md          ← maintainer-only
+  - ./<project-name>/docs/access_ownership.md ← maintainer-only"
   options:
     - label: "Yes, create all 4 files (Recommended)"
       description: "Proceed with the plan above"
@@ -108,14 +108,14 @@ AskUserQuestion:
 Create the folder and write all 4 files locally:
 
 ```bash
-mkdir -p ./<project-slug>/docs
+mkdir -p ./<project-name>/docs
 ```
 
 ---
 
 ### File 1: Dashboard Architecture
 
-**Path:** `./<project-slug>/docs/architecture.md`
+**Path:** `./<project-name>/docs/architecture.md`
 **Label:** User-facing (share with your team/stakeholders)
 
 **Content to include:**
@@ -175,7 +175,7 @@ mkdir -p ./<project-slug>/docs
 
 ### File 2: Usage Guide
 
-**Path:** `./<project-slug>/docs/usage_guide.md`
+**Path:** `./<project-name>/docs/usage_guide.md`
 **Label:** User-facing (share with your team/stakeholders)
 
 **Content to include:**
@@ -225,7 +225,7 @@ A: Data refreshes <schedule>. The most recent data shown is from <lag descriptio
 
 ### File 3: Runbook
 
-**Path:** `./<project-slug>/docs/runbook.md`
+**Path:** `./<project-name>/docs/runbook.md`
 **Label:** Maintainer-only
 
 **Content to include:**
@@ -285,8 +285,8 @@ EXPLAIN <query>;
 
 ```bash
 # Regenerate data and rebuild the dashboard
-node ./<project-slug>/dashboards/generate-data.js
-# Open ./<project-slug>/dashboards/dashboard.html to verify
+node ./<project-name>/dashboards/generate-data.js
+# Open ./<project-name>/dashboards/dashboard.html to verify
 ```
 
 ## Escalation
@@ -299,7 +299,7 @@ node ./<project-slug>/dashboards/generate-data.js
 
 ### File 4: Access & Ownership
 
-**Path:** `./<project-slug>/docs/access_ownership.md`
+**Path:** `./<project-name>/docs/access_ownership.md`
 **Label:** Maintainer-only
 
 **Content to include:**
@@ -352,10 +352,10 @@ Append a Phase 5 block to `state.md`:
 ## Phase 5 — Handoff Documentation (<YYYY-MM-DD>)
 
 ### Documentation Files
-- Architecture: ./<project-slug>/docs/architecture.md
-- Usage Guide: ./<project-slug>/docs/usage_guide.md
-- Runbook (maintainer-only): ./<project-slug>/docs/runbook.md
-- Access & Ownership (maintainer-only): ./<project-slug>/docs/access_ownership.md
+- Architecture: ./<project-name>/docs/architecture.md
+- Usage Guide: ./<project-name>/docs/usage_guide.md
+- Runbook (maintainer-only): ./<project-name>/docs/runbook.md
+- Access & Ownership (maintainer-only): ./<project-name>/docs/access_ownership.md
 
 ### Status
 ✅ Phase 5 complete — engagement closed
@@ -390,7 +390,7 @@ Your [Dashboard Name] dashboard is live! Here's the documentation:
 
 ## Phase 5 Deliverables
 
-- ✅ 4 local markdown files created under `./<project-slug>/docs/`
+- ✅ 4 local markdown files created under `./<project-name>/docs/`
 - ✅ `state.md` appended with Phase 5 block
 - ✅ User-facing docs shared
 

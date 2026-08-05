@@ -67,8 +67,8 @@ Phase 1 (Stage A + B): Requirements Gathering & Targeted Data Discovery
 
 ### For Resuming Existing Engagements
 
-1. Ask: "What's your project slug?"
-2. Ask the user to paste their `./<project-slug>/state.md` contents, then read it to recover project state
+1. Ask: "What's your project name?"
+2. Ask the user to paste their `./<project-name>/state.md` contents, then read it to recover project state
 3. Read it → Jump to current phase + next action
 
 ---
@@ -193,7 +193,7 @@ fde-tais-dashboard-builder/
 
 ## The Business Context File: Central Control
 
-**`state.md`** is the single source of truth for all dashboard implementation details, written under `./<project-slug>/`. It controls SQL generation, validation, and feedback incorporation. It replaces the old `project_context.md` — same append-only pattern, no git/Confluence framing.
+**`state.md`** is the single source of truth for all dashboard implementation details, written under `./<project-name>/`. It controls SQL generation, validation, and feedback incorporation. It replaces the old `project_context.md` — same append-only pattern, no git/Confluence framing.
 
 ### What It Is
 - **Business goals** — what the dashboard tracks

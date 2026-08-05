@@ -6,7 +6,7 @@ Phase 2 workflow optimization depends on 5 configuration values captured during 
 
 ## The 5 Required Fields
 
-Extract these from `./<project_slug>/state.md` (Section: "Session Setup" — DO NOT EDIT):
+Extract these from `./<project_name>/state.md` (Section: "Session Setup" — DO NOT EDIT):
 
 1. **Historical Window** — Used in `td_time_range()` queries for partition pruning (e.g., `365`, `90`, `30` days)
 2. **Refresh Schedule** — Determines cron schedule in `.dig` file (e.g., `daily`, `hourly`, `weekly`)

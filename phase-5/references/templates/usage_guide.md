@@ -1,6 +1,6 @@
 # [Dashboard Name] — Usage Guide
 
-**Project Slug:** `<project-slug>`  
+**Project Slug:** `<project-name>`  
 **Last Updated:** `<YYYY-MM-DD>`  
 **For Questions:** Contact `<support-contact>`
 
@@ -14,12 +14,12 @@ The dashboard is a single HTML file — no installation required:
 
 **Option 1: Local File**
 ```
-Double-click: ./<project-slug>/dashboards/dashboard.html
+Double-click: ./<project-name>/dashboards/dashboard.html
 ```
 
 **Option 2: Web Server**
 ```bash
-cd ./<project-slug>/dashboards
+cd ./<project-name>/dashboards
 python3 -m http.server 8000
 # Open: http://localhost:8000/dashboard.html
 ```

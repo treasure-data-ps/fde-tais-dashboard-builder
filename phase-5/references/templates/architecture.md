@@ -1,6 +1,6 @@
 # [Dashboard Name] — Architecture & Technical Reference
 
-**Project Slug:** `<project-slug>`  
+**Project Slug:** `<project-name>`  
 **Last Updated:** `<YYYY-MM-DD>`  
 **Maintained By:** `<team/owner>`  
 **Data Freshness:** `<daily/hourly/real-time>`
@@ -15,7 +15,7 @@ This document describes the technical structure of the [Dashboard Name] dashboar
 - **Type:** Interactive HTML dashboard (single portable file)
 - **Data Source:** `<SOURCE_DB>` / `<SINK_DB>` (if Phase 2 workflow)
 - **Update Frequency:** `<schedule>`
-- **Location:** `./<project-slug>/dashboards/dashboard.html`
+- **Location:** `./<project-name>/dashboards/dashboard.html`
 - **Size:** `<Xmb>` (estimated)
 
 ---
@@ -33,9 +33,9 @@ This document describes the technical structure of the [Dashboard Name] dashboar
 
 | Database | Table | Purpose | Built By | Schedule |
 |----------|-------|---------|----------|----------|
-| `<SINK_DB>` | `<sink_table>` | Pre-aggregated metrics | `./<project-slug>/workflows/main.dig` | Daily 02:00 UTC |
+| `<SINK_DB>` | `<sink_table>` | Pre-aggregated metrics | `./<project-name>/workflows/main.dig` | Daily 02:00 UTC |
 
-**Workflow Location:** `./<project-slug>/workflows/main.dig`  
+**Workflow Location:** `./<project-name>/workflows/main.dig`  
 **Incremental Strategy:** `<append-only / 1-day lookback / 7-day lookback>`
 
 ---
@@ -124,7 +124,7 @@ WHERE
 ### Manual Refresh (Non-Workflow Path)
 
 ```bash
-cd ./<project-slug>/dashboards
+cd ./<project-name>/dashboards
 SOURCE_DB=<source_db> SINK_DB=<sink_db> node generate-data.js
 # Output: dashboard.html (ready to share)
 ```
@@ -134,7 +134,7 @@ SOURCE_DB=<source_db> SINK_DB=<sink_db> node generate-data.js
 Workflow runs automatically per schedule. Manual trigger:
 
 ```bash
-cd ./<project-slug>/workflows
+cd ./<project-name>/workflows
 td workflow run <workflow-name> --project <project-name>
 ```
 
@@ -144,7 +144,7 @@ To re-deploy updated dashboard:
 
 ```bash
 # Phase 3 rebuild
-cd ./<project-slug>/dashboards
+cd ./<project-name>/dashboards
 SOURCE_DB=<db> SINK_DB=<db> node generate-data.js
 
 # Or Phase 4 skill rebuild

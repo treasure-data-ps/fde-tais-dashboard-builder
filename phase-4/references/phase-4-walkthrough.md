@@ -9,7 +9,7 @@
 ## Pre-Phase-4 Checklist
 
 - ✅ Phase 3 complete: `dashboard.html` + `generate-data.js` approved by the user
-- ✅ `state.md` accessible — read it for `project_slug`, confirmed metrics/formulas, SINK or source database names, and the Phase 1 compliance flag (if any)
+- ✅ `state.md` accessible — read it for `project_name`, confirmed metrics/formulas, SINK or source database names, and the Phase 1 compliance flag (if any)
 - ✅ Phase 4 Track A skill will be deployed to `~/.claude/skills/` (personal workspace for cross-session reuse)
 - ✅ Phase 4 Track B agent will be deployed to Foundry
 
@@ -30,7 +30,7 @@ ls references/templates/
 # agent-prompt-template.md
 ```
 
-Track A copies the four knowledge-base templates into `./<project-slug>/skills/knowledge/`. Track B copies `agent-prompt-template.md` into `./<project-slug>/agents/system_prompt.md`. Exact copy commands are in `references/track-a-automation.md` and `references/track-b-ai-agent.md`.
+Track A copies the four knowledge-base templates into `./<project-name>/skills/knowledge/`. Track B copies `agent-prompt-template.md` into `./<project-name>/agents/system_prompt.md`. Exact copy commands are in `references/track-a-automation.md` and `references/track-b-ai-agent.md`.
 
 ---
 
@@ -55,8 +55,8 @@ Compliance requirements:
 **Before proceeding, confirm Phase 3 is complete:**
 
 - ✅ Dashboard approved by user (in this session or from prior `state.md`)
-- ✅ `dashboard.html` + `generate-data.js` are in `./<project-slug>/dashboards/`
-- ✅ `state.md` accessible with project_slug, confirmed metrics, and database names
+- ✅ `dashboard.html` + `generate-data.js` are in `./<project-name>/dashboards/`
+- ✅ `state.md` accessible with project_name, confirmed metrics, and database names
 
 **If Phase 3 is NOT complete:** go back to Phase 3, complete the dashboard, and get user approval before continuing.
 
@@ -95,7 +95,7 @@ AskUserQuestion:
 | Step | What | Details |
 |---|---|---|
 | 4a-0 | Assemble knowledge package | `references/track-a-automation.md` § Step 4a-0 |
-| 4a-i | Extract skill definition (`./<project-slug>/skills/SKILL.md`) | `references/track-a-automation.md` § Step 4a-i |
+| 4a-i | Extract skill definition (`./<project-name>/skills/SKILL.md`) | `references/track-a-automation.md` § Step 4a-i |
 | 4a-ii | Extract & parameterize query scripts | `references/track-a-automation.md` § Step 4a-ii |
 | 4a-iii | Create configuration templates | `references/track-a-automation.md` § Step 4a-iii |
 | 4a-iv | Document deployment & replication checklist | `references/track-a-automation.md` § Step 4a-iv |

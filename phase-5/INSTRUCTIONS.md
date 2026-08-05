@@ -145,7 +145,7 @@ dashboard.html (self-contained)
 - **Output:** SINK tables (below)
 
 ### 3. SINK Tables (if applicable)
-- **Table:** [project_slug]_sink_[group]
+- **Table:** [project_name]_sink_[group]
   - Columns: [list]
   - Updated by: Workflow (scheduled)
   - Used by: Phase 3 queries
@@ -337,14 +337,14 @@ This runbook documents operational procedures for maintaining the dashboard.
 
 1. Verify workflow ran successfully
    ```bash
-   tdx wf show [project_slug]-dashboard
+   tdx wf show [project_name]-dashboard
    ```
    - Expected: Last attempt = yesterday
    - Status = SUCCESS
    
 2. Verify SINK tables are fresh
    ```bash
-   tdx query "SELECT MAX(date) FROM [project_slug]_sink_metrics"
+   tdx query "SELECT MAX(date) FROM [project_name]_sink_metrics"
    ```
    - Expected: Yesterday's date (or latest data date)
    - If NULL or stale: Investigate workflow logs
@@ -367,14 +367,14 @@ This runbook documents operational procedures for maintaining the dashboard.
 
 1. Review workflow execution history (last 7 days)
    ```bash
-   tdx workflow:result show [project_slug]-dashboard --limit 7
+   tdx workflow:result show [project_name]-dashboard --limit 7
    ```
    - Any failures? → Go to troubleshooting
    - All SUCCESS? → Continue
 
 2. Review SINK table growth
    ```bash
-   tdx query "SELECT COUNT(*) FROM [project_slug]_sink_metrics"
+   tdx query "SELECT COUNT(*) FROM [project_name]_sink_metrics"
    ```
    - Growth reasonable (e.g., 7 new days)? → OK
    - No growth or excessive growth? → Investigate
@@ -392,10 +392,10 @@ This runbook documents operational procedures for maintaining the dashboard.
 **Diagnosis:**
 ```bash
 # Check workflow status
-tdx wf show [project_slug]-dashboard
+tdx wf show [project_name]-dashboard
 
 # Check last run logs
-tdx workflow:result show [project_slug]-dashboard
+tdx workflow:result show [project_name]-dashboard
 ```
 
 **Common causes:**
@@ -406,10 +406,10 @@ tdx workflow:result show [project_slug]-dashboard
 **Resolution:**
 ```bash
 # Manually re-run workflow
-tdx wf run [project_slug]-dashboard
+tdx wf run [project_name]-dashboard
 
 # Monitor progress
-tdx workflow:result show [project_slug]-dashboard --follow
+tdx workflow:result show [project_name]-dashboard --follow
 ```
 
 **If still failing:** Escalate to [Team name] (see owner contact above).
@@ -427,7 +427,7 @@ tdx workflow:result show [project_slug]-dashboard --follow
 
 2. Compare against SINK table
    ```sql
-   SELECT SUM(revenue) FROM [project_slug]_sink_metrics 
+   SELECT SUM(revenue) FROM [project_name]_sink_metrics 
    WHERE date = '2026-07-22'
    ```
 
@@ -442,7 +442,7 @@ tdx workflow:result show [project_slug]-dashboard --follow
 **Resolution:**
 1. If SINK mismatch: Rerun Phase 2 workflow
    ```bash
-   tdx wf run [project_slug]-dashboard
+   tdx wf run [project_name]-dashboard
    ```
 2. If source mismatch: Debug the workflow SQL (reach out to [owner])
 3. Regenerate dashboard.html:
@@ -457,7 +457,7 @@ tdx workflow:result show [project_slug]-dashboard --follow
 **Diagnosis:**
 ```bash
 # Check workflow cost
-tdx workflow:result show [project_slug]-dashboard
+tdx workflow:result show [project_name]-dashboard
 # Look for "Query cost" in last run
 ```
 
@@ -490,12 +490,12 @@ tdx workflow:result show [project_slug]-dashboard
 
 2. Manually trigger workflow
    ```bash
-   tdx wf run [project_slug]-dashboard
+   tdx wf run [project_name]-dashboard
    ```
 
 3. Monitor for completion
    ```bash
-   tdx workflow:result show [project_slug]-dashboard --follow
+   tdx workflow:result show [project_name]-dashboard --follow
    ```
 
 4. If workflow succeeds: Regenerate dashboard.html

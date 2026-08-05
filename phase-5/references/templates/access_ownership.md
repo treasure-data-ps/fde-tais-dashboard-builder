@@ -1,6 +1,6 @@
 # [Dashboard Name] — Access & Ownership (Internal)
 
-**Project Slug:** `<project-slug>`  
+**Project Slug:** `<project-name>`  
 **Created:** `<YYYY-MM-DD>`  
 **Last Updated:** `<YYYY-MM-DD>`
 

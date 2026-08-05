@@ -124,13 +124,13 @@ Final: User Approval (Step 4i)
 Copy the standard template into your project:
 
 ```bash
-mkdir -p ./<project-slug>/dashboards
+mkdir -p ./<project-name>/dashboards
 
 cp references/rendering/html-client/templates/dashboard.template.html \
-   ./<project-slug>/dashboards/dashboard-template.html
+   ./<project-name>/dashboards/dashboard-template.html
 
 cp references/rendering/html-client/templates/generate-data.js \
-   ./<project-slug>/dashboards/generate-data.js
+   ./<project-name>/dashboards/generate-data.js
 ```
 
 Then customize `generate-data.js` with the confirmed tables/columns from Phase 1/2, and update the `<h1>` title in `dashboard-template.html`. See `references/rendering/html-client/template-customization.md` for the full walkthrough.
@@ -532,7 +532,7 @@ SINK_DB.fact_deduped (rows without duplicates)
 - ❌ WRONG: `SELECT COUNT(DISTINCT user_id) FROM kpi_daily` (users already pre-aggregated)
 - ✅ RIGHT: `SELECT user_count FROM kpi_daily` (use pre-computed column)
 
-**Check your workflow:** Look at `./<project-slug>/workflows/queries/*.sql` to see which pattern was used.
+**Check your workflow:** Look at `./<project-name>/workflows/queries/*.sql` to see which pattern was used.
 
 ---
 
@@ -668,7 +668,7 @@ If serving via network (npx serve, nginx) rather than double-clicking or emailin
 
 ```bash
 # With serve
-npx serve --compress ./<project-slug>/dashboards/
+npx serve --compress ./<project-name>/dashboards/
 
 # Result: HTML compresses from 500+ KB → 60-70 KB (87% reduction)
 ```

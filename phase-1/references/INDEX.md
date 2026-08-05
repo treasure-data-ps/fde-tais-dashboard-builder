@@ -71,7 +71,7 @@ This directory contains detailed, reusable patterns for Phase 1: Requirements Ga
 
 | Step | File |
 |---|---|
-| **Setup-A. Project slug** | `steps-1pre.md` |
+| **Setup-A. Project name** | `steps-1pre.md` |
 | **Setup-B. Business goal** | `steps-1pre.md` |
 | **Setup-C. Target platform** | `steps-1pre.md` |
 | **Setup-D. Data source type** | `steps-1pre.md` |

@@ -17,7 +17,7 @@ description: |
 Templates are embedded locally in this skill — no external repo needed:
 
 ```bash
-mkdir -p ./<project-slug>/dashboards
+mkdir -p ./<project-name>/dashboards
 
 # Pick the template that matches your Phase 1 layout:
 #   kpi-dashboard.html           → 4 KPI cards + summary section
@@ -25,7 +25,7 @@ mkdir -p ./<project-slug>/dashboards
 #   multi-chart-dashboard.html   → Line + Bar + Doughnut charts, KPI row
 
 cp templates/kpi-dashboard.html \
-   ./<project-slug>/dashboards/dashboard-template.html
+   ./<project-name>/dashboards/dashboard-template.html
 ```
 
 Rename it `dashboard-template.html`. The generated output will be `dashboard.html` — keep them separate so `generate-data.js` can always re-inject fresh data without overwriting the template.
@@ -49,7 +49,7 @@ Copy the canonical starter (embedded locally in this skill):
 
 ```bash
 cp templates/generate-data.js \
-   ./<project-slug>/dashboards/generate-data.js
+   ./<project-name>/dashboards/generate-data.js
 ```
 
 The starter contains a working `query()` helper and `num()` normalization function — do not rewrite them. Only change:

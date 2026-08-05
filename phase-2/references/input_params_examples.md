@@ -13,7 +13,7 @@ Real-world configuration examples for custom dashboard workflows, using the exac
 
 ## refresh_mode Flag (Standard for All Workflows)
 
-Every workflow includes these two parameters. They control whether Step 1 of `<project_slug>_data_prep.dig` takes the full-refresh path or the incremental path:
+Every workflow includes these two parameters. They control whether Step 1 of `<project_name>_data_prep.dig` takes the full-refresh path or the incremental path:
 
 ```yaml
 # 'full'        — loads the complete start_date → end_date historical window

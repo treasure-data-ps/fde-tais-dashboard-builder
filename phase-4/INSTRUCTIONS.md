@@ -139,7 +139,7 @@ Read `../references/execution-contract.md` and select Track A/B with `AskUserQue
 
 ```bash
 # Create agent in test project (not production)
-tdx agent push --project [project_slug]-test
+tdx agent push --project [project_name]-test
 ```
 
 **Step 2: Run sample queries to verify KB accuracy**
@@ -615,12 +615,12 @@ SELECT ... FROM sales_events WHERE event_time >= '2026-07-01'
 **agent.yml structure (complete template):**
 
 ```yaml
-name: [project_slug]-agent
+name: [project_name]-agent
 description: Conversational interface for [dashboard name]
 
 tools:
   - type: knowledge_base
-    name: [project_slug]_kb
+    name: [project_name]_kb
     description: Dashboard schema and metric definitions
 
 system_prompt: |
@@ -666,7 +666,7 @@ If you paste Claude API format names (like `claude-opus-4-8`), `tdx agent push` 
 
 ---
 
-**Knowledge base format (project_slug_kb.md):**
+**Knowledge base format (project_name_kb.md):**
 
 ```markdown
 # [Dashboard Name] Knowledge Base

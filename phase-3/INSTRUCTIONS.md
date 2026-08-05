@@ -149,7 +149,7 @@ Before writing any Phase 3 query, decide:
 **Option A: Query SINK Tables (Phase 2 completed)**
 ```sql
 -- Phase 2 created pre-aggregated SINK tables
-SELECT * FROM <db>.<project_slug>_sink_revenue
+SELECT * FROM <db>.<project_name>_sink_revenue
 WHERE date >= '2026-07-01'
 ORDER BY date DESC
 ```

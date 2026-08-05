@@ -38,7 +38,7 @@ Phase 1: Requirements + Data Discovery
 
 ## The `state.md` Append-Only Pattern
 
-Every project has **one** local file: `./<project-slug>/state.md`
+Every project has **one** local file: `./<project-name>/state.md`
 
 This file is the **single source of truth** for cross-phase context. It is **append-only** — never edited, only appended to:
 
@@ -123,7 +123,7 @@ This file is the **single source of truth** for cross-phase context. It is **app
 
 ## Resuming an Existing Project
 
-If `./<project-slug>/state.md` exists:
+If `./<project-name>/state.md` exists:
 
 1. **Read the entire file top-to-bottom**
 2. **Find the last section** (the most recent phase)
@@ -179,7 +179,7 @@ Both patterns work because `state.md` is the bridge.
 ## No External Dependencies
 
 - **No Confluence** — all docs live in the project folder
-- **No git branching** — working on one local `./<project-slug>/` directory
+- **No git branching** — working on one local `./<project-name>/` directory
 - **No external APIs** — skill is self-contained with references/ subfolder at each level
 - **No live dashboards** — everything is generated fresh, not fetched from an existing system
 - **HTML Client only** — no server, no hosting required; the `.html` file is portable and offline-ready

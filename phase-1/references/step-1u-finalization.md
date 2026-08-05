@@ -14,7 +14,7 @@ Before finalizing, check:
 
 - ✅ **`guardrails-lite.md` read** — (`../../references/guardrails-lite.md`) — must have been read at session start
 - ✅ All Setup steps answered (Setup-A through Setup-E)
-  - `project_slug` captured (determines `./<project_slug>/` working directory)
+  - `project_name` captured (determines `./<project_name>/` working directory)
   - `business_goal` captured
   - `target_platform` captured (informative only — does not change rendering)
   - `data_source_type` captured and `skip_workflow` flag set
@@ -46,9 +46,9 @@ Before finalizing, check:
 Before asking for approval, present the full requirements summary in a code block so the user can review everything in one place:
 
 ```
-📋 Requirements Summary — <project_slug>
+📋 Requirements Summary — <project_name>
 
-Project Slug:         <project_slug>
+Project Slug:         <project_name>
 Platform:             <target_platform>
 Rendering:            HTML Client (single portable dashboard.html)
 Path:                 <Workflow | Non-Workflow>
@@ -118,15 +118,15 @@ AskUserQuestion:
 
 ### Write state.md
 
-After user approval, write `state.md` locally in `./<project_slug>/`. This file is the cross-phase context for the project — every phase reads and appends to it.
+After user approval, write `state.md` locally in `./<project_name>/`. This file is the cross-phase context for the project — every phase reads and appends to it.
 
 **No external template dependency** — write the block below directly (do not look for a template in any other repo):
 
 ```markdown
-# <project_slug> — Dashboard Project State
+# <project_name> — Dashboard Project State
 
 ## Session Setup
-- Project Slug: <project_slug>
+- Project Slug: <project_name>
 - Business Goal: <business_goal>
 - Target Platform: <target_platform>
 - Data Source Type: <data_source_type>
@@ -187,9 +187,9 @@ After user approval, write `state.md` locally in `./<project_slug>/`. This file 
 After the user approves, write `state.md` locally in the working directory:
 
 ```bash
-mkdir -p ./<project_slug>/
+mkdir -p ./<project_name>/
 # Write full Stage A output (Session Setup + all requirements from 1a–1u) to:
-# ./<project_slug>/state.md
+# ./<project_name>/state.md
 ```
 
 Include all fields from the Session Setup block in `steps-1pre.md` plus the business requirements gathered in Steps 1a–1u.
@@ -203,7 +203,7 @@ Include all fields from the Session Setup block in `steps-1pre.md` plus the busi
 - ✅ Reference resources read and findings extracted
 - ✅ Rendering engine recorded as HTML Client (no choice needed)
 - ✅ Dashboard Complexity Score calculated (0-6) with path recommendation (Workflow vs Non-Workflow)
-- ✅ `state.md` created locally at `./<project_slug>/state.md` with Session Setup block + all requirements
+- ✅ `state.md` created locally at `./<project_name>/state.md` with Session Setup block + all requirements
 - ✅ User sign-off on all Stage A requirements
 - ✅ **Ready for Stage B (targeted data discovery)**
 

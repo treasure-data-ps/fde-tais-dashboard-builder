@@ -166,8 +166,8 @@ After all gates pass:
 
 If resuming this project in a future session:
 
-1. **For Phase 2:** Read `./<project_slug>/state.md` — it has all Stage B inferences. Proceed to Phase 2 workflow setup.
-2. **For Phase 3:** Read `./<project_slug>/state.md` — has inferred definitions + recommended additions. Proceed to Phase 3 dashboard build immediately.
+1. **For Phase 2:** Read `./<project_name>/state.md` — it has all Stage B inferences. Proceed to Phase 2 workflow setup.
+2. **For Phase 3:** Read `./<project_name>/state.md` — has inferred definitions + recommended additions. Proceed to Phase 3 dashboard build immediately.
 
 ---
 

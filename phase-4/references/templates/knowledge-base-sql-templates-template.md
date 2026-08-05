@@ -106,7 +106,7 @@ Copy each SQL task from the workflow `.dig` files here. Use this section when:
 - User wants to extend a metric and needs to see the original aggregation logic
 - Debugging a SINK value mismatch — compare source query result vs SINK
 
-**Source:** `./<project-slug>/workflows/` (SQL is either a separate file under `queries/` or inline in the `.dig` file itself).
+**Source:** `./<project-name>/workflows/` (SQL is either a separate file under `queries/` or inline in the `.dig` file itself).
 
 ---
 

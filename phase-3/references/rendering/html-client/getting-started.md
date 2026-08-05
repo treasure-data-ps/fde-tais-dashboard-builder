@@ -14,7 +14,7 @@ HTML Client = one `.html` file with data embedded at generation time. No server,
 ./templates/                    ← embedded locally in this skill
   dashboard-template.html       ← layout + rendering code (no data)
   generate-data.js               ← queries TD → injects data into HTML
-./<project-slug>/dashboards/
+./<project-name>/dashboards/
   dashboard.html                 ← generated output (template + data merged)
 ```
 
@@ -36,8 +36,8 @@ Templates are embedded locally in this skill — no external repo needed. Copy t
 ```
 
 ```bash
-mkdir -p ./<project-slug>/dashboards
-cp templates/kpi-dashboard.html ./<project-slug>/dashboards/dashboard-template.html
+mkdir -p ./<project-name>/dashboards
+cp templates/kpi-dashboard.html ./<project-name>/dashboards/dashboard-template.html
 ```
 
 The template contains a `<!-- DATA_PLACEHOLDER -->` comment where `generate-data.js` will inject the data block. Leave this comment in place.

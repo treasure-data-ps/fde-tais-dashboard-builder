@@ -17,12 +17,12 @@ Before building the render skill, assemble the knowledge files that let the skil
 **Why this matters:**
 The render skill answers "show me the dashboard." The knowledge package answers everything beyond that.
 
-**Knowledge package location (working directory):** `./<project-slug>/skills/knowledge/`
+**Knowledge package location (working directory):** `./<project-name>/skills/knowledge/`
 
 *(This will be deployed to `~/.claude/skills/<skill-name>/knowledge/` in Step 4a-vi)*
 
 ```
-./<project-slug>/skills/knowledge/
+./<project-name>/skills/knowledge/
 ├── business_context.md        ← company overview, goals, personas, confirmed metrics
 ├── data_dictionary.md         ← table schemas + column definitions + business meaning
 ├── sql_templates.md           ← parameterized queries with inline explanations
@@ -42,7 +42,7 @@ The render skill answers "show me the dashboard." The knowledge package answers 
 
 ```bash
 # Find the SQL in the workflow folder
-find ./<project-slug>/workflows -name "*.dig" | sort
+find ./<project-name>/workflows -name "*.dig" | sort
 # The SQL tasks are inline in .dig files, or referenced as separate .sql files in queries/
 ```
 
@@ -51,7 +51,7 @@ For each SQL task in the workflow, add a section to `sql_templates.md`:
 ```markdown
 ## [Q-N]: [Descriptive name]
 
-**Source:** `./<project-slug>/workflows/queries/<filename>.sql` (or inline in the `.dig` file)
+**Source:** `./<project-name>/workflows/queries/<filename>.sql` (or inline in the `.dig` file)
 **Builds:** `{SINK_DB}.<sink_table_name>`
 **Runs against:** `{SOURCE_DB}.<source_table_name>`
 **What this answers:** [Plain English]
@@ -71,19 +71,19 @@ Do this for every SQL task in the workflow, so no one needs to open the workflow
 **Copy templates first — do not write knowledge files from scratch:**
 
 ```bash
-mkdir -p ./<project-slug>/skills/knowledge
+mkdir -p ./<project-name>/skills/knowledge
 
 cp references/templates/knowledge-base-business-context-template.md \
-   ./<project-slug>/skills/knowledge/business_context.md
+   ./<project-name>/skills/knowledge/business_context.md
 
 cp references/templates/knowledge-base-data-dictionary-template.md \
-   ./<project-slug>/skills/knowledge/data_dictionary.md
+   ./<project-name>/skills/knowledge/data_dictionary.md
 
 cp references/templates/knowledge-base-sql-templates-template.md \
-   ./<project-slug>/skills/knowledge/sql_templates.md
+   ./<project-name>/skills/knowledge/sql_templates.md
 
 cp references/templates/knowledge-base-metrics-dictionary-template.md \
-   ./<project-slug>/skills/knowledge/metrics_catalog.md
+   ./<project-name>/skills/knowledge/metrics_catalog.md
 ```
 
 Then fill every `[PLACEHOLDER]` field. Writing from scratch risks inconsistency with the template format and takes longer.
@@ -93,11 +93,11 @@ Then fill every `[PLACEHOLDER]` field. Writing from scratch risks inconsistency 
 ## Step 4a-i: Extract Dashboard Skill Definition (10 min)
 
 **Assembly workflow:** 
-- Steps 4a-0 through 4a-v: Work in `./<project-slug>/skills/` (project working directory)
+- Steps 4a-0 through 4a-v: Work in `./<project-name>/skills/` (project working directory)
 - Step 4a-vi: Copy to `~/.claude/skills/<skill-name>/` (final deployed location for cross-session use)
 
 **What to do:**
-- Create a `skills/` folder inside `./<project-slug>/` (working directory)
+- Create a `skills/` folder inside `./<project-name>/` (working directory)
 - `skills/SKILL.md` is the entry point — describes the execution flow and points to `knowledge/` for deeper questions
 - The skill is HTML Client only — no engine choice, no per-engine sub-folders
 
@@ -107,15 +107,15 @@ If either file below is missing, go back to Phase 3 and confirm the dashboard wa
 
 | File | Created in | Copy from | Copy to |
 |---|---|---|---|
-| `dashboard.html` | Phase 3 | `./<project-slug>/dashboards/dashboard.html` | `./<project-slug>/skills/dashboard.html` |
-| `dashboard-template.html` | Phase 3 | `./<project-slug>/dashboards/dashboard-template.html` | `./<project-slug>/skills/dashboard-template.html` |
-| `generate-data.js` | Phase 3 | `./<project-slug>/dashboards/generate-data.js` | `./<project-slug>/skills/generate-data.js` |
+| `dashboard.html` | Phase 3 | `./<project-name>/dashboards/dashboard.html` | `./<project-name>/skills/dashboard.html` |
+| `dashboard-template.html` | Phase 3 | `./<project-name>/dashboards/dashboard-template.html` | `./<project-name>/skills/dashboard-template.html` |
+| `generate-data.js` | Phase 3 | `./<project-name>/dashboards/generate-data.js` | `./<project-name>/skills/generate-data.js` |
 
 ```bash
-mkdir -p ./<project-slug>/skills
-cp ./<project-slug>/dashboards/dashboard.html           ./<project-slug>/skills/dashboard.html
-cp ./<project-slug>/dashboards/dashboard-template.html  ./<project-slug>/skills/dashboard-template.html
-cp ./<project-slug>/dashboards/generate-data.js        ./<project-slug>/skills/generate-data.js
+mkdir -p ./<project-name>/skills
+cp ./<project-name>/dashboards/dashboard.html           ./<project-name>/skills/dashboard.html
+cp ./<project-name>/dashboards/dashboard-template.html  ./<project-name>/skills/dashboard-template.html
+cp ./<project-name>/dashboards/generate-data.js        ./<project-name>/skills/generate-data.js
 ```
 
 **`dashboard.html`, `dashboard-template.html`, and `generate-data.js` are the static artifacts** — they never change between runs. Only the env vars passed to `generate-data.js` (`SOURCE_DB`/`SINK_DB`) change per database. Never recreate them in Phase 4; always copy from the approved Phase 3 output. The template file is required because `generate-data.js` references it via `__dirname` when rebuilding the dashboard.
@@ -169,7 +169,7 @@ If the user asks anything beyond "show me the dashboard" — metric definitions,
 **Never answer metric/data questions from memory — always read from `knowledge/` first.**
 ```
 
-**Store as:** `./<project-slug>/skills/SKILL.md`
+**Store as:** `./<project-name>/skills/SKILL.md`
 
 ---
 
@@ -435,7 +435,7 @@ filters: [date_range: adjustable, region: toggle]
 performance: [Initial load: ~1s, Filter update: <0.5s]
 ```
 
-**Create and store as:** `./<project-slug>/skills/config-templates.yaml`
+**Create and store as:** `./<project-name>/skills/config-templates.yaml`
 
 ---
 
@@ -474,7 +474,7 @@ performance: [Initial load: ~1s, Filter update: <0.5s]
 **Total replication time: ~10-30 minutes** (vs 2-3 hours from scratch)
 ```
 
-**Create and store as:** `./<project-slug>/skills/deployment-checklist.md`
+**Create and store as:** `./<project-name>/skills/deployment-checklist.md`
 
 ---
 
@@ -485,7 +485,7 @@ There's no transformer to unit-test for HTML Client — instead, trigger the ski
 ### Sub-step 1: Run generate-data.js against the target database
 
 ```bash
-cd ./<project-slug>/skills
+cd ./<project-name>/skills
 SOURCE_DB=<source_db> SINK_DB=<sink_db> node generate-data.js
 ```
 
@@ -521,11 +521,11 @@ Object.keys(window.RAW).forEach(k => {
 ### Sub-step 3: Reproduce the dashboard
 
 ```bash
-npx serve ./<project-slug>/skills/
+npx serve ./<project-name>/skills/
 # → open http://localhost:3000/dashboard.html
 ```
 
-Or use `preview_document` in Treasure Work: `preview_document: ./<project-slug>/skills/dashboard.html`
+Or use `preview_document` in Treasure Work: `preview_document: ./<project-name>/skills/dashboard.html`
 
 ### Sub-step 4: Reuse test — confirm the skill is self-contained
 
@@ -584,7 +584,7 @@ description: |
 **Folder structure (local working directory):**
 
 ```
-./<project-slug>/
+./<project-name>/
 ├── skills/                          ← Track A output
 │   ├── SKILL.md
 │   ├── dashboard.html
@@ -628,7 +628,7 @@ Lock in the confirmed `<skill-name>` before proceeding.
 | Scope | Location | Visibility | How to use | Best for |
 |-------|----------|---|---|---|
 | **Personal workspace (Recommended)** | `~/.claude/skills/<skill-name>/` | All your Claude Code sessions (you only) | Auto-loaded in all sessions + Treasure Work via `/plugin install` | Cross-project reuse, recurring builds, available everywhere |
-| **Zip distribution** | `./<project-slug>/<skill-name>.zip` | Manual transfer between systems | Unzip and place in `~/.claude/skills/` on recipient's machine; or upload to share | Cross-team sharing, offline distribution, collaboration |
+| **Zip distribution** | `./<project-name>/<skill-name>.zip` | Manual transfer between systems | Unzip and place in `~/.claude/skills/` on recipient's machine; or upload to share | Cross-team sharing, offline distribution, collaboration |
 
 ```
 AskUserQuestion:
@@ -656,7 +656,7 @@ After Step 4a-v passes (generate-data.js validated), run these commands:
 mkdir -p ~/.claude/skills
 
 # 2. Copy extracted skill to personal workspace
-cp -r ./<project-slug>/skills/<skill-name> ~/.claude/skills/<skill-name>
+cp -r ./<project-name>/skills/<skill-name> ~/.claude/skills/<skill-name>
 
 # 3. Verify installation
 ls -la ~/.claude/skills/<skill-name>/
@@ -724,10 +724,10 @@ After Step 4a-v passes, display the following to the user verbatim (fill in `<sk
 
 **Skill name:** `<skill-name>`
 
-⛔ **Run these commands from inside `./<project-slug>/`** — the zip must land there, not at the repo root.
+⛔ **Run these commands from inside `./<project-name>/`** — the zip must land there, not at the repo root.
 
 ```bash
-cd ./<project-slug>
+cd ./<project-name>
 
 # 1. Copy the skill folder, rename to the skill name
 cp -r skills <skill-name>
@@ -751,7 +751,7 @@ rm -rf <skill-name>/
 ⛔ **Run these commands now — do not just show them to the user. Confirm the zip was created before proceeding:**
 
 ```bash
-ls -lh ./<project-slug>/<skill-name>.zip
+ls -lh ./<project-name>/<skill-name>.zip
 ```
 
 **Expected zip structure** — verify the listing from step 4 matches this shape:
@@ -839,7 +839,7 @@ Sink database: <sink-database>
 
 | Placeholder | Where to find it |
 |-------------|-----------------|
-| `<skill-name>` | `name:` field in `./<project-slug>/skills/SKILL.md` |
+| `<skill-name>` | `name:` field in `./<project-name>/skills/SKILL.md` |
 | `<sink-database>` | `state.md` — SINK database name (omit if Phase 2 was skipped; use the source database instead) |
 
 **What the recipient gets:**
@@ -942,7 +942,7 @@ For questions about the data, see `skills/knowledge/` files:
 
 **Fill in the bracketed placeholders from `state.md` and Phase 3 confirmed values.**
 
-**Store as:** `./<project-slug>/skills/INSTALL.md`
+**Store as:** `./<project-name>/skills/INSTALL.md`
 
 **Then include INSTALL.md in the final zip (Step 4a-vi packaging):**
 ```bash
@@ -1010,7 +1010,7 @@ Append to `state.md`:
 - skill_name: [confirmed-skill-name]
 - Packaging method: [zip | workspace-copy]
 - Shared with: [recipient / team]
-- Archive location: `./<project-slug>/<skill-name>.zip` (or workspace path)
+- Archive location: `./<project-name>/<skill-name>.zip` (or workspace path)
 - Ready for: Recipients to install and re-run with different data sources
 ```
 

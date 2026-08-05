@@ -818,7 +818,7 @@ If fixes needed:
 ```markdown
 ## Phase 3: Dashboard Build Complete
 
-**Project:** [project-slug]
+**Project:** [project-name]
 **Date Approved:** [Today]
 **Rendering Engine:** HTML Client
 **Path:** [Non-Workflow | Workflow]
@@ -841,7 +841,7 @@ If fixes needed:
 
 ### Dashboard Artifact
 - **Type:** HTML Client (single portable file)
-- **Location:** ./<project-slug>/dashboards/dashboard.html
+- **Location:** ./<project-name>/dashboards/dashboard.html
 
 ### Exclusion Rules Applied
 - [rule 1 from Stage A]
@@ -1016,7 +1016,7 @@ After user approves (Step 4i "Perfect, looks great!"), append to `state.md`:
 ```markdown
 ## Phase 3: Dashboard Build Complete
 
-**Project:** [project-slug]  **Date:** [Today]  **Engine:** HTML Client
+**Project:** [project-name]  **Date:** [Today]  **Engine:** HTML Client
 
 Dashboard: [N] KPIs, [N] filters, [N] charts
 Validation: ✅ Accuracy | ✅ Filters | ✅ Performance | ✅ User approved [date]

@@ -78,7 +78,7 @@ Then follow these 2 steps:
       → Create Architecture, Usage Guide, Runbook, Access markdown files locally
    ```
 
-3. **Route to Phase 1:** Read `./phase-1/SKILL.md` — it handles session setup (project slug, business goal, scoring, path decision) for both Stage A (requirements) and Stage B (data discovery). After Phase 1 completes, **route to Phase 2 or Phase 3 per the path decision** (no additional prompt needed).
+3. **Route to Phase 1:** Read `./phase-1/SKILL.md` — it handles session setup (project name, business goal, scoring, path decision) for both Stage A (requirements) and Stage B (data discovery). After Phase 1 completes, **route to Phase 2 or Phase 3 per the path decision** (no additional prompt needed).
 
 **Special case — providing a `.dash` file:** If, during session setup, the user provides a Sisense/Treasure Insights `.dash` export (or JSON with a `"widgets"` array + `"datasource"` key), Phase 1 detects it and switches to a fast-track migration path — it converts the file with `./references/dash_to_html.py`, prefills requirements and data discovery directly from the export, and skips straight to building/validating the dashboard instead of asking every Stage A/B question from scratch. See `./phase-1/references/steps-1pre.md` ("`.dash` / Sisense Special Case") for the full flow.
 
@@ -90,13 +90,13 @@ Once you confirm this is **resuming an existing project**, **re-read these files
 
 Then follow these 3 steps:
 
-1. **Validate the execution contract and state integrity before asking for the project slug.**
+1. **Validate the execution contract and state integrity before asking for the project name.**
 
-2. **Ask for the project slug:**
-   - "What's the project name or folder name you're resuming? (e.g. `./<project-slug>/`)"
+2. **Ask for the project name:**
+   - "What's the project name or folder name you're resuming? (e.g. `./<project-name>/`)"
 
 3. **Locate the project state:**
-   - Ask the user to paste the contents of `./<project-slug>/state.md` — then read it directly to recover project state
+   - Ask the user to paste the contents of `./<project-name>/state.md` — then read it directly to recover project state
    - Display the project state so the user sees:
      ```
      🔄 Resuming: travel-dashboard
@@ -161,7 +161,7 @@ Then follow these 3 steps:
 
 **Quick rules:**
 - New engagement → Phase 1 → [Phase 2 optional] → Phase 3 → [Phase 4/5 optional]
-- Resume → read `./<project-slug>/state.md` → jump to "Next Action" at bottom
+- Resume → read `./<project-name>/state.md` → jump to "Next Action" at bottom
 - Phase 1 score = 3 → user decides: Phase 2 (workflow) or Phase 3 (direct build)
 
 ---
@@ -171,7 +171,7 @@ Then follow these 3 steps:
 | I want to... | Go to... |
 |---|---|
 | Start a new dashboard | `./phase-1/SKILL.md` |
-| Resume an existing project | Read `./<project-slug>/state.md`, then jump to next phase |
+| Resume an existing project | Read `./<project-name>/state.md`, then jump to next phase |
 | Convert a Sisense .dash export | `./phase-1/SKILL.md` (provide the file during Setup-E) |
 | Deploy a production workflow | `./phase-2/SKILL.md` (after Phase 1 scores 4-6) |
 | Build and test the dashboard | `./phase-3/SKILL.md` |

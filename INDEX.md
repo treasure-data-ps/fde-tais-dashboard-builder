@@ -79,7 +79,7 @@ These are now embedded in each phase's `INSTRUCTIONS.md` file (not separate file
 | `testing-troubleshooting.md` | Common failures and resolution steps. |
 | `pre-deployment-checklist.md` | Mandatory pre-push checklist. |
 | `INDEX.md` | Phase 2 references navigation index. |
-| `workflow-templates/` | Embedded .dig templates and SQL (copy to ./<project-slug>/workflows/). |
+| `workflow-templates/` | Embedded .dig templates and SQL (copy to ./<project-name>/workflows/). |
 
 ### phase-3/references/ (Build Dashboard, HTML Client only)
 
@@ -102,7 +102,7 @@ These are now embedded in each phase's `INSTRUCTIONS.md` file (not separate file
 | `html-client/html-dashboard-patterns.md` | Common dashboard patterns. |
 | `html-client/html-deployment-guide.md` | Deployment guidance. |
 | `html-client/template-customization.md` | Customize generate-data.js and templates. |
-| `html-client/templates/` | Dashboard templates and utilities (copy to ./<project-slug>/dashboards/). |
+| `html-client/templates/` | Dashboard templates and utilities (copy to ./<project-name>/dashboards/). |
 
 ### phase-4/references/ (Automate & Deploy)
 
@@ -138,7 +138,7 @@ Phase 5 has no `references/` subfolder — handoff guide is self-contained with 
 Every phase writes into a single flat project folder created during Phase 1 session setup:
 
 ```
-./<project-slug>/
+./<project-name>/
 ├── state.md               (single source of truth, append-only)
 ├── workflows/              (only if Phase 2 run)
 ├── dashboards/
