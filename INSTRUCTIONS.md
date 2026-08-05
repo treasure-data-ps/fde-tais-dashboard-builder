@@ -21,7 +21,7 @@ load_order: 0
 
 ```
 Load Order 0:     ./INSTRUCTIONS.md (master — read FIRST)
-Load Order 1:     ./references/INSTRUCTIONS.md (cross-phase)
+Load Order 1:     ./references/guardrails-lite.md (cross-phase)
 Load Order 1.1-1.5: ./phase-N/INSTRUCTIONS.md (phase-specific, includes checkpoint validation)
 ```
 
@@ -36,7 +36,7 @@ Load Order 1.1-1.5: ./phase-N/INSTRUCTIONS.md (phase-specific, includes checkpoi
 | **Phase 3** | `./phase-3/INSTRUCTIONS.md` | `./phase-3/SKILL.md` | Inline in SKILL.md (Section: "Pre-Flight Checklist") |
 | **Phase 4** | `./phase-4/INSTRUCTIONS.md` | `./phase-4/SKILL.md` | Inline in SKILL.md (Section: "Pre-Flight Checklist") |
 | **Phase 5** | `./phase-5/INSTRUCTIONS.md` | `./phase-5/SKILL.md` | Inline in SKILL.md (Section: "Pre-Flight Checklist") |
-| **Cross-Phase** | `./references/INSTRUCTIONS.md` | (guardrails + universal rules) | Reference throughout all phases |
+| **Cross-Phase** | `./references/guardrails-lite.md` | (guardrails + universal rules) | Reference throughout all phases |
 
 ---
 
@@ -323,7 +323,7 @@ JOIN (
 - [ ] If user provides `.dash` file → Follow "`.dash` Special Case" path ONLY
 - [ ] If user provides datamodel name/OID → Follow "Treasure Insights API Special Case" path ONLY
 - [ ] If user provides both → Follow "Combined Resources Path" ONLY
-- [ ] Do NOT ask normal Stage A questions (1a–1o) if on a special case path
+- [ ] Do NOT repeat questions already answered by the import; show every prefilled mandatory answer and obtain explicit confirmation before proceeding
 
 **Why:** Special case paths have their own prefilling logic. Mixing paths causes duplicate requirements, conflicting decisions, wasted effort.
 
@@ -359,8 +359,9 @@ JOIN (
 1. **STOP and re-read this file** (`./INSTRUCTIONS.md`)
 2. Identify current phase from `state.md`
 3. Re-read `./phase-N/INSTRUCTIONS.md`
-4. Re-read `./references/INSTRUCTIONS.md`
-5. Verify the inline checklist in the current phase's SKILL.md
+4. Re-read `./references/guardrails-lite.md`
+5. Re-read `./references/execution-contract.md`
+6. Verify the inline checklist in the current phase's SKILL.md
 6. **Append re-read proof to state.md** (see template below)
 7. Continue with next action
 
@@ -371,7 +372,7 @@ JOIN (
 
 - ✓ Re-read ./INSTRUCTIONS.md (master)
 - ✓ Re-read ./phase-N/INSTRUCTIONS.md (phase-specific)
-- ✓ Re-read ./references/INSTRUCTIONS.md (guardrails)
+- ✓ Re-read ./references/guardrails-lite.md (guardrails)
 - ✓ Verified inline checklist in phase-N/SKILL.md
 - Ready to continue at: [next action]
 ```
@@ -384,7 +385,7 @@ JOIN (
 |---|---|
 | Start a new dashboard | 1. Read this file ✓ 2. Read `./phase-1/INSTRUCTIONS.md` 3. Read `./phase-1/SKILL.md` |
 | Resume existing project | 1. Read this file ✓ 2. Read `./<project-slug>/state.md` 3. Jump to "Next Action" |
-| Context was compacted | 1. **STOP** 2. Re-read this file ✓ 3. Re-read phase-N/INSTRUCTIONS.md 4. Re-read references/INSTRUCTIONS.md 5. Continue |
+| Context was compacted | 1. **STOP** 2. Re-read this file ✓ 3. Re-read phase-N/INSTRUCTIONS.md 4. Re-read references/guardrails-lite.md 5. Continue |
 | Before Phase 2 deployment | 1. Re-read `./phase-2/INSTRUCTIONS.md` 2. Verify all 9 rules above 3. Get user approval 4. Proceed |
 | Before Phase 4 agent creation | 1. Re-read `./phase-4/INSTRUCTIONS.md` 2. Get user approval 3. Proceed |
 

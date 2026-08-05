@@ -90,12 +90,17 @@ tdx databases | grep <SINK_DB>
 ## ✅ Before You Proceed: Required Reads
 
 **Before executing Phase 2 workflow deployment (step 2a), read these reference files:**
-1. **`./phase-2/references/sink-architecture-patterns.md`** — SINK table design patterns and aggregation strategies
-2. **`./phase-2/references/workflow-setup-configure.md`** — Workflow configuration best practices
+1. **`./references/sink-architecture-patterns.md`** — SINK table design patterns and aggregation strategies
+2. **`./references/workflow-setup-configure.md`** — Workflow configuration best practices
 
 These files establish SINK table structure and workflow patterns to prevent fan-out aggregation errors and query performance issues.
 
 ---
+
+
+## ⚠️ Blocking Phase 2 Gate
+
+Before any workflow, SINK, or physical-object action, verify the Phase 1 section of `../references/execution-contract.md`. The dry-run must complete and be reviewed before approval. Only a case-insensitive response matching `YES, APPROVE [ACTION]` unlocks creation; any other response re-opens the gate.
 
 ## Phase 2 Specific Rules (In Addition to Universal Rules)
 

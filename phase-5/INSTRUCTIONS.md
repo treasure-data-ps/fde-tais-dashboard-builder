@@ -74,10 +74,10 @@ Create 4 markdown documentation files for users and operators:
 ## ✅ Before You Proceed: Required Reads
 
 **Before executing Phase 5 documentation creation, read these reference files:**
-1. **`./phase-5/references/template-architecture-md.md`** — Architecture.md template (if exists)
-2. **`./phase-5/references/template-usage-guide-md.md`** — Usage Guide.md template (if exists)
-3. **`./phase-5/references/template-runbook-md.md`** — Runbook.md template (if exists)
-4. **`./phase-5/references/template-access-ownership-md.md`** — Access & Ownership.md template (if exists)
+1. **`./references/template-architecture-md.md`** — Architecture.md template (if exists)
+2. **`./references/template-usage-guide-md.md`** — Usage Guide.md template (if exists)
+3. **`./references/template-runbook-md.md`** — Runbook.md template (if exists)
+4. **`./references/template-access-ownership-md.md`** — Access & Ownership.md template (if exists)
 
 These templates ensure consistent structure and cover all required sections (no generic "contact admin" placeholder language).
 
@@ -102,6 +102,11 @@ These templates ensure consistent structure and cover all required sections (no 
 - [ ] Claude engagement complete
 
 ---
+
+
+## ⚠️ Blocking Phase 5 Gate
+
+Before creating handoff documents, verify the Phase 5 section of `../references/execution-contract.md` and obtain explicit user selection. Do not treat Phase 5 as automatic after Phase 4.
 
 ## Phase 5 Specific Rules (In Addition to Universal Rules)
 

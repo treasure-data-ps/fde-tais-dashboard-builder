@@ -194,7 +194,7 @@ Load Order 0 — MASTER (Read FIRST)
    - Quick navigation
 
 Load Order 1 — CROSS-PHASE (Read SECOND)
-└─ ./references/INSTRUCTIONS.md
+└─ ./references/guardrails-lite.md
    - 7 cross-phase guardrails
    - Data integrity rules
    - Rendering constraints
@@ -234,7 +234,7 @@ Load Order 1.N — PHASE-SPECIFIC (Read THIRD, where N=1-5)
 2. **Re-read in order:**
    - `./INSTRUCTIONS.md` (load_order: 0)
    - `./phase-N/INSTRUCTIONS.md` (load_order: 1.N)
-   - `./references/INSTRUCTIONS.md` (load_order: 1)
+   - `./references/guardrails-lite.md` (load_order: 1)
 3. **Verify** current phase from state.md
 4. **Append checkpoint** to state.md (proof of re-read)
 5. **Continue** with next action
@@ -246,7 +246,7 @@ Load Order 1.N — PHASE-SPECIFIC (Read THIRD, where N=1-5)
 Context compaction occurred.
 - ✓ Re-read ./INSTRUCTIONS.md (load_order 0)
 - ✓ Re-read ./phase-N/INSTRUCTIONS.md (load_order 1.N)
-- ✓ Re-read ./references/INSTRUCTIONS.md (load_order 1)
+- ✓ Re-read ./references/guardrails-lite.md (load_order 1)
 - Ready to continue at: [next action]
 ```
 
@@ -261,7 +261,7 @@ Context compaction occurred.
 | **Quick Checklist in phase-N/INSTRUCTIONS.md** | Quick decision guide | When time is limited | — (optional) |
 | **phase-N/SKILL.md** | Full phase details | When you need details | — (fallback) |
 | **phase-N/references/phase-N-walkthrough.md** | Step-by-step walkthrough | New to phase | — (reference) |
-| **references/INSTRUCTIONS.md** | Cross-phase guardrails | After phase-specific rules | 1 (second) |
+| **references/guardrails-lite.md** | Cross-phase guardrails | After phase-specific rules | 1 (second) |
 
 ---
 
@@ -474,7 +474,7 @@ Each phase has a **Quality Gate** checklist before proceeding to the next phase:
 1. STOP immediately
 2. Re-read: ./INSTRUCTIONS.md
 3. Re-read: ./phase-N/INSTRUCTIONS.md (where N = current phase)
-4. Re-read: ./references/INSTRUCTIONS.md
+4. Re-read: ./references/guardrails-lite.md
 5. Verify current phase in state.md
 6. Append checkpoint to state.md
 7. Continue with "Next Action"

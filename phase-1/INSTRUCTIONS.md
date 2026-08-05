@@ -98,11 +98,18 @@ If starting fresh:
 
 **Before executing Phase 1 Stage A, read these reference files:**
 1. **`../references/guardrails-lite.md`** — Cross-phase guardrails (re-read on every engagement)
-2. **`./phase-1/references/requirements-questionnaire-patterns.md`** — Requirement gathering patterns (if exists)
+2. **`./references/requirements-questionnaire-patterns.md`** — Requirement gathering patterns (if exists)
 
 These files establish the baseline for all Stage A questions and ensure consistent scoping.
 
 ---
+
+
+### Gate P1-X: Execution Contract Check
+
+Before asking or recording any Phase 1 question, read `../references/execution-contract.md`. Use `AskUserQuestion` for every mandatory questionnaire, record each answer or refusal reason in `state.md`, and do not advance with a missing checkbox.
+
+**Canonical scoring:** `./references/steps-1p-1t.md` is the sole Q1–Q3 Dashboard Complexity Score source. Do not use an inferred technical-factor rubric.
 
 ## Phase 1 Specific Rules (In Addition to Universal Rules)
 
@@ -181,24 +188,9 @@ SELECT DISTINCT country FROM sales_table LIMIT 10;
 
 ### Rule P1-2: Dashboard Complexity Score Calculation Is Deterministic
 
-**Score formula (0-6):**
-- **0-2 (Low complexity):** Simple metrics, few tables, no joins, daily or less frequent refresh
-  - **Path:** Phase 1 → Phase 3 (skip Phase 2)
-  
-- **3 (Optional):** Medium complexity, user's choice
-  - **Path:** User decides Phase 2 (workflow) or Phase 3 (direct build)
-  
-- **4-6 (High complexity):** Many tables, complex joins, sub-hourly refresh, aggregation required
-  - **Path:** Phase 1 → Phase 2 → Phase 3
+**Canonical source:** `./references/steps-1p-1t.md`, Step 1p. Ask Q1–Q3 with `AskUserQuestion` and sum their defined points for the 0–6 score. Do not substitute an inferred technical-factor rubric.
 
-**Scoring breakdown:**
-- +1 if 2+ tables to join
-- +1 if join is 1-to-many (fan-out risk)
-- +1 if refresh frequency < daily
-- +1 if aggregation required (GROUP BY)
-- +1 if audience > 5 people (concurrency risk)
-
-**Rule:** Calculate score before asking path decision. The score determines the path.
+**Blocking gate:** Do not calculate or route until Q1–Q3 are answered or a refusal/not-applicable reason is recorded and escalated under Rule P1-0.
 
 ---
 

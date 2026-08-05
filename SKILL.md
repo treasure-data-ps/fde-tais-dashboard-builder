@@ -1,15 +1,29 @@
 ---
 name: fde-tais-dashboard-builder
-description: Build or resume custom HTML dashboards from Treasure Data using a 5-phase self-serve pipeline (local, no Confluence/git).
+description: >-
+  Build or resume custom HTML Client dashboards from Treasure Data using a mandatory,
+  questionnaire-led 5-phase self-serve pipeline with state.md checkpoints. Trigger when
+  the user asks to build, create, make, develop, or resume a dashboard, analytics dashboard,
+  KPI dashboard, HTML dashboard, Treasure Data dashboard, Treasure Insights dashboard,
+  Sisense dashboard migration, .dash conversion, dashboard from SQL/data, dashboard from
+  a Treasure Data table, interactive dashboard, dashboard workflow, SINK dashboard,
+  dashboard validation, dashboard automation, reusable dashboard skill, conversational
+  dashboard agent, or dashboard handoff documentation. Also trigger when the user says
+  resume dashboard, continue dashboard, dashboard requirements, dashboard questionnaire,
+  dashboard data discovery, dashboard performance, dashboard filters, dashboard KPIs,
+  dashboard to HTML, or dashboard from a .dash file. Do not skip the Phase 1 questionnaire
+  or any execution-contract gate; special-case imports prefill answers but still require
+  explicit confirmation.
 ---
 
 # FDE TAIS Dashboard Builder
 
 > **⚠️ CRITICAL: Read instructions in this order:**
 > 1. **`./INSTRUCTIONS.md`** (master instructions — load first)
-> 2. **`./phase-N/INSTRUCTIONS.md`** (phase-specific rules)
-> 3. **`./SKILL.md`** (this file)
-> 4. **Re-read after context compaction** (mandatory)
+> 2. **`./references/execution-contract.md`** (non-skippable gates and checkpoint ledger)
+> 3. **`./phase-N/INSTRUCTIONS.md`** (phase-specific rules)
+> 4. **`./SKILL.md`** (this file)
+> 5. **Re-read after context compaction** (mandatory)
 
 Build custom dashboards from Treasure Data databases using a **self-serve 5-phase pipeline**. Rendering is always **HTML Client** — a single portable `dashboard.html` file with data inlined at build time. No Confluence, no git branching — everything lives in one local project folder.
 
@@ -31,7 +45,8 @@ Build custom dashboards from Treasure Data databases using a **self-serve 5-phas
 #### New Engagement Path
 
 Once you confirm this is a **new engagement**, **re-read these files immediately** (in this order):
-1. **`./references/guardrails-lite.md`** — Cross-phase guardrails (293 lines)
+1. **`./references/execution-contract.md`** — Non-skippable gates and questionnaire ledger
+2. **`./references/guardrails-lite.md`** — Cross-phase guardrails
 
 Then follow these 2 steps:
 
@@ -70,14 +85,17 @@ Then follow these 2 steps:
 #### Existing Engagement Path
 
 Once you confirm this is **resuming an existing project**, **re-read these files immediately** (in this order):
-1. **`./references/guardrails-lite.md`** — Cross-phase guardrails (293 lines)
+1. **`./references/execution-contract.md`** — Non-skippable gates and questionnaire ledger
+2. **`./references/guardrails-lite.md`** — Cross-phase guardrails
 
 Then follow these 3 steps:
 
-1. **Ask for the project slug:**
+1. **Validate the execution contract and state integrity before asking for the project slug.**
+
+2. **Ask for the project slug:**
    - "What's the project name or folder name you're resuming? (e.g. `./<project-slug>/`)"
 
-2. **Locate the project state:**
+3. **Locate the project state:**
    - Ask the user to paste the contents of `./<project-slug>/state.md` — then read it directly to recover project state
    - Display the project state so the user sees:
      ```
@@ -95,7 +113,7 @@ Then follow these 3 steps:
         • Audience: Multiple (executives + analysts)
      ```
 
-3. **Route to the next incomplete phase based on project state:**
+4. **Route to the next incomplete phase based on project state:**
    - For example, if Phase 1 is complete and Phase 2 is next → use `./phase-2/SKILL.md`
    - `state.md` clearly indicates which phase to start with (append-only log of every phase's outputs)
 

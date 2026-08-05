@@ -8,10 +8,11 @@ description: |
 
 > **Read in this order:**
 > 1. `../INSTRUCTIONS.md` (master rules, load_order: 0)
-> 2. `./INSTRUCTIONS.md` (Phase 1 rules, load_order: 1.1) — includes Quick Checklist
-> 3. `./SKILL.md` (this file — full details)
-> 4. `./references/phase-1-walkthrough.md` (step-by-step walkthrough)
-> 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
+> 2. `../references/execution-contract.md` (non-skippable execution gates)
+> 3. `./INSTRUCTIONS.md` (Phase 1 rules, load_order: 1.1) — includes Quick Checklist
+> 4. `./SKILL.md` (this file — full details)
+> 5. `./references/phase-1-walkthrough.md` (step-by-step walkthrough)
+> 6. `../references/guardrails-lite.md` (cross-phase guardrails)
 
 **Phase Goal:** Gather business requirements (Stage A), validate them against real data (Stage B), calculate the Dashboard Complexity Score (0–6), decide Workflow vs Non-Workflow path, and get user approval — all in one session, with no Confluence and no git branching.
 **Deliverable:** A local `state.md` file at `./<project-slug>/state.md` containing the approved requirements, confirmed data findings, Dashboard Complexity Score, and path decision.
@@ -48,14 +49,21 @@ Before starting, confirm:
 
 → **See `./references/phase-1-walkthrough.md`** for the full step reference table and batching plan.
 
-Run the session-setup questions (project slug, business goal, platform, data source type) in one batch, then ask Setup-E (reference resources) as a separate call before gathering core requirements. **Setup-E is now MULTI-SELECT** — users may have multiple resources available (`.dash` file, datamodel, existing workflow).
+Run the session-setup questions (project slug, business goal, platform, data source type) in one batch, then ask Setup-E (reference resources) as a separate call before gathering core requirements. **Setup-E is now MULTI-SELECT** — use `AskUserQuestion` with these options:
+- `.dash` / Sisense export
+- Treasure Insights datamodel
+- Existing Treasure Data workflow
+- Screenshots, mockups, SQL, or specifications
+- None — starting fresh
 
-**Special cases — Sisense/Treasure Insights exports, datamodels, and workflows:** If Setup-E turns up any of these, do not run the normal Stage A/B flow. Instead follow the appropriate path in `./references/steps-1pre.md`:
+If resources prefill answers, display the prefilled requirements and ask the user to confirm or correct them. Prefilling is not permission to skip mandatory questions.
+
+**Special cases — Sisense/Treasure Insights exports, datamodels, and workflows:** If Setup-E turns up any of these, route to the appropriate special-case flow. Do not repeat already-prefilled questions, but do show and explicitly confirm every mandatory decision before Stage B/finalization. Instead follow the appropriate path in `./references/steps-1pre.md`:
 - **`.dash` export alone** → "`.dash` / Sisense Special Case" — converts the file with `../references/dash_to_html.py`, prefills requirements and discovery
 - **Treasure Insights datamodel alone** → "Treasure Insights API Special Case" — fetches schema via Reporting API with `../references/insights-api-helper.py`, prefills requirements and discovery
 - **Multiple resources (`.dash` + datamodel ± workflow)** → "Combined Resources Path" — fetches datamodel, converts `.dash` file, cross-validates both, incorporates workflow metadata if present, then prefills Stage A/B with unified context
 
-All paths fast-track routing to Phase 2/3 based on the user's migration goal (Replicate / Replicate+improve / Modernize) and workflow selection.
+Special-case paths may prefill repetitive requirements, but they do not bypass the execution contract: show the prefilled answers, confirm every mandatory decision with the user, validate the live data, then route to Phase 2/3 based on the migration goal (Replicate / Replicate+improve / Modernize) and workflow selection.
 
 → **See `./references/steps-1a-1o.md`** for detailed guidance on core requirement steps
 → **See `./references/steps-1k-1n-optional.md`** for optional step details (only ask if relevant)

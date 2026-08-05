@@ -2,6 +2,13 @@
 
 Build custom dashboards from Treasure Data databases using a **self-serve 5-phase pipeline** that routes to either **non-workflow** (interactive, ad-hoc) or **workflow** (production, scheduled) paths. HTML Client is the only rendering engine — a single portable `dashboard.html`, no server required.
 
+
+## Trigger phrases
+
+Use this skill when the user says or implies: **build/create/make a dashboard**, **analytics or KPI dashboard**, **HTML dashboard**, **Treasure Data/Treasure Insights dashboard**, **dashboard requirements/questionnaire**, **dashboard data discovery/validation**, **dashboard workflow/SINK tables**, **Sisense migration**, **convert a `.dash` file to HTML**, **resume/continue a dashboard**, **dashboard automation**, **reusable dashboard skill**, **dashboard AI companion**, or **dashboard handoff documentation**.
+
+A query-only request or a general chart question without a dashboard engagement should not trigger this pipeline.
+
 ## The Pipeline: One Flow, Two Paths
 
 All dashboards follow the same 5 phases. At the end of Phase 1 (Stage B), your requirements determine which path is best:

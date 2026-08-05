@@ -7,10 +7,11 @@ description: INTERNAL — Phase 5 only. Optional: create 4 local handoff documen
 
 > **Read in this order:**
 > 1. `../INSTRUCTIONS.md` (master rules, load_order: 0)
-> 2. `./INSTRUCTIONS.md` (Phase 5 rules, load_order: 1.5) — includes Quick Checklist
-> 3. `./SKILL.md` (this file — full details)
-> 4. `./references/phase-5-walkthrough.md` (step-by-step walkthrough)
-> 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
+> 2. `../references/execution-contract.md` (non-skippable execution gates)
+> 3. `./INSTRUCTIONS.md` (Phase 5 rules, load_order: 1.5) — includes Quick Checklist
+> 4. `./SKILL.md` (this file — full details)
+> 5. `./references/phase-5-walkthrough.md` (step-by-step walkthrough)
+> 6. `../references/guardrails-lite.md` (cross-phase guardrails)
 
 **Phase Goal:** Create 4 local markdown documentation files that enable the user's team to use, maintain, and support the dashboard independently — then formally close the engagement.
 

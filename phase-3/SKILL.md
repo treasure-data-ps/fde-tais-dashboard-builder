@@ -8,10 +8,11 @@ description: |
 
 > **Read in this order:**
 > 1. `../INSTRUCTIONS.md` (master rules, load_order: 0)
-> 2. `./INSTRUCTIONS.md` (Phase 3 rules, load_order: 1.3) — includes Quick Checklist
-> 3. `./SKILL.md` (this file — full details)
-> 4. `./references/phase-3-walkthrough.md` (step-by-step walkthrough)
-> 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
+> 2. `../references/execution-contract.md` (non-skippable execution gates)
+> 3. `./INSTRUCTIONS.md` (Phase 3 rules, load_order: 1.3) — includes Quick Checklist
+> 4. `./SKILL.md` (this file — full details)
+> 5. `./references/phase-3-walkthrough.md` (step-by-step walkthrough)
+> 6. `../references/guardrails-lite.md` (cross-phase guardrails)
 
 **Phase Goal:** See `../references/architecture-and-state.md` for phase overview.
 

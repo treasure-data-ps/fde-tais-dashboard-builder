@@ -2,12 +2,16 @@
 name: dashboarding-guardrails-lite
 description: |
   Mandatory guardrails for the FDE TAIS Dashboard Builder. Load this file FIRST at the start of every session. Enforces strict rules on data integrity, queries, and HTML Client rendering. Violations cause rework — these are non-negotiable.
-load_order: 0
+load_order: 1
 ---
 
 # FDE TAIS Dashboard Builder — Guardrails
 
-**Read this before doing anything else in a dashboarding session.**
+**Read this after `../INSTRUCTIONS.md` and `./execution-contract.md`, before phase work.**
+
+The execution contract is the completion ledger; this file contains the detailed guardrails.
+
+**Completion status:** Use `./execution-contract.md` as the compact, append-only gate ledger. This file contains the detailed guardrails; the contract determines whether a phase may advance.
 
 **⚠️ CRITICAL — RE-READ THIS AFTER CONTEXT COMPACTION:** If context gets compressed/summarized, or when moving between phases, **STOP and re-read this entire file** before proceeding. Guardrails must not be lost or forgotten due to context boundaries.
 
@@ -234,7 +238,8 @@ These rules prevent phase-specific failures. Violating any causes rework or data
 - If user provides `.dash` file → Follow "`.dash` Special Case" path ONLY
 - If user provides datamodel name/OID → Follow "Treasure Insights API Special Case" path ONLY
 - If user provides both → Follow "Combined Resources Path" ONLY
-- **Do NOT ask normal Stage A questions (1a–1o) if on a special case path**
+- Do NOT repeat questions already answered by the special-case import
+- Show and explicitly confirm every prefilled mandatory decision before continuing
 
 **Why:** Special case paths have their own prefilling logic. Mixing paths causes duplicate requirements, conflicting decisions, wasted effort.
 
@@ -351,3 +356,33 @@ Before starting any dashboarding session, verify:
 - [ ] I will get explicit user approval BEFORE creating any Foundry agents/skills (Phase 4)
 - [ ] I will get explicit user approval BEFORE any external activations
 - [ ] I will present clear cost/scope details in every approval request
+
+
+---
+
+## Execution and phase transition rules
+
+Use `./execution-contract.md` as the completion ledger. The following phase-transition behavior is mandatory:
+
+- Phase 1: route to Phase 2 or Phase 3 from the canonical score/path decision; score 3 requires an explicit user choice.
+- Phase 2: after validated workflow output, proceed to Phase 3.
+- Phase 3: after all validation and explicit dashboard approval, present Track A, Track B, Phase 5, or close.
+- Phase 4: after the selected track completes, present Phase 5 or close.
+- Phase 5: after the four documents are reviewed and state is updated, close the engagement.
+
+Never stop at a phase boundary with a generic “let me know.” Present the concrete next options and wait only when the phase is optional or requires user approval.
+
+## Query performance and partitioning
+
+- Check join cardinality before aggregation.
+- Use `--limit` explicitly for dimensions and result sets that can exceed the CLI default.
+- Use `TD_TIME_RANGE()` or `td_interval()` for partition pruning where applicable.
+- Run independent data-generation queries with `Promise.all()`.
+
+## Packaging
+
+For Phase 4 packaging, use Python `zipfile` rather than assuming the shell `zip` command exists. After `generate-data.js` validation passes, show the complete Track A Step 4a-vi packaging instructions even if a zip was created earlier.
+
+## Instruction failure protocol
+
+If a required instruction cannot be verified, stop and report: (1) the blocking rule, (2) why it cannot be verified, and (3) the exact user input or action needed. Never silently skip a failed gate.

@@ -94,7 +94,13 @@ Phase 1 has two stages with continuous step numbering:
 
 Batch project slug, business goal, platform, and data source type into a single `AskUserQuestion` call (Setup-A–D). These four answers gate everything downstream: data source type may skip Phase 2, platform affects sharing guidance.
 
-Then ask Setup-E (reference resources) as its own call. If the user provides a `.dash`/Sisense/Treasure Insights export, stop the normal flow and follow the `.dash` Special Case in `./references/steps-1pre.md` — it fast-tracks Stage A/B by deriving requirements and data discovery directly from the export.
+Then ask Setup-E (reference resources) as its own call. If the user provides a `.dash`/Sisense/Treasure Insights export, route to the `.dash` Special Case in `./steps-1pre.md` — it fast-tracks Stage A/B by deriving requirements and data discovery directly from the export.
+
+### ⚠️ Non-Skippable Questionnaire Gate (Rule P1-0)
+
+This walkthrough does not replace the mandatory-question rule in `../INSTRUCTIONS.md`. Use `AskUserQuestion` for Setup-A through Setup-E and every mandatory 1a–1o group. Record each answer (or a refusal reason) in `state.md` and the execution contract before moving to the next batch. Do not infer an answer from context.
+
+Before scoring or routing, confirm the three-level filter hierarchy from Rule P1-2b and complete the HTML Client data-size check in `html-client-data-limits.md`. The Phase 1 gate is incomplete until the execution-contract checklist is complete.
 
 ### Stage A: Ask Business Requirements Questions Using AskUserQuestion
 
@@ -136,7 +142,8 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
   Existing dashboard/mockup/spec?
   
   IF resources found (.dash, datamodel, specs):
-    → Jump to Special Case path (steps-1pre.md)
+    → Route to the appropriate Special Case path (steps-1pre.md)
+    → Show all prefilled mandatory answers and obtain explicit confirmation; do not silently skip them
     
   IF "None — starting fresh":
     → Proceed to Stage A (standard flow)
@@ -245,7 +252,7 @@ When requirements conflict (e.g. "Real-time" + "Minimize cost"):
 
 ## At End of Phase 1
 
-→ **See `../phase-1/SKILL.md` Phase 1 Deliverables section** for the canonical end-of-phase checklist.
+→ **See `../SKILL.md` Phase 1 Deliverables section** for the canonical end-of-phase checklist.
 
 ---
 

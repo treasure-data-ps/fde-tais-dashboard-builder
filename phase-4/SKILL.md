@@ -7,10 +7,11 @@ description: INTERNAL — Phase 4 only. Optional: extract reusable skill (Option
 
 > **Read in this order:**
 > 1. `../INSTRUCTIONS.md` (master rules, load_order: 0)
-> 2. `./INSTRUCTIONS.md` (Phase 4 rules, load_order: 1.4) — includes Quick Checklist
-> 3. `./SKILL.md` (this file — full details)
-> 4. `./references/phase-4-walkthrough.md` (step-by-step walkthrough)
-> 5. `../references/INSTRUCTIONS.md` (cross-phase guardrails)
+> 2. `../references/execution-contract.md` (non-skippable execution gates)
+> 3. `./INSTRUCTIONS.md` (Phase 4 rules, load_order: 1.4) — includes Quick Checklist
+> 4. `./SKILL.md` (this file — full details)
+> 5. `./references/phase-4-walkthrough.md` (step-by-step walkthrough)
+> 6. `../references/guardrails-lite.md` (cross-phase guardrails)
 
 **Phase Goal:** Optionally turn the approved dashboard into a reusable asset — Option A packages it as a skill for `~/.claude/skills/` (cross-session reuse, recommended), Option B deploys a companion Foundry agent for external API access. Both are entirely optional; skip this phase to go straight to Phase 5 (Handoff) or close the engagement.
 
