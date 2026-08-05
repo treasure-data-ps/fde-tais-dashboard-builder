@@ -33,7 +33,6 @@ Should list your databases. If it fails with 401/403/not found, see [`references
 | Setup-C | Target platform | ✅ Always | Treasure Work / Treasure AI Studio — gates sharing constraints (rendering is always HTML Client in lite) |
 | Setup-D | Data source type | ✅ Always | Raw/Transactional vs Pre-aggregated vs Snapshot — determines whether Phase 2 (Workflow) can be skipped |
 | Setup-E | Reference resources | ✅ Always | Existing dashboard/spec to replicate? If a `.dash`/Sisense/Treasure Insights export is provided, jump to the `.dash` Special Case in `steps-1pre.md` instead of Stage A |
-| **Setup-F** | **Dashboard structure** | ✅ If "None" in Setup-E | **MANDATORY if no existing resources** — 5 questionnaire batches covering layout, visualizations, filters, drill-down, performance |
 | **Stage A: Core Requirements (1a-1j, 1o — Always Ask)** | | | See [`steps-1a-1o.md`](references/steps-1a-1o.md) |
 | 1a | Purpose, Business Context & Success Criteria | ✅ | Dashboard purpose, prior art, success metric, audience + technical depth |
 | 1b | Metrics + Top Questions + Business Glossary | ✅ | 5-10 KPIs with formulas, top 3-5 analytical questions, glossary |
@@ -112,14 +111,14 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
 | Include a 1-line description for each option | Use vague labels ("Yes/No", "Option 1/2") |
 | Ask Dashboard Complexity Scoring Q1–Q3 BEFORE building the dashboard | Wait until after delivery to ask scoring |
 
-**Recommended batch structure (aim for ~6-8 total AskUserQuestion calls across all of Phase 1):**
+**Recommended batch structure (aim for ~6-7 total AskUserQuestion calls across all of Phase 1):**
 
 | Batch | Topic | Questions | Condition | Why Grouped |
 |---|---|---|---|---|
 | **Batch 1** | Session setup | Project slug, business goal, platform, data source type | ✅ Always | Gates everything downstream |
 | **Batch 1b** | Reference resources | Existing dashboard/mockup/spec? | ✅ Always | Determines fast-track path vs normal flow |
-| **Batch 2** | Dashboard structure | Layout, visualizations, filters, drill-down, performance | ⚠️ If "None" in 1b | **MANDATORY if no existing resources** — 5 questionnaire batches |
-| **Batch 3** | Core requirements | Metrics, dimensions, filters, layout | ✅ Always | Related discovery; flows naturally |
+| **Batch 2** | Core requirements Phase 1 | Metrics, KPIs (what to measure) | ✅ Always | First core requirement |
+| **Batch 3** | Dashboard structure + dimensions + filters + layout | **Dashboard structure** (tabs, visualizations, filters, drill-down, performance) + Dimensions + Filters + Layout preferences + Branding | ✅ Always | **⚠️ MANDATORY - ALL 5 structure batches required** — Related discovery; structure informs metrics/dimensions alignment |
 | **Batch 4** | Temporal + sharing | Date range, timezone, refresh, sharing/access | ✅ Always | Related; timezone often forgotten |
 | **Batch 5** | Data discovery confirmation | Database/table confirmation, time column, metric/dimension validation results | ✅ Always | After running discovery queries — confirm what was found |
 | **Batch 6** | Dashboard Complexity Scoring | Q1, Q2, Q3 (can be 1 call with 3 questions) | ✅ Always | Drives path decision |
@@ -140,16 +139,23 @@ Then ask Setup-E (reference resources) as its own call. If the user provides a `
     → Jump to Special Case path (steps-1pre.md)
     
   IF "None — starting fresh":
-    → MANDATORY: Run Dashboard Structure Questionnaire (Setup-F, Batch 2 — see steps-1pre.md)
-      • Layout preferences (single page / 2-3 tabs / 4+ tabs / drill-down)
-      • Visualization types (KPI cards, trends, comparisons, distributions, tables, heatmaps)
-      • Filter & interactivity (static / global / per-section / advanced)
-      • Drill-down depth (summary / one level / multiple / detailed table)
-      • Performance targets (daily / multiple daily / hourly / live)
-    → Record answers in state.md
+    → Proceed to Stage A (standard flow)
 
-## Stage A: Core Requirements — Batch 3 (steps-1a-1o.md)
-  metrics, dimensions, filters, layout, date range, timezone, sharing, exclusions
+## Stage A: Core Requirements — Batch 2 (steps-1a-1o.md)
+  Step 1a: Dashboard purpose & success criteria
+  
+## Stage A: Dashboard Structure + Requirements — Batch 3 (steps-1a-1o.md, Step 1c+1d)
+  ⚠️ MANDATORY: 5 Dashboard Structure Questionnaire Batches (ask first, before detailed discovery)
+    • Batch 1: Tabs/Organization (single page / 2-3 tabs / 4+ tabs / drill-down)
+    • Batch 2: Visualization types (KPI cards, trends, comparisons, distributions, tables, heatmaps)
+    • Batch 3: Filter & interactivity (static / global / per-section / advanced)
+    • Batch 4: Drill-down depth (summary / one level / multiple / detailed table)
+    • Batch 5: Performance targets (daily / multiple daily / hourly / live)
+  
+  Then: Dimensions, filters, layout preferences, branding
+
+## Stage A: Temporal + Sharing — Batch 4 (steps-1a-1o.md)
+  date range, timezone, refresh, sharing/access
 
 ## Stage B: Data Discovery — stage-b-database-discovery.md
   Step 1: tdx databases → confirm database (skip if already known from Stage A)

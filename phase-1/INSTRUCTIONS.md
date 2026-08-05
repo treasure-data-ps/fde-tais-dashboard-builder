@@ -48,19 +48,19 @@ If starting fresh:
 - [ ] Platform target? (Treasure Work / Treasure AI Studio)
 - [ ] Data source type? (Raw/Transactional / Pre-aggregated / Snapshot / Mixed)
 - [ ] **Setup-E: Reference Resources** — Existing dashboard/mockups/specs checked
-  - **IF "None" selected → MANDATORY Dashboard Structure Questionnaire (see below)**
-  - **IF resources found → Fast-track via special case path**
+  - IF resources found (.dash, datamodel, specs) → Fast-track via special case path
+  - IF "None" selected → Proceed to standard Stage A flow
 - [ ] Use AskUserQuestion for every question (never plain text)
 - [ ] **1a:** Dashboard purpose & success criteria
 - [ ] **1b:** Metrics/KPIs (what to measure)
-- [ ] **1c-1d:** Dimensions + Filters + Layout
-- [ ] **⚠️ MANDATORY Dashboard Structure Questions (if no existing dashboard):**
-  - [ ] Number of tabs/sections needed
-  - [ ] Visualization types required per metric
-  - [ ] Interactive filtering scope (static/dynamic/both)
-  - [ ] Drill-down/detail depth requirements
-  - [ ] KPI card vs chart preferences
-  - [ ] Performance targets (load time, update frequency)
+- [ ] **⚠️ MANDATORY 1c+1d: Dashboard Structure + Dimensions + Filters + Layout**
+  - [ ] Tabs/organization (single page / 2-3 tabs / 4+ tabs / drill-down)
+  - [ ] Visualization types (KPI cards, trends, comparisons, distributions, tables, heatmaps)
+  - [ ] Filtering scope (static / global / per-section / advanced)
+  - [ ] Drill-down depth (summary / one level / multiple / detailed table)
+  - [ ] Performance target (daily / multiple daily / hourly / live)
+  - [ ] Dimensions & filter list
+  - [ ] Layout preferences & branding
 - [ ] **⚠️ CRITICAL 1e-1f:** Date range, timezone, refresh/freshness
 - [ ] **1g:** Historical depth
 - [ ] **1h:** Sharing, access, target users (if customer-facing)

@@ -156,25 +156,143 @@ AskUserQuestion:
 
 ---
 
-## Step 1c+1d: Define Dimensions, Filters, Layout & Interactions (Consolidated)
+## Step 1c+1d: Define Dashboard Structure, Dimensions, Filters, Layout & Interactions (Consolidated)
+
+**⚠️ MANDATORY: This step captures comprehensive dashboard structure BEFORE detailed metric/dimension discovery.**
 
 **What to do:**
+- **Capture dashboard structure upfront** (tabs, visualizations, filters, drill-down, performance)
 - Ask what dimensions users want to slice metrics by with typical values and unique counts
 - List all filters users will need with dependencies
 - Capture layout and visual preferences
+- Confirm filter interactivity scope
 
 **Key actions:**
-- Ask: "How do you want to slice these metrics? By what categories?" (time, geography, segments, status?)
-- For each dimension, ask for examples and estimated unique value count
-- Ask: "What filters should users be able to adjust?" (date, region, segment, status, custom thresholds?)
-- Ask about filter dependencies: "Can I select any Region + Segment combination?"
-- Ask: **"Do you prefer summary cards at the top or raw tables? Charts or numbers? Color-coded status indicators or plain text?"** — captures layout preference before Phase 3 build
-- Ask: **"If you had to draw this on a whiteboard, what would it look like?"** — optional, often unlocks clearer mental model
-- Ask: **"Do you have brand colors or a logo you'd like applied to the dashboard?"** — capture hex codes or brand guide link; fall back to Treasure Data default theme if not provided. See output field `dashboard_theme` below.
-- Ask: **"Do you have a rough idea of how many sections or tabs you'd want?"** — e.g., "Sales, Customers, Products, Trends". Even a rough sketch here reduces rework later. Not required — Stage B will infer if not provided. Captured as `proposed_tabs` in `state.md`.
+- **STRUCTURE PHASE (ask first):**
+  - Ask: "How many sections/tabs do you envision?" (single page / 2-3 tabs / 4+ tabs / drill-down structure)
+  - Ask: "What visualization types do you need?" (KPI cards, trends, comparisons, distributions, tables, heatmaps)
+  - Ask: "How should users interact?" (static / global filters / per-section filters / advanced cross-filters)
+  - Ask: "Do users need drill-down?" (summary only / one level / multiple levels / detailed transactions)
+  - Ask: "Performance targets?" (daily snapshot / multiple daily / hourly / live/on-demand)
+
+- **REQUIREMENTS PHASE (after structure is clear):**
+  - Ask: "How do you want to slice these metrics? By what categories?" (time, geography, segments, status?)
+  - For each dimension, ask for examples and estimated unique value count
+  - Ask: "What filters should users be able to adjust?" (date, region, segment, status, custom thresholds?)
+  - Ask about filter dependencies: "Can I select any Region + Segment combination?"
+  - Ask: **"Do you prefer summary cards at the top or raw tables? Charts or numbers? Color-coded status indicators or plain text?"** — captures layout preference before Phase 3 build
+  - Ask: **"If you had to draw this on a whiteboard, what would it look like?"** — optional, often unlocks clearer mental model
+  - Ask: **"Do you have brand colors or a logo you'd like applied to the dashboard?"** — capture hex codes or brand guide link; fall back to Treasure Data default theme if not provided. See output field `dashboard_theme` below.
+  - Ask: **"Do you have a rough idea of how many sections or tabs you'd want?"** — e.g., "Sales, Customers, Products, Trends". Even a rough sketch here reduces rework later. Not required — Stage B will infer if not provided. Captured as `proposed_tabs` in `state.md`.
 - Confirm all via AskUserQuestion
 
-**AskUserQuestion — Layout Preferences (Step 1c):**
+**AskUserQuestion — Dashboard Structure Batch 1: Tabs & Organization (Step 1c):**
+
+```
+AskUserQuestion:
+  header: "Dashboard organization"
+  question: "How many sections/tabs do you envision?"
+  multiSelect: false
+  options:
+    - label: "Single page overview"
+      description: "All metrics on one screen (3-8 widgets total)"
+    - label: "2-3 focused tabs"
+      description: "Overview + 1-2 detailed sections (8-15 widgets total)"
+    - label: "4+ detailed tabs"
+      description: "Segmented by business area/audience (15+ widgets)"
+    - label: "Drill-down structure"
+      description: "Summary view → click to drill into details"
+    - label: "Not sure yet"
+      description: "Will decide after we identify all metrics"
+```
+
+**AskUserQuestion — Dashboard Structure Batch 2: Visualization Types (Step 1c):**
+
+```
+AskUserQuestion:
+  header: "Visualization types needed"
+  question: "What visualization types do you need? (Select all that apply)"
+  multiSelect: true
+  options:
+    - label: "KPI cards (summary numbers)"
+      description: "Large numbers with trend indicators (Revenue: $4.5M ↑5%)"
+    - label: "Trend charts (line charts)"
+      description: "Revenue over 30 days, Customer growth over months"
+    - label: "Comparison charts (bar charts)"
+      description: "Revenue by region, Sales by product, Performance by team"
+    - label: "Distribution charts (pie/donut)"
+      description: "Market share by segment, Customer breakdown by tier"
+    - label: "Detailed tables"
+      description: "Transaction-level data, sortable columns, search"
+    - label: "Heatmaps / color matrices"
+      description: "Performance by region × product, Sales by channel × segment"
+    - label: "Gauges / progress indicators"
+      description: "Status vs target, completion %, performance meters"
+    - label: "Not sure — recommend based on data"
+      description: "Will decide during data discovery"
+```
+
+**AskUserQuestion — Dashboard Structure Batch 3: Filter & Interactivity (Step 1c):**
+
+```
+AskUserQuestion:
+  header: "Filter & interactivity"
+  question: "How should users interact with the dashboard?"
+  multiSelect: false
+  options:
+    - label: "Static dashboard (no filters)"
+      description: "Display fixed view, no user adjustments needed"
+    - label: "Global date filter only"
+      description: "Adjust date range, all metrics update together"
+    - label: "Global filters (date + dimensions)"
+      description: "Filter by date, region, segment, etc. — affects all metrics"
+    - label: "Global + per-section filters"
+      description: "Global filters + tab-specific filters (e.g., global date + regional filter on Tab 2)"
+    - label: "Advanced (cross-filter interactions)"
+      description: "Filters affect each other dynamically (select region → update product options)"
+```
+
+**AskUserQuestion — Dashboard Structure Batch 4: Drill-Down & Detail (Step 1c):**
+
+```
+AskUserQuestion:
+  header: "Drill-down requirements"
+  question: "Do users need to drill into detailed data?"
+  multiSelect: false
+  options:
+    - label: "Summary only"
+      description: "Aggregated view, no drill-down needed"
+    - label: "One level deep"
+      description: "Summary → click bar chart → see breakdown by category"
+    - label: "Multiple drill-down levels"
+      description: "Revenue → Region → Product → Customer → Transaction"
+    - label: "Detailed transaction table"
+      description: "Full data table with sorting, filtering, search"
+    - label: "Not needed"
+      description: "Only high-level aggregates"
+```
+
+**AskUserQuestion — Dashboard Structure Batch 5: Performance & Freshness (Step 1c):**
+
+```
+AskUserQuestion:
+  header: "Performance & data freshness"
+  question: "What are your performance and data freshness needs?"
+  multiSelect: false
+  options:
+    - label: "Daily snapshot (static)"
+      description: "Built once/day, shared as static HTML — cost-effective"
+    - label: "Multiple times daily (2-4×)"
+      description: "Rebuilt morning, midday, evening, EOD"
+    - label: "Hourly or near real-time"
+      description: "Refreshed every hour (or within 15 mins of data arrival)"
+    - label: "Live/on-demand queries"
+      description: "Fresh query each time dashboard loads (slower but latest)"
+    - label: "Not sure — recommend based on data volume"
+      description: "Will decide based on complexity and size"
+```
+
+**AskUserQuestion — Layout Preferences (Step 1c - visual styling):**
 
 ```
 AskUserQuestion:
